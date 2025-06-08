@@ -3,7 +3,8 @@
     <button id="nav-planificador" class="nav-button active" data-section="planificador">Planificador Semanal</button>
     <button id="nav-recetario" class="nav-button" data-section="recetario">Galería de Recetas</button>
     <button id="nav-consejos" class="nav-button" data-section="consejos">Estrategias y Consejos</button>
-    <button id="nav-progreso" class="nav-button" data-section="progreso">Mi Progreso</button>
+    <button class="nav-button" data-section="datos">Mis Datos</button>
+    <button class="nav-button" data-section="progreso">Objetivo y Progreso</button>
 </nav>
 
 <script>
@@ -32,3 +33,9 @@
         });
     });
 </script>
+<style>
+    /* Añadimos un poco de estilo para los botones, que lo borramos antes */
+    .nav-button { transition: all 0.3s ease; border-bottom: 2px solid transparent; padding: 1rem 1.5rem; }
+    .nav-button.active { border-bottom-color: #6B8A7A; color: #3a5a40; font-weight: 600; }
+    .nav-button:hover { background-color: #f0ebe5; }
+</style>
