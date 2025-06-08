@@ -1,0 +1,18 @@
+---
+// src/components/RecipeGallery.astro
+import { allMeals } from '../data/recipes.ts';
+import RecipeBrowser from './RecipeBrowser.jsx'; // Importamos nuestro componente interactivo
+---
+<section id="recetario" class="content-section hidden">
+    <div class="text-center mb-8 max-w-3xl mx-auto">
+        <h2 class="text-3xl font-bold text-[#3a5a40]">Galería de Recetas</h2>
+        <p class="mt-2 text-stone-600">Explora todas las recetas disponibles. Usa los filtros para encontrar la inspiración perfecta para tu próxima comida.</p>
+    </div>
+
+    <!-- Aquí es donde la magia ocurre -->
+     {/* Esta es una directiva de Astro. Le dice a Astro: "Oye, este componente no es solo HTML. Coge su código JavaScript, 
+     envíalo al navegador y ejecútalo tan pronto como la página se cargue". Esto es lo que "hidrata" nuestro componente 
+     y lo convierte en una isla interactiva. */}
+    <RecipeBrowser client:load allMeals={allMeals} />
+
+</section>

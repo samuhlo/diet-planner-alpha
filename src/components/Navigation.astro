@@ -1,0 +1,34 @@
+
+<nav class="flex flex-wrap justify-center border-b border-stone-300 mb-8 gap-6">
+    <button id="nav-planificador" class="nav-button active" data-section="planificador">Planificador Semanal</button>
+    <button id="nav-recetario" class="nav-button" data-section="recetario">Galería de Recetas</button>
+    <button id="nav-consejos" class="nav-button" data-section="consejos">Estrategias y Consejos</button>
+    <button id="nav-progreso" class="nav-button" data-section="progreso">Mi Progreso</button>
+</nav>
+
+<script>
+    // Este script se ejecuta en el lado del cliente (en el navegador)
+    document.addEventListener('DOMContentLoaded', () => {
+        const navButtons = document.querySelectorAll('.nav-button');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Saca la clase 'active' de todos los botones y la pone solo en el que se ha clicado
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const targetSectionId = button.getAttribute('data-section');
+
+                // Oculta todas las secciones y muestra solo la que corresponde
+                contentSections.forEach(section => {
+                    if (section.id === targetSectionId) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    });
+</script>
