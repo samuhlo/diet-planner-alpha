@@ -1,5 +1,6 @@
-export default function Modal({ isOpen, isClose, title, children }) {
+export default function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
+
   return (
     <div
       class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
