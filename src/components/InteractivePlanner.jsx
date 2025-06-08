@@ -1,12 +1,7 @@
 // src/components/InteractivePlanner.jsx
-import { useState, useMemo } from "preact/hooks";
+import { useMemo } from "preact/hooks";
 
-export default function InteractivePlanner({ allMeals }) {
-  // STATE: Usamos un único objeto para todo el plan.
-  // La clave es `dia-comida` (ej: "lunes-almuerzo")
-  // El valor es un objeto con el nombre de la receta y los comensales.
-  const [plan, setPlan] = useState({});
-
+export default function InteractivePlanner({ allMeals, plan, onPlanChange }) {
   const days = [
     "Lunes",
     "Martes",
@@ -29,7 +24,7 @@ export default function InteractivePlanner({ allMeals }) {
 
   const handlePlanChange = (day, mealType, field, value) => {
     const key = `${day.toLowerCase()}-${mealType}`;
-    setPlan((prevPlan) => ({
+    onPlanChange((prevPlan) => ({
       ...prevPlan,
       [key]: {
         ...prevPlan[key],
