@@ -1,6 +1,7 @@
 import { useState, useMemo } from "preact/hooks";
 import InteractivePlanner from "./InteractivePlanner";
 import Modal from "./Modal"; // Importamos nuestro nuevo componente
+import { allSupplements } from "../data/suplements";
 
 const getFromStorage = (key, defaultValue) => {
   if (typeof window === "undefined") return defaultValue;
@@ -17,7 +18,7 @@ export default function PlannerManager({ allMeals }) {
   const [modalContent, setModalContent] = useState(null);
 
   // --- LÓGICA PARA EL CÁLCULO DEL OBJETIVO CALÓRICO ---
-  const calorieGoal = useMemo(() => {
+  const { calorieGoal, proteinGoal } = useMemo(() => {
     const userData = getFromStorage("userData", {
       weight: 96,
       height: 180,
@@ -25,7 +26,13 @@ export default function PlannerManager({ allMeals }) {
       gender: "male",
       steps: 7500,
     });
-    const goalData = getFromStorage("userGoal", { startDate: "", endDate: "" });
+    const goalData = getFromStorage("userGoal", {
+      startDate: "",
+      endDate: "",
+      targetWeight: 90,
+    });
+
+    const calculatedProteinGoal = Math.round(userData.weight * 1.8);
 
     let activityFactor = 1.2;
     if (userData.steps >= 10000) activityFactor = 1.725;
@@ -42,6 +49,7 @@ export default function PlannerManager({ allMeals }) {
 
     const tdee = Math.round(bmr * activityFactor);
 
+    // CORRECCIÓN PRINCIPAL: Asegurarnos de que SIEMPRE devolvemos un objeto completo.
     if (
       goalData.startDate &&
       goalData.endDate &&
@@ -52,11 +60,23 @@ export default function PlannerManager({ allMeals }) {
         const durationInDays =
           (new Date(goalData.endDate) - new Date(goalData.startDate)) /
           (1000 * 60 * 60 * 24);
-        const dailyDeficit = Math.round((weightToLose * 7700) / durationInDays);
-        return tdee - dailyDeficit;
+        if (durationInDays > 0) {
+          const dailyDeficit = Math.round(
+            (weightToLose * 7700) / durationInDays
+          );
+          return {
+            calorieGoal: tdee - dailyDeficit,
+            proteinGoal: calculatedProteinGoal,
+          };
+        }
       }
     }
-    return tdee - 500;
+
+    // Caso por defecto
+    return {
+      calorieGoal: tdee - 500,
+      proteinGoal: calculatedProteinGoal,
+    };
   }, []); // Se calcula una vez cuando el componente se monta.
 
   // --- LÓGICA PARA LA LISTA DE LA COMPRA ---
@@ -153,9 +173,11 @@ export default function PlannerManager({ allMeals }) {
       </div>
       <InteractivePlanner
         allMeals={allMeals}
+        allSupplements={allSupplements}
         plan={plan}
         onPlanChange={setPlan}
         targetCalories={calorieGoal}
+        targetProtein={proteinGoal}
       />
       <Modal
         isOpen={activeModal === "shopping"}
