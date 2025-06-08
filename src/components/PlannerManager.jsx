@@ -1,16 +1,65 @@
-import { useState } from "preact/hooks";
+import { useState, useMemo } from "preact/hooks";
 import InteractivePlanner from "./InteractivePlanner";
 import Modal from "./Modal"; // Importamos nuestro nuevo componente
 
+const getFromStorage = (key, defaultValue) => {
+  if (typeof window === "undefined") return defaultValue;
+  const item = localStorage.getItem(key);
+  return item ? JSON.parse(item) : defaultValue;
+};
+
 export default function PlannerManager({ allMeals }) {
   const [plan, setPlan] = useState({});
-  // 1. ESTADO PARA EL MODAL ACTIVO
+  // ESTADO PARA EL MODAL ACTIVO
   // 'null' -> ninguno, 'shopping' -> lista compra, 'analysis' -> análisis
   const [activeModal, setActiveModal] = useState(null);
   // Estado para guardar el contenido calculado del modal
   const [modalContent, setModalContent] = useState(null);
 
-  // 2. LÓGICA PARA LA LISTA DE LA COMPRA
+  // --- LÓGICA PARA EL CÁLCULO DEL OBJETIVO CALÓRICO ---
+  const calorieGoal = useMemo(() => {
+    const userData = getFromStorage("userData", {
+      weight: 96,
+      height: 180,
+      age: 35,
+      gender: "male",
+      steps: 7500,
+    });
+    const goalData = getFromStorage("userGoal", { startDate: "", endDate: "" });
+
+    let activityFactor = 1.2;
+    if (userData.steps >= 10000) activityFactor = 1.725;
+    else if (userData.steps >= 7500) activityFactor = 1.55;
+    else if (userData.steps >= 5000) activityFactor = 1.375;
+
+    const bmr =
+      userData.gender === "male"
+        ? 10 * userData.weight + 6.25 * userData.height - 5 * userData.age + 5
+        : 10 * userData.weight +
+          6.25 * userData.height -
+          5 * userData.age -
+          161;
+
+    const tdee = Math.round(bmr * activityFactor);
+
+    if (
+      goalData.startDate &&
+      goalData.endDate &&
+      new Date(goalData.startDate) < new Date(goalData.endDate)
+    ) {
+      const weightToLose = userData.weight - parseFloat(goalData.targetWeight);
+      if (weightToLose > 0) {
+        const durationInDays =
+          (new Date(goalData.endDate) - new Date(goalData.startDate)) /
+          (1000 * 60 * 60 * 24);
+        const dailyDeficit = Math.round((weightToLose * 7700) / durationInDays);
+        return tdee - dailyDeficit;
+      }
+    }
+    return tdee - 500;
+  }, []); // Se calcula una vez cuando el componente se monta.
+
+  // --- LÓGICA PARA LA LISTA DE LA COMPRA ---
   const generateShoppingList = () => {
     const shoppingList = {};
     Object.values(plan).forEach((plannedMeal) => {
@@ -34,7 +83,7 @@ export default function PlannerManager({ allMeals }) {
     setActiveModal("shopping");
   };
 
-  // 3. LÓGICA PARA EL ANÁLISIS SEMANAL (usando datos del usuario, guardados en el localStorage)
+  // --- LÓGICA PARA EL ANÁLISIS SEMANAL (usando datos del usuario, guardados en el localStorage) ---
   const analyzeWeek = () => {
     // Leemos directamente de localStorage. Si no hay nada, usamos valores por defecto.
     const userData = JSON.parse(localStorage.getItem("userData")) || {
@@ -82,8 +131,10 @@ export default function PlannerManager({ allMeals }) {
     setActiveModal("analysis");
   };
 
+  // --- CERRAR MODAL ---
   const closeModal = () => setActiveModal(null);
 
+  // --- RENDERIZADO ---
   return (
     <div>
       <div class="text-center mb-8 flex flex-wrap justify-center items-center gap-4">
@@ -100,14 +151,12 @@ export default function PlannerManager({ allMeals }) {
           📊 Analizar Semana
         </button>
       </div>
-
       <InteractivePlanner
         allMeals={allMeals}
         plan={plan}
         onPlanChange={setPlan}
+        targetCalories={calorieGoal}
       />
-
-      {/* 4. RENDERIZADO CONDICIONAL DE MODALES */}
       <Modal
         isOpen={activeModal === "shopping"}
         onClose={closeModal}
@@ -138,7 +187,6 @@ export default function PlannerManager({ allMeals }) {
           <p>No has seleccionado ninguna receta todavía.</p>
         )}
       </Modal>
-
       <Modal
         isOpen={activeModal === "analysis"}
         onClose={closeModal}
