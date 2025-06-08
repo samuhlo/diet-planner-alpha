@@ -1,7 +1,20 @@
+---
+// src/components/WeeklyPlanner.astro
+import { allMeals } from '../data/recipes';
+import InteractivePlanner from './InteractivePlanner.jsx';
+---
 <section id="planificador" class="content-section">
     <div class="text-center mb-8 max-w-3xl mx-auto">
         <h2 class="text-3xl font-bold text-[#3a5a40]">Planificador Semanal Interactivo</h2>
-        <p class="mt-2 text-stone-600">Diseña tu semana, ajusta los comensales y revisa el análisis nutricional diario.</p>
+        <p class="mt-2 text-stone-600">Diseña tu semana, ajusta los comensales y revisa el análisis nutricional diario. Cuando termines, genera tu lista de la compra y analiza tu déficit semanal.</p>
     </div>
-    <p class="text-center p-8 text-stone-500 italic">El planificador interactivo se implementará aquí.</p>
+
+    <!-- 
+      DIRECTIVA client:visible
+      Este componente no es crítico para que la página se vea al inicio.
+      Con 'client:visible', el JavaScript solo se cargará e ejecutará
+      cuando el usuario haga scroll y el componente esté a punto de entrar en la pantalla.
+      ¡Es una optimización de rendimiento excelente!
+    -->
+    <InteractivePlanner client:visible allMeals={allMeals} />
 </section>

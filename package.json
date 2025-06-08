@@ -11,6 +11,7 @@
   "dependencies": {
     "@astrojs/preact": "^4.1.0",
     "astro": "^5.9.1",
+    "chart.js": "^4.4.9",
     "preact": "^10.26.8"
   },
   "devDependencies": {
