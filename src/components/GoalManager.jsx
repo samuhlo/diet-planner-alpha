@@ -7,14 +7,20 @@ import {
   updateUserGoal,
   addWeightEntry,
 } from "../stores/userProfileStore.ts";
-import { useState, useMemo } from "preact/hooks";
+import { useState, useMemo, useEffect } from "preact/hooks";
 import ProgressChart from "./ProgressChart";
 
 export default function GoalManager() {
   const goal = useStore($userGoal);
   const userData = useStore($userData);
-
   const weightLog = useStore($weightLog);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editableGoal, setEditableGoal] = useState({ ...goal });
+  // Actualizar el estado editable cuando cambia el goal
+  useEffect(() => {
+    setEditableGoal({ ...goal });
+  }, [goal]);
+
   const weightLogArray = useMemo(() => {
     return Object.values(weightLog || {}).sort(
       (a, b) => new Date(a.date) - new Date(b.date)
@@ -24,7 +30,22 @@ export default function GoalManager() {
   const [newWeight, setNewWeight] = useState("");
 
   const handleGoalChange = (e) => {
-    updateUserGoal(e.target.name, e.target.value);
+    setEditableGoal((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSaveGoal = () => {
+    Object.entries(editableGoal).forEach(([key, value]) => {
+      updateUserGoal(key, value);
+    });
+    setIsEditing(false);
+  };
+
+  const handleEditClick = () => {
+    setEditableGoal({ ...goal }); // Resetear a los valores actuales
+    setIsEditing(true);
   };
 
   const handleAddWeight = (e) => {
@@ -170,9 +191,11 @@ export default function GoalManager() {
               <input
                 type="number"
                 name="targetWeight"
-                value={goal?.targetWeight || ""}
+                value={editableGoal?.targetWeight || ""}
                 onChange={handleGoalChange}
-                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md"
+                disabled={!isEditing}
+                step="0.1"
+                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md disabled:bg-gray-100"
               />
             </div>
             <div class="grid grid-cols-2 gap-4">
@@ -183,9 +206,10 @@ export default function GoalManager() {
                 <input
                   type="date"
                   name="startDate"
-                  value={goal?.startDate || ""}
+                  value={editableGoal?.startDate || ""}
                   onChange={handleGoalChange}
-                  class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md"
+                  disabled={!isEditing}
+                  class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
               <div>
@@ -195,10 +219,39 @@ export default function GoalManager() {
                 <input
                   type="date"
                   name="endDate"
-                  value={goal?.endDate || ""}
+                  value={editableGoal?.endDate || ""}
                   onChange={handleGoalChange}
-                  class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md"
+                  disabled={!isEditing}
+                  class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
+              </div>
+              <div class="mt-4 flex justify-end space-x-2">
+                {isEditing ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveGoal}
+                      class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                    >
+                      Guardar
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleEditClick}
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                  >
+                    Editar Objetivo
+                  </button>
+                )}
               </div>
             </div>
           </div>
