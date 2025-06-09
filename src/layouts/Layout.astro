@@ -1,4 +1,6 @@
 ---
+import AppModal from '../components/AppModal';
+
 // --- Code Fence (Aquí va el código JavaScript/TypeScript que se ejecuta en el servidor) ---
 // Definimos las "props" que este componente puede recibir.
 // En este caso, un título para la página.
@@ -35,5 +37,6 @@ const { title } = Astro.props;
             <p>Aplicación creada para facilitar tu viaje hacia un estilo de vida más saludable.</p>
         </footer>
     </div>
+    <AppModal client:load />
 </body>
 </html>
