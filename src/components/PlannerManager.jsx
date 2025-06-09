@@ -6,12 +6,6 @@ import { allSupplements } from "../data/supplements.ts";
 import InteractivePlanner from "./InteractivePlanner";
 import Modal from "./Modal";
 
-const getFromStorage = (key, defaultValue) => {
-  if (typeof window === "undefined") return defaultValue;
-  const item = localStorage.getItem(key);
-  return item ? JSON.parse(item) : defaultValue;
-};
-
 export default function PlannerManager({ allMeals }) {
   const plan = useStore($plan);
   const userData = useStore($userData);
@@ -22,7 +16,12 @@ export default function PlannerManager({ allMeals }) {
   const [copySuccess, setCopySuccess] = useState(false);
 
   const { calorieGoal, proteinGoal } = useMemo(() => {
-    // La lógica de cálculo ahora usa las variables `userData` y `userGoal` que vienen de los hooks
+    // CORRECCIÓN: Añadimos una "guarda". Si no hay datos de usuario,
+    // devolvemos valores por defecto seguros para evitar el crash.
+    if (!userData) {
+      return { calorieGoal: 0, proteinGoal: 0 };
+    }
+
     const calculatedProteinGoal = Math.round(userData.weight * 1.8);
 
     let activityFactor = 1.2;
@@ -41,6 +40,7 @@ export default function PlannerManager({ allMeals }) {
     const tdee = Math.round(bmr * activityFactor);
 
     if (
+      userGoal && // Comprobamos que userGoal también exista
       userGoal.startDate &&
       userGoal.endDate &&
       new Date(userGoal.startDate) < new Date(userGoal.endDate)
@@ -95,13 +95,7 @@ export default function PlannerManager({ allMeals }) {
   };
 
   const analyzeWeek = () => {
-    const userData = getFromStorage("userData", {
-      weight: 96,
-      height: 180,
-      age: 35,
-      gender: "male",
-      steps: 7500,
-    });
+    const userData = $userData.get();
     let activityFactor = 1.2;
     if (userData.steps >= 10000) activityFactor = 1.725;
     else if (userData.steps >= 7500) activityFactor = 1.55;

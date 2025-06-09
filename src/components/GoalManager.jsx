@@ -11,14 +11,15 @@ import { useState, useMemo } from "preact/hooks";
 import ProgressChart from "./ProgressChart";
 
 export default function GoalManager() {
-  // Leemos todo desde las stores globales
   const goal = useStore($userGoal);
-  const weightLogObject = useStore($weightLog); // Nano Stores devuelve un objeto
   const userData = useStore($userData);
-  const weightLog = useMemo(
-    () => Object.values(weightLogObject),
-    [weightLogObject]
-  ); // Lo convertimos a array para usarlo
+
+  const weightLog = useStore($weightLog);
+  const weightLogArray = useMemo(() => {
+    return Object.values(weightLog || {}).sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+  }, [weightLog]);
 
   const [newWeight, setNewWeight] = useState("");
 
@@ -34,18 +35,26 @@ export default function GoalManager() {
       setNewWeight("");
     }
   };
-  // --- LÓGICA DE ANÁLISIS ---
+
   const analysis = useMemo(() => {
+    // CORRECCIÓN: Añadimos la misma "guarda" aquí.
+    if (!userData || !goal) {
+      return {
+        isValid: false,
+        message: "Completa tus datos y tu objetivo para ver el análisis.",
+        bmr: "---",
+        tdee: "---",
+        activityLevel: "---",
+      };
+    }
+
     const currentWeight =
-      weightLog.length > 0
-        ? weightLog[weightLog.length - 1].weight
+      weightLogArray.length > 0
+        ? weightLogArray[weightLogArray.length - 1].weight
         : userData.weight;
-    // ... El resto de la lógica de análisis interna no cambia ...
-    // ... Ahora tiene acceso a `userData` de forma segura ...
     const { gender, age, height, steps } = userData;
     const { startDate, endDate, targetWeight } = goal;
 
-    // 1. Cálculo de BMR y TDEE (Mantenimiento)
     const bmr = Math.round(
       gender === "male"
         ? 10 * currentWeight + 6.25 * height - 5 * age + 5
@@ -67,7 +76,6 @@ export default function GoalManager() {
 
     const tdee = Math.round(bmr * activityFactor);
 
-    // 2. Análisis específico del objetivo
     if (!startDate || !endDate || !targetWeight) {
       return {
         isValid: false,
@@ -102,7 +110,6 @@ export default function GoalManager() {
       };
     }
 
-    // 3. Cálculo del plan de pérdida de peso
     const totalKcalDeficit = weightToChange * 7700;
     const durationInDays = (end - start) / (1000 * 60 * 60 * 24);
     if (durationInDays <= 0) {
@@ -118,7 +125,6 @@ export default function GoalManager() {
     const weeklyWeightLoss = ((dailyKcalDeficit * 7) / 7700).toFixed(2);
     const targetCalories = tdee - dailyKcalDeficit;
 
-    // 4. Alertas de seguridad
     let alert = null;
     if (weeklyWeightLoss > 1.5)
       alert = {
@@ -147,7 +153,6 @@ export default function GoalManager() {
       alert,
     };
   }, [goal, weightLog, userData]);
-  // --- FIN DE LA LÓGICA DE ANÁLISIS ---
 
   return (
     <div class="grid lg:grid-cols-2 gap-8">
@@ -165,7 +170,7 @@ export default function GoalManager() {
               <input
                 type="number"
                 name="targetWeight"
-                value={goal.targetWeight}
+                value={goal?.targetWeight || ""}
                 onChange={handleGoalChange}
                 class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md"
               />
@@ -178,7 +183,7 @@ export default function GoalManager() {
                 <input
                   type="date"
                   name="startDate"
-                  value={goal.startDate}
+                  value={goal?.startDate || ""}
                   onChange={handleGoalChange}
                   class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md"
                 />
@@ -190,7 +195,7 @@ export default function GoalManager() {
                 <input
                   type="date"
                   name="endDate"
-                  value={goal.endDate}
+                  value={goal?.endDate || ""}
                   onChange={handleGoalChange}
                   class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md"
                 />
@@ -198,8 +203,7 @@ export default function GoalManager() {
             </div>
           </div>
         </div>
-
-        {/* --- NUEVA SECCIÓN DE ANÁLISIS --- */}
+        {/* Sección de Análisis */}
         <div class="bg-white p-6 rounded-lg shadow-md">
           <h3 class="text-xl font-bold text-stone-800 mb-4">
             Análisis del Objetivo
@@ -211,15 +215,12 @@ export default function GoalManager() {
               </h4>
               <p class="text-sm mt-1">
                 Metabolismo Basal (BMR): <strong>{analysis.bmr} kcal</strong>.
-                (Energía en reposo total).
               </p>
               <p class="text-sm mt-1">
-                Mantenimiento con actividad ({analysis.activityLevel}):{" "}
-                <strong>{analysis.tdee} kcal</strong>. (Energía para mantener tu
-                peso actual).
+                Mantenimiento ({analysis.activityLevel}):{" "}
+                <strong>{analysis.tdee} kcal</strong>.
               </p>
             </div>
-
             {analysis.isValid ? (
               <div class="p-4 bg-blue-50 rounded-lg">
                 <h4 class="font-semibold text-lg text-blue-800">
@@ -231,12 +232,12 @@ export default function GoalManager() {
                 </p>
                 <ul class="text-sm list-disc list-inside space-y-1 pl-2 mt-2">
                   <li>
-                    Esto supone un déficit diario de{" "}
+                    Déficit diario necesario:{" "}
                     <strong>{analysis.dailyKcalDeficit} kcal</strong>.
                   </li>
                   <li>
-                    Ritmo de pérdida de peso estimado:{" "}
-                    <strong>{analysis.weeklyWeightLoss} kg por semana</strong>.
+                    Pérdida de peso estimada:{" "}
+                    <strong>{analysis.weeklyWeightLoss} kg/semana</strong>.
                   </li>
                 </ul>
               </div>
@@ -245,7 +246,6 @@ export default function GoalManager() {
                 {analysis.message}
               </p>
             )}
-
             {analysis.alert && (
               <div
                 class={`p-4 mt-2 rounded-lg text-sm font-bold ${
@@ -259,10 +259,8 @@ export default function GoalManager() {
             )}
           </div>
         </div>
-        {/* --- FIN DE LA NUEVA SECCIÓN --- */}
-
+        {/* Formulario de Añadir Peso */}
         <div class="bg-white p-6 rounded-lg shadow-md">
-          {/* Formulario de Añadir Peso (sin cambios) */}
           <h3 class="text-xl font-bold text-stone-800 mb-4">
             Añadir Registro de Peso
           </h3>

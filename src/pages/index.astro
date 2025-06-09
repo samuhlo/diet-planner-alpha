@@ -1,7 +1,7 @@
 ---
 // src/pages/index.astro
 import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
+import Header from '../components/Header.jsx';
 import Navigation from '../components/Navigation.astro';
 
 // Importamos todos los componentes de sección
@@ -13,7 +13,7 @@ import GoalProgress from '../components/GoalProgress.astro';
 ---
 <Layout title="Plan de Dieta Interactivo">
     
-    <Header />
+    <Header client:load />
     <Navigation />
 
     <main>

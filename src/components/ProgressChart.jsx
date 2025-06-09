@@ -3,20 +3,21 @@ import { useRef, useEffect } from "preact/hooks";
 import Chart from "chart.js/auto";
 
 export default function ProgressChart({ weightLog, goal }) {
+  const weightData = Object.values(weightLog || {});
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
   useEffect(() => {
-    if (!canvasRef.current || !weightLog) return;
+    if (!canvasRef.current || !weightData) return;
 
     if (chartRef.current) {
       chartRef.current.destroy();
     }
 
-    const labels = weightLog.map((entry) =>
+    const labels = weightData.map((entry) =>
       new Date(entry.date).toLocaleDateString("es-ES")
     );
-    const dataPoints = weightLog.map((entry) => entry.weight);
+    const dataPoints = weightData.map((entry) => entry.weight);
 
     const datasets = [
       {
@@ -50,7 +51,7 @@ export default function ProgressChart({ weightLog, goal }) {
     return () => {
       if (chartRef.current) chartRef.current.destroy();
     };
-  }, [weightLog, goal]); // Se redibuja si el registro o el objetivo cambian
+  }, [weightData, goal]); // Se redibuja si el registro o el objetivo cambian
 
   return (
     <div class="h-96 w-full">
