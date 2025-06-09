@@ -1,4 +1,4 @@
-# 🍏 Planificador de Dieta BETA
+# 🍏 Planificador de Dieta ALPHA
 
 Una aplicación web moderna para planificar y gestionar tu alimentación diaria, diseñada con Astro y Preact para un rendimiento óptimo.
 

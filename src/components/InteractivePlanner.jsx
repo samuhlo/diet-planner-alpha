@@ -18,12 +18,12 @@ export default function InteractivePlanner({
     "Sábado",
     "Domingo",
   ];
-  const mealTypes = ["desayuno", "almuerzo", "cena"];
+  const mealTypes = ["Desayuno", "Almuerzo", "Cena"];
   const mealsByType = useMemo(
     () => ({
-      desayuno: allMeals.filter((m) => m.tags.includes("desayuno")),
-      almuerzo: allMeals.filter((m) => m.tags.includes("almuerzo")),
-      cena: allMeals.filter((m) => m.tags.includes("cena")),
+      Desayuno: allMeals.filter((m) => m.tags.includes("Desayuno")),
+      Almuerzo: allMeals.filter((m) => m.tags.includes("Almuerzo")),
+      Cena: allMeals.filter((m) => m.tags.includes("Cena")),
     }),
     [allMeals]
   );
