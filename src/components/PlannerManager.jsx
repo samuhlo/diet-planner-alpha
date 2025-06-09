@@ -1,6 +1,7 @@
 import { useMemo, useState } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $plan } from "../stores/planStore.ts";
+import { $userData, $userGoal } from "../stores/userProfileStore.ts";
 import { allSupplements } from "../data/supplements.ts";
 import InteractivePlanner from "./InteractivePlanner";
 import Modal from "./Modal";
@@ -12,25 +13,16 @@ const getFromStorage = (key, defaultValue) => {
 };
 
 export default function PlannerManager({ allMeals }) {
+  const plan = useStore($plan);
+  const userData = useStore($userData);
+  const userGoal = useStore($userGoal);
+
   const [activeModal, setActiveModal] = useState(null);
   const [modalContent, setModalContent] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  const plan = useStore($plan);
-
   const { calorieGoal, proteinGoal } = useMemo(() => {
-    const userData = getFromStorage("userData", {
-      weight: 96,
-      height: 180,
-      age: 35,
-      gender: "male",
-      steps: 7500,
-    });
-    const goalData = getFromStorage("userGoal", {
-      startDate: "",
-      endDate: "",
-      targetWeight: 90,
-    });
+    // La lógica de cálculo ahora usa las variables `userData` y `userGoal` que vienen de los hooks
     const calculatedProteinGoal = Math.round(userData.weight * 1.8);
 
     let activityFactor = 1.2;
@@ -49,14 +41,14 @@ export default function PlannerManager({ allMeals }) {
     const tdee = Math.round(bmr * activityFactor);
 
     if (
-      goalData.startDate &&
-      goalData.endDate &&
-      new Date(goalData.startDate) < new Date(goalData.endDate)
+      userGoal.startDate &&
+      userGoal.endDate &&
+      new Date(userGoal.startDate) < new Date(userGoal.endDate)
     ) {
-      const weightToLose = userData.weight - parseFloat(goalData.targetWeight);
+      const weightToLose = userData.weight - parseFloat(userGoal.targetWeight);
       if (weightToLose > 0) {
         const durationInDays =
-          (new Date(goalData.endDate) - new Date(goalData.startDate)) /
+          (new Date(userGoal.endDate) - new Date(userGoal.startDate)) /
           (1000 * 60 * 60 * 24);
         if (durationInDays > 0) {
           const dailyDeficit = Math.round(
@@ -71,7 +63,7 @@ export default function PlannerManager({ allMeals }) {
     }
 
     return { calorieGoal: tdee - 500, proteinGoal: calculatedProteinGoal };
-  }, []);
+  }, [userData, userGoal]);
 
   const generateShoppingList = () => {
     const shoppingList = {};

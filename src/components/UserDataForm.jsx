@@ -1,22 +1,13 @@
-import { useLocalStorage } from "../hooks/useLocalStorage";
-
-const defaultData = {
-  gender: "male",
-  age: 35,
-  height: 188,
-  weight: 96.5,
-  steps: 15000, // Pasos diarios de media
-};
+import { useStore } from "@nanostores/preact";
+import { $userData, updateUserData } from "../stores/userProfileStore";
 
 export default function UserDataForm() {
-  const [userData, setUserData] = useLocalStorage("userData", defaultData);
+  const userData = useStore($userData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserData((prevData) => ({
-      ...prevData,
-      [name]: name === "gender" ? value : parseFloat(value),
-    }));
+    const parsedValue = name === "gender" ? value : parseFloat(value);
+    updateUserData(name, parsedValue);
   };
 
   return (

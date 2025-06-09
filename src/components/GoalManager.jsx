@@ -1,42 +1,36 @@
 // src/components/GoalManager.jsx
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useStore } from "@nanostores/preact";
+import {
+  $userData,
+  $userGoal,
+  $weightLog,
+  updateUserGoal,
+  addWeightEntry,
+} from "../stores/userProfileStore.ts";
 import { useState, useMemo } from "preact/hooks";
 import ProgressChart from "./ProgressChart";
 
-const defaultGoal = { startDate: "", endDate: "", targetWeight: 90 };
-const defaultLog = [
-  {
-    weight: 96,
-    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
-const defaultUserData = {
-  gender: "male",
-  age: 35,
-  height: 180,
-  weight: 96,
-  steps: 7500,
-};
-
 export default function GoalManager() {
-  const [goal, setGoal] = useLocalStorage("userGoal", defaultGoal);
-  const [weightLog, setWeightLog] = useLocalStorage("weightLog", defaultLog);
-  const [userData] = useLocalStorage("userData", defaultUserData); // Leemos los datos del usuario
+  // Leemos todo desde las stores globales
+  const goal = useStore($userGoal);
+  const weightLogObject = useStore($weightLog); // Nano Stores devuelve un objeto
+  const userData = useStore($userData);
+  const weightLog = useMemo(
+    () => Object.values(weightLogObject),
+    [weightLogObject]
+  ); // Lo convertimos a array para usarlo
+
   const [newWeight, setNewWeight] = useState("");
 
   const handleGoalChange = (e) => {
-    setGoal((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    updateUserGoal(e.target.name, e.target.value);
   };
 
-  const addWeightEntry = (e) => {
+  const handleAddWeight = (e) => {
     e.preventDefault();
     const weightValue = parseFloat(newWeight);
     if (weightValue > 30 && weightValue < 200) {
-      const newEntry = { weight: weightValue, date: new Date().toISOString() };
-      const sortedLog = [...weightLog, newEntry].sort(
-        (a, b) => new Date(a.date) - new Date(b.date)
-      );
-      setWeightLog(sortedLog);
+      addWeightEntry({ weight: weightValue, date: new Date().toISOString() });
       setNewWeight("");
     }
   };
@@ -46,6 +40,8 @@ export default function GoalManager() {
       weightLog.length > 0
         ? weightLog[weightLog.length - 1].weight
         : userData.weight;
+    // ... El resto de la lógica de análisis interna no cambia ...
+    // ... Ahora tiene acceso a `userData` de forma segura ...
     const { gender, age, height, steps } = userData;
     const { startDate, endDate, targetWeight } = goal;
 
@@ -150,7 +146,7 @@ export default function GoalManager() {
       targetCalories,
       alert,
     };
-  }, [goal, weightLog, userData]); // Se recalcula si cambia el objetivo, el peso o los datos del usuario
+  }, [goal, weightLog, userData]);
   // --- FIN DE LA LÓGICA DE ANÁLISIS ---
 
   return (
@@ -270,7 +266,7 @@ export default function GoalManager() {
           <h3 class="text-xl font-bold text-stone-800 mb-4">
             Añadir Registro de Peso
           </h3>
-          <form onSubmit={addWeightEntry} class="flex items-end gap-4">
+          <form onSubmit={handleAddWeight} class="flex items-end gap-4">
             <div class="flex-grow">
               <label class="block text-sm font-medium text-gray-700">
                 Nuevo Peso (kg)
