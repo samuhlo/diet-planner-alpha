@@ -1,13 +1,14 @@
 import { useMemo } from "preact/hooks";
+import { useStore } from "@nanostores/preact";
+import { $plan, updatePlanEntry } from "../stores/planStore";
 
 export default function InteractivePlanner({
   allMeals,
   allSupplements,
-  plan,
-  onPlanChange,
   targetCalories,
   targetProtein,
 }) {
+  const plan = useStore($plan);
   const days = [
     "Lunes",
     "Martes",
@@ -28,16 +29,7 @@ export default function InteractivePlanner({
   );
 
   const handlePlanChange = (dayId, section, field, value) => {
-    onPlanChange((prevPlan) => ({
-      ...prevPlan,
-      [dayId]: {
-        ...prevPlan[dayId],
-        [section]: {
-          ...prevPlan[dayId]?.[section],
-          [field]: value,
-        },
-      },
-    }));
+    updatePlanEntry(dayId, section, field, value);
   };
 
   // FUNCIÓN PARA GENERAR EL MENSAJE DE ESTADO DIARIO

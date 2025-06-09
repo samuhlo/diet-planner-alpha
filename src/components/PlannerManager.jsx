@@ -1,4 +1,6 @@
 import { useMemo, useState } from "preact/hooks";
+import { useStore } from "@nanostores/preact";
+import { $plan } from "../stores/planStore.ts";
 import { allSupplements } from "../data/supplements.ts";
 import InteractivePlanner from "./InteractivePlanner";
 import Modal from "./Modal";
@@ -10,10 +12,11 @@ const getFromStorage = (key, defaultValue) => {
 };
 
 export default function PlannerManager({ allMeals }) {
-  const [plan, setPlan] = useState({});
   const [activeModal, setActiveModal] = useState(null);
   const [modalContent, setModalContent] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
+
+  const plan = useStore($plan);
 
   const { calorieGoal, proteinGoal } = useMemo(() => {
     const userData = getFromStorage("userData", {
@@ -253,8 +256,6 @@ export default function PlannerManager({ allMeals }) {
       <InteractivePlanner
         allMeals={allMeals}
         allSupplements={allSupplements}
-        plan={plan}
-        onPlanChange={setPlan}
         targetCalories={calorieGoal}
         targetProtein={proteinGoal}
       />
