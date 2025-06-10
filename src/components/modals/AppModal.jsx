@@ -1,8 +1,8 @@
 import { useStore } from "@nanostores/preact";
 import { useState } from "preact/hooks"; // <-- Importar useState
-import { $modal, closeModal } from "../stores/modalStore.ts";
-import ShoppingListContent from "./modals/ShoppingListContent.jsx";
-import SummaryContent from "./modals/SummaryContent.jsx";
+import { $modal, closeModal } from "../../stores/modalStore.ts";
+import ShoppingListContent from "./ShoppingListContent.jsx";
+import SummaryContent from "./SummaryContent.jsx";
 
 const MODAL_COMPONENTS = {
   shopping: { Component: ShoppingListContent, title: "Lista de la Compra" },

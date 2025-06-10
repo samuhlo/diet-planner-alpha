@@ -4,7 +4,7 @@ import {
   $userGoal,
   $weightLog,
   addWeightEntry,
-} from "../stores/userProfileStore.ts";
+} from "../../stores/userProfileStore.ts";
 import { useState, useMemo } from "preact/hooks";
 import ProgressChart from "./ProgressChart";
 

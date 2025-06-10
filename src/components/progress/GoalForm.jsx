@@ -1,5 +1,5 @@
 import { useStore } from "@nanostores/preact";
-import { $userGoal, updateUserGoal } from "../stores/userProfileStore.ts";
+import { $userGoal, updateUserGoal } from "../../stores/userProfileStore.ts";
 import { useState, useEffect } from "preact/hooks";
 
 const goalDefaults = { startDate: "", endDate: "", targetWeight: 90 };

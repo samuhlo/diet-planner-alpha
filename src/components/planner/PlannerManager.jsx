@@ -1,10 +1,10 @@
 import { useMemo, useState } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
-import { $plan } from "../stores/planStore.ts";
-import { $userData, $userGoal } from "../stores/userProfileStore.ts";
-import { allSupplements } from "../data/supplements.ts";
+import { $plan } from "../../stores/planStore.ts";
+import { $userData, $userGoal } from "../../stores/userProfileStore.ts";
+import { allSupplements } from "../../data/supplements.ts";
 import InteractivePlanner from "./InteractivePlanner";
-import { openModal } from "../stores/modalStore.ts"; // Importamos la acción de abrir
+import { openModal } from "../../stores/modalStore.ts"; // Importamos la acción de abrir
 
 export default function PlannerManager({ allMeals }) {
   const plan = useStore($plan);

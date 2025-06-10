@@ -1,6 +1,6 @@
 // src/components/Header.jsx
 import { useStore } from "@nanostores/preact";
-import { $isProfileComplete } from "../stores/userProfileStore";
+import { $isProfileComplete } from "../../stores/userProfileStore";
 
 export default function Header() {
   // Nos suscribimos a la store computada para saber si mostrar la alerta.

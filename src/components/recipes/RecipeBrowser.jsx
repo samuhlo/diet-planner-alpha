@@ -1,4 +1,4 @@
-import { useBrowser } from "../hooks/useBrowser.js";
+import { useBrowser } from "../../hooks/useBrowser.js";
 import RecipeCard from "./RecipeCard.jsx"; // El renderizador sigue siendo útil
 
 export default function RecipeBrowser({ allMeals }) {

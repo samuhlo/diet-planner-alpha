@@ -1,6 +1,6 @@
 import { useMemo } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
-import { $plan, updatePlanEntry } from "../stores/planStore";
+import { $plan, updatePlanEntry } from "../../stores/planStore";
 
 export default function InteractivePlanner({
   allMeals,

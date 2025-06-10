@@ -1,4 +1,4 @@
-import { useBrowser } from "../hooks/useBrowser.js";
+import { useBrowser } from "../../hooks/useBrowser.js";
 import TipCard from "./TipCard.jsx"; // El renderizador sigue siendo útil
 
 export default function TipsBrowser({ allTips }) {

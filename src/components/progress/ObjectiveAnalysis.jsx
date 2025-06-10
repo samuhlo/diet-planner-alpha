@@ -4,7 +4,7 @@ import {
   $userData,
   $userGoal,
   $weightLog,
-} from "../stores/userProfileStore.ts";
+} from "../../stores/userProfileStore.ts";
 import { useMemo } from "preact/hooks";
 
 export default function ObjectiveAnalysis() {
