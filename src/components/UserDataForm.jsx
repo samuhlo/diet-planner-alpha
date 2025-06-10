@@ -2,14 +2,18 @@
 import { useStore } from "@nanostores/preact";
 import { $userData, setUserData } from "../stores/userProfileStore.ts";
 import { useState, useEffect } from "preact/hooks";
+import { PROTEIN_MATRIX } from "../config/nutritionalConstants";
+import ProteinCalculator from "./ProteinCalculator";
 
 // Valores por defecto para el formulario si no hay nada en el estado global
 const formDefaults = {
   gender: "male",
-  age: 30,
-  height: 170,
-  weight: 70,
-  steps: 5000,
+  age: 35,
+  height: 188,
+  weight: 96,
+  steps: 15000,
+  doesStrengthTraining: false,
+  strengthTrainingDays: 0,
 };
 
 export default function UserDataForm() {
@@ -26,14 +30,27 @@ export default function UserDataForm() {
 
   const handleChange = (e) => {
     setIsSaved(false);
-    const { name, value } = e.target;
-    const parsedValue = name === "gender" ? value : parseFloat(value) || 0;
-    setFormData((prevData) => ({ ...prevData, [name]: parsedValue }));
+    const { name, value, type, checked } = e.target;
+
+    const newValue =
+      type === "checkbox"
+        ? checked
+        : type === "number"
+        ? parseFloat(value) || 0
+        : value;
+
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: newValue,
+      // Si desmarcan el checkbox, reiniciamos los días a 0
+      ...(name === "doesStrengthTraining" &&
+        !checked && { strengthTrainingDays: 0 }),
+    }));
   };
 
   const handleSave = (e) => {
     e.preventDefault();
-    setUserData(formData); // Guardamos el estado del formulario en la store global
+    setUserData(formData);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
   };
@@ -117,7 +134,63 @@ export default function UserDataForm() {
             class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md"
           />
         </div>
+
+        {/* Nuevo campo: ¿Haces entrenamiento de fuerza? */}
+        <div class="pt-4 border-t border-gray-200">
+          <div class="flex items-center mb-2">
+            <input
+              type="checkbox"
+              id="doesStrengthTraining"
+              name="doesStrengthTraining"
+              checked={formData.doesStrengthTraining}
+              onChange={handleChange}
+              class="h-4 w-4 text-green-600 rounded border-gray-300"
+            />
+            <label
+              for="doesStrengthTraining"
+              class="ml-2 block text-sm font-medium text-gray-700"
+            >
+              ¿Haces entrenamiento de fuerza?
+            </label>
+          </div>
+
+          {/* Selector de días - Solo visible si hace entrenamiento de fuerza */}
+          {formData.doesStrengthTraining && (
+            <div class="ml-6 mt-2">
+              <label
+                for="strengthTrainingDays"
+                class="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Días de entrenamiento por semana
+              </label>
+              <select
+                id="strengthTrainingDays"
+                name="strengthTrainingDays"
+                value={formData.strengthTrainingDays || 0}
+                onChange={handleChange}
+                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm"
+              >
+                <option value={1}>1 día</option>
+                <option value={2}>2 días</option>
+                <option value={3}>3 días</option>
+                <option value={4}>4 o más días</option>
+              </select>
+
+              {/* Sección de recomendación de proteína */}
+              <div class="mt-3 p-3 bg-blue-50 rounded-md">
+                <p class="text-sm text-blue-800">
+                  Según tu nivel de actividad y días de entrenamiento, tu
+                  ingesta de proteína recomendada es de:{" "}
+                  <span class="font-semibold">
+                    {ProteinCalculator(formData).toFixed(1)}g/kg
+                  </span>
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
       <div class="mt-6 text-right">
         <button
           type="submit"

@@ -6,6 +6,10 @@ type UserData = {
   weight: number;
   height: number;
   age: number;
+  gender: string;
+  steps: number;
+  doesStrengthTraining: boolean;
+  strengthTrainingDays: number;
   // ...otras propiedades que puedas tener
 };
 

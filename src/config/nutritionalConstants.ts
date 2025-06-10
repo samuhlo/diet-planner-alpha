@@ -45,3 +45,41 @@ export const STEPS_THRESHOLDS = {
   MODERATE: 7500,
   VERY_ACTIVE: 10000,
 };
+
+// --- MATRIZ DE CÁLCULO DE PROTEÍNAS (g/kg) ---
+// Basada en la frecuencia de entrenamiento de fuerza y el nivel de actividad (pasos).
+// Usamos el valor medio del rango proporcionado en la tabla.
+export const PROTEIN_MATRIX = {
+  // Nivel de Actividad: Sedentario (Poca Actividad)
+  sedentary: {
+    "0": 1.1, // 0 días de fuerza (sedentario) -> 1.0-1.2 g/kg
+    "1": 1.35, // 1 día de fuerza -> 1.2-1.5 g/kg
+    "2": 1.5, // 2 días de fuerza -> 1.4-1.6 g/kg
+    "3": 1.6, // 3 días de fuerza -> 1.5-1.7 g/kg
+    "4": 1.7, // 4+ días de fuerza -> 1.6-1.8 g/kg
+  },
+  // Nivel de Actividad: Ligero
+  light: {
+    "0": 1.3, // 0 días de fuerza -> 1.2-1.4 g/kg
+    "1": 1.5, // 1 día de fuerza -> 1.4-1.6 g/kg
+    "2": 1.6, // 2 días de fuerza -> 1.5-1.7 g/kg
+    "3": 1.7, // 3 días de fuerza -> 1.6-1.8 g/kg
+    "4": 1.85, // 4+ días de fuerza -> 1.7-2.0 g/kg
+  },
+  // Nivel de Actividad: Moderado
+  moderate: {
+    "0": 1.4, // 0 días de fuerza -> 1.3-1.5 g/kg
+    "1": 1.6, // 1 día de fuerza -> 1.5-1.7 g/kg
+    "2": 1.7, // 2 días de fuerza -> 1.6-1.8 g/kg
+    "3": 1.85, // 3 días de fuerza -> 1.7-2.0 g/kg
+    "4": 1.95, // 4+ días de fuerza -> 1.8-2.2 g/kg
+  },
+  // Nivel de Actividad: Muy Activo
+  very_active: {
+    "0": 1.4, // Asumimos el mismo que moderado para 0 días
+    "1": 1.6,
+    "2": 1.7,
+    "3": 1.85,
+    "4": 2.0,
+  },
+};

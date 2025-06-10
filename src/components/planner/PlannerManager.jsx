@@ -12,6 +12,7 @@ import {
   KCAL_PER_KG_FAT,
   DEFAULT_DAILY_DEFICIT,
 } from "../../config/nutritionalConstants.ts";
+import ProteinCalculator from "../ProteinCalculator";
 
 export default function PlannerManager({ allMeals }) {
   const plan = useStore($plan);
@@ -19,13 +20,15 @@ export default function PlannerManager({ allMeals }) {
   const userGoal = useStore($userGoal);
 
   const { calorieGoal, proteinGoal } = useMemo(() => {
-    // CORRECCIÓN: Añadimos una "guarda". Si no hay datos de usuario,
+    // Añadimos una "guarda". Si no hay datos de usuario,
     // devolvemos valores por defecto seguros para evitar el crash.
     if (!userData) {
       return { calorieGoal: 0, proteinGoal: 0 };
     }
 
-    const calculatedProteinGoal = Math.round(userData.weight * 1.8);
+    const calculatedProteinGoal = Math.round(
+      userData.weight * ProteinCalculator(userData)
+    );
 
     let activityFactor = ACTIVITY_FACTORS.SEDENTARY;
     if (userData.steps >= STEPS_THRESHOLDS.VERY_ACTIVE)
