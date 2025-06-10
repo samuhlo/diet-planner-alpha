@@ -6,6 +6,14 @@ import {
   $weightLog,
 } from "../../stores/userProfileStore.ts";
 import { useMemo } from "preact/hooks";
+import {
+  KCAL_PER_KG_FAT,
+  ACTIVITY_FACTORS,
+  STEPS_THRESHOLDS,
+  MIN_DAILY_CALORIES,
+  WARNING_WEEKLY_WEIGHT_LOSS_KG,
+  DANGER_WEEKLY_WEIGHT_LOSS_KG,
+} from "../../config/nutritionalConstants.ts";
 
 export default function ObjectiveAnalysis() {
   const goal = useStore($userGoal);
@@ -40,16 +48,16 @@ export default function ObjectiveAnalysis() {
         ? 10 * currentWeight + 6.25 * height - 5 * age + 5
         : 10 * currentWeight + 6.25 * height - 5 * age - 161
     );
-    let activityFactor = 1.2,
+    let activityFactor = ACTIVITY_FACTORS.SEDENTARY,
       activityLevel = "Sedentaria";
-    if (steps >= 10000) {
-      activityFactor = 1.725;
+    if (steps >= STEPS_THRESHOLDS.VERY_ACTIVE) {
+      activityFactor = ACTIVITY_FACTORS.VERY_ACTIVE;
       activityLevel = "Muy Activa";
-    } else if (steps >= 7500) {
-      activityFactor = 1.55;
+    } else if (steps >= STEPS_THRESHOLDS.MODERATE) {
+      activityFactor = ACTIVITY_FACTORS.MODERATE;
       activityLevel = "Moderada";
-    } else if (steps >= 5000) {
-      activityFactor = 1.375;
+    } else if (steps >= STEPS_THRESHOLDS.LIGHT) {
+      activityFactor = ACTIVITY_FACTORS.LIGHT;
       activityLevel = "Ligera";
     }
     const tdee = Math.round(bmr * activityFactor);
@@ -82,7 +90,7 @@ export default function ObjectiveAnalysis() {
         tdee,
         activityLevel,
       };
-    const totalKcalDeficit = weightToChange * 7700;
+    const totalKcalDeficit = weightToChange * KCAL_PER_KG_FAT;
     const durationInDays = (end - start) / (1000 * 60 * 60 * 24);
     if (durationInDays <= 0)
       return {
@@ -93,20 +101,22 @@ export default function ObjectiveAnalysis() {
         activityLevel,
       };
     const dailyKcalDeficit = Math.round(totalKcalDeficit / durationInDays);
-    const weeklyWeightLoss = ((dailyKcalDeficit * 7) / 7700).toFixed(2);
+    const weeklyWeightLoss = ((dailyKcalDeficit * 7) / KCAL_PER_KG_FAT).toFixed(
+      2
+    );
     const targetCalories = tdee - dailyKcalDeficit;
     let alert = null;
-    if (weeklyWeightLoss > 1.5)
+    if (weeklyWeightLoss > DANGER_WEEKLY_WEIGHT_LOSS_KG)
       alert = {
         type: "danger",
         text: "¡Peligro! Perder más de 1.5 kg/semana no es seguro sin supervisión médica.",
       };
-    else if (weeklyWeightLoss > 1)
+    else if (weeklyWeightLoss > WARNING_WEEKLY_WEIGHT_LOSS_KG)
       alert = {
         type: "warning",
         text: "Advertencia: Perder más de 1 kg por semana es un objetivo muy agresivo.",
       };
-    else if (targetCalories < 1200)
+    else if (targetCalories < MIN_DAILY_CALORIES)
       alert = {
         type: "warning",
         text: `Cuidado: Tu objetivo de ${targetCalories} kcal es muy bajo. Se recomienda no consumir menos de 1200 kcal.`,

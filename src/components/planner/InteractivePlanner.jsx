@@ -1,6 +1,11 @@
 import { useMemo } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $plan, updatePlanEntry } from "../../stores/planStore";
+import {
+  MIN_DAILY_CALORIES,
+  PROTEIN_INTAKE_LOWER_BOUND_FACTOR,
+  PROTEIN_INTAKE_UPPER_BOUND_FACTOR,
+} from "../../config/nutritionalConstants.ts";
 
 export default function InteractivePlanner({
   allMeals,
@@ -57,8 +62,8 @@ export default function InteractivePlanner({
   };
   const getProteinStatus = (dailyProtein) => {
     if (dailyProtein === 0) return null;
-    const lowerBound = targetProtein * 0.8;
-    const upperBound = targetProtein * 1.5;
+    const lowerBound = targetProtein * PROTEIN_INTAKE_LOWER_BOUND_FACTOR;
+    const upperBound = targetProtein * PROTEIN_INTAKE_UPPER_BOUND_FACTOR;
     if (dailyProtein < lowerBound)
       return {
         text: `Proteína baja. Objetivo: ${targetProtein}g.`,
@@ -121,7 +126,7 @@ export default function InteractivePlanner({
     const numberOfPlannedDays = plannedDays.size;
     if (numberOfPlannedDays > 0) {
       const averageDailyCals = totalCals / numberOfPlannedDays;
-      if (averageDailyCals < 1200) {
+      if (averageDailyCals < MIN_DAILY_CALORIES) {
         alert = {
           type: "warning",
           text: `Cuidado: Un promedio de ${Math.round(

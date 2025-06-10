@@ -4,7 +4,14 @@ import { $plan } from "../../stores/planStore.ts";
 import { $userData, $userGoal } from "../../stores/userProfileStore.ts";
 import { allSupplements } from "../../data/supplements.ts";
 import InteractivePlanner from "./InteractivePlanner";
-import { openModal } from "../../stores/modalStore.ts"; // Importamos la acción de abrir
+import { openModal } from "../../stores/modalStore.ts";
+import {
+  PROTEIN_G_PER_KG_WEIGHT,
+  ACTIVITY_FACTORS,
+  STEPS_THRESHOLDS,
+  KCAL_PER_KG_FAT,
+  DEFAULT_DAILY_DEFICIT,
+} from "../../config/nutritionalConstants.ts";
 
 export default function PlannerManager({ allMeals }) {
   const plan = useStore($plan);
@@ -20,10 +27,13 @@ export default function PlannerManager({ allMeals }) {
 
     const calculatedProteinGoal = Math.round(userData.weight * 1.8);
 
-    let activityFactor = 1.2;
-    if (userData.steps >= 10000) activityFactor = 1.725;
-    else if (userData.steps >= 7500) activityFactor = 1.55;
-    else if (userData.steps >= 5000) activityFactor = 1.375;
+    let activityFactor = ACTIVITY_FACTORS.SEDENTARY;
+    if (userData.steps >= STEPS_THRESHOLDS.VERY_ACTIVE)
+      activityFactor = ACTIVITY_FACTORS.VERY_ACTIVE;
+    else if (userData.steps >= STEPS_THRESHOLDS.MODERATE)
+      activityFactor = ACTIVITY_FACTORS.MODERATE;
+    else if (userData.steps >= STEPS_THRESHOLDS.LIGHT)
+      activityFactor = ACTIVITY_FACTORS.LIGHT;
 
     const bmr =
       userData.gender === "male"
@@ -48,7 +58,7 @@ export default function PlannerManager({ allMeals }) {
           (1000 * 60 * 60 * 24);
         if (durationInDays > 0) {
           const dailyDeficit = Math.round(
-            (weightToLose * 7700) / durationInDays
+            (weightToLose * KCAL_PER_KG_FAT) / durationInDays
           );
           return {
             calorieGoal: tdee - dailyDeficit,
@@ -58,7 +68,10 @@ export default function PlannerManager({ allMeals }) {
       }
     }
 
-    return { calorieGoal: tdee - 500, proteinGoal: calculatedProteinGoal };
+    return {
+      calorieGoal: tdee - DEFAULT_DAILY_DEFICIT,
+      proteinGoal: calculatedProteinGoal,
+    };
   }, [userData, userGoal]);
 
   const generateShoppingList = () => {
