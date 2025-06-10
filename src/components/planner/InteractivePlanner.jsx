@@ -42,7 +42,7 @@ export default function InteractivePlanner({
     if (dailyCals === 0) return null;
     const lowerBound = targetCalories - 100;
     const upperBound = targetCalories + 100;
-    const minCalories = 1200;
+    const minCalories = MIN_DAILY_CALORIES;
     if (dailyCals < minCalories)
       return {
         text: `Cuidado: ${dailyCals} kcal es un consumo muy bajo.`,

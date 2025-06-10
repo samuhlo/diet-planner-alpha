@@ -13,6 +13,11 @@ import {
   MIN_DAILY_CALORIES,
   WARNING_WEEKLY_WEIGHT_LOSS_KG,
   DANGER_WEEKLY_WEIGHT_LOSS_KG,
+  BMR_MALE_CONSTANT,
+  BMR_FEMALE_CONSTANT,
+  BMR_AGE_COEFFICIENT,
+  BMR_WEIGHT_COEFFICIENT,
+  BMR_HEIGHT_COEFFICIENT,
 } from "../../config/nutritionalConstants.ts";
 
 export default function ObjectiveAnalysis() {
@@ -42,12 +47,18 @@ export default function ObjectiveAnalysis() {
     const { gender, age, height, steps } = userData;
     const { startDate, endDate, targetWeight } = goal;
 
-    // ... (Toda la lógica de cálculo del `analysis` que ya tenías va aquí, no necesita cambios)
     const bmr = Math.round(
       gender === "male"
-        ? 10 * currentWeight + 6.25 * height - 5 * age + 5
-        : 10 * currentWeight + 6.25 * height - 5 * age - 161
+        ? BMR_WEIGHT_COEFFICIENT * currentWeight +
+            BMR_HEIGHT_COEFFICIENT * height -
+            BMR_AGE_COEFFICIENT * age +
+            BMR_MALE_CONSTANT
+        : BMR_WEIGHT_COEFFICIENT * currentWeight +
+            BMR_HEIGHT_COEFFICIENT * height -
+            BMR_AGE_COEFFICIENT * age +
+            BMR_FEMALE_CONSTANT
     );
+
     let activityFactor = ACTIVITY_FACTORS.SEDENTARY,
       activityLevel = "Sedentaria";
     if (steps >= STEPS_THRESHOLDS.VERY_ACTIVE) {
