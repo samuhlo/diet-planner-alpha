@@ -87,28 +87,30 @@ export default function PlannerManager({ allMeals }) {
   };
 
   return (
-    <div>
+    <>
       <NutritionalSummary />
-      <div class="text-center mb-8 flex flex-wrap justify-center items-center gap-4">
-        <button
-          onClick={generateShoppingList}
-          class="bg-[#3a5a40] text-white font-bold py-3 px-8 rounded-lg hover:bg-[#2c4230] transition shadow-lg"
-        >
-          🛒 Lista de la Compra
-        </button>
-        <button
-          onClick={generateWeekSummary}
-          class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition shadow-lg"
-        >
-          📋 Ver Resumen
-        </button>
+      <div>
+        <div class="text-center mb-8 flex flex-wrap justify-center items-center gap-4">
+          <button
+            onClick={generateShoppingList}
+            class="bg-[#3a5a40] text-white font-bold py-3 px-8 rounded-lg hover:bg-[#2c4230] transition shadow-lg"
+          >
+            🛒 Lista de la Compra
+          </button>
+          <button
+            onClick={generateWeekSummary}
+            class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition shadow-lg"
+          >
+            📋 Ver Resumen
+          </button>
+        </div>
+        <InteractivePlanner
+          allMeals={allMeals}
+          allSupplements={allSupplements}
+          targetCalories={calorieGoal}
+          targetProtein={proteinGoal}
+        />
       </div>
-      <InteractivePlanner
-        allMeals={allMeals}
-        allSupplements={allSupplements}
-        targetCalories={calorieGoal}
-        targetProtein={proteinGoal}
-      />
-    </div>
+    </>
   );
 }

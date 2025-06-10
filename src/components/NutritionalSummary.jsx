@@ -11,74 +11,64 @@ const NutritionalSummary = () => {
 
   if (!userData) return null;
 
+  const summaryItems = [
+    {
+      label: "Metabolismo Basal (BMR)",
+      value: bmr,
+      unit: "kcal/día",
+      color: "text-blue-600",
+      description: `Calorías en reposo`,
+    },
+    {
+      label: "Gasto Energético (TDEE)",
+      value: tdee,
+      unit: "kcal/día",
+      color: "text-green-600",
+      description: "Incluye actividad física",
+    },
+    {
+      label: "Objetivo Calórico",
+      value: calorieGoal,
+      unit: "kcal/día",
+      color: "text-purple-600",
+      description:
+        calorieGoal < tdee
+          ? `Déficit de ${tdee - calorieGoal} kcal`
+          : "Mantenimiento",
+    },
+    {
+      label: "Proteínas",
+      value: proteinGoal,
+      unit: "g/día",
+      color: "text-amber-600",
+      description: `${proteinFactor.toFixed(1)} g/kg de peso`,
+    },
+    {
+      label: "Objetivo de Peso",
+      value: userGoal?.targetWeight || userData.weight,
+      unit: "kg",
+      color: "text-rose-600",
+      description: userGoal?.targetWeight
+        ? `Meta para ${new Date(userGoal.endDate).toLocaleDateString()}`
+        : "Sin meta definida",
+    },
+  ];
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        Resumen Nutricional
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-blue-800">
-            Metabolismo Basal (BMR)
-          </h3>
-          <p className="text-2xl font-bold text-blue-600">
-            {bmr} <span className="text-sm font-normal">kcal/día</span>
-          </p>
-          <p className="text-sm text-gray-600 mt-1">
-            Calorías que tu cuerpo quema en reposo
-          </p>
-        </div>
-
-        <div className="bg-green-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-green-800">
-            Gasto Energético Total (TDEE)
-          </h3>
-          <p className="text-2xl font-bold text-green-600">
-            {tdee} <span className="text-sm font-normal">kcal/día</span>
-          </p>
-          <p className="text-sm text-gray-600 mt-1">Incluye actividad física</p>
-        </div>
-
-        <div className="bg-purple-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-purple-800">Objetivo Calórico</h3>
-          <p className="text-2xl font-bold text-purple-600">
-            {calorieGoal}
-            <span className="text-sm font-normal">kcal/día</span>
-          </p>
-          <p className="text-sm text-gray-600 mt-1">
-            {calorieGoal < tdee
-              ? `Déficit de ${tdee - calorieGoal} kcal/día`
-              : calorieGoal > tdee
-              ? `Superávit de ${calorieGoal - tdee} kcal/día`
-              : "Mantenimiento"}
-          </p>
-        </div>
-
-        <div className="bg-amber-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-amber-800">
-            Proteínas Recomendadas
-          </h3>
-          <p className="text-2xl font-bold text-amber-600">
-            {proteinGoal} <span className="text-sm font-normal">g/día</span>
-          </p>
-          <p className="text-sm text-gray-600 mt-1">
-            {proteinFactor.toFixed(1)} g/kg de peso corporal
-          </p>
-        </div>
-
-        <div className="bg-rose-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-rose-800">Objetivo de Peso</h3>
-          <p className="text-2xl font-bold text-rose-600">
-            {userGoal?.targetWeight || userData.weight}{" "}
-            <span className="text-sm font-normal">kg</span>
-          </p>
-          <p className="text-sm text-gray-600 mt-1">
-            {userGoal?.targetWeight
-              ? `Meta para ${new Date(userGoal.endDate).toLocaleDateString()}`
-              : "No se ha establecido una meta específica"}
-          </p>
-        </div>
+    <div className="bg-white p-4 rounded-lg shadow-md mb-8">
+      <div className="flex flex-wrap justify-around items-start gap-x-6 gap-y-4 text-center">
+        {summaryItems.map((item) => (
+          <div key={item.label}>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              {item.label}
+            </h3>
+            <p className={`text-xl font-bold ${item.color}`}>
+              {item.value}{" "}
+              <span className="text-base font-normal">{item.unit}</span>
+            </p>
+            <p className="text-xs text-gray-500 mt-1">{item.description}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
