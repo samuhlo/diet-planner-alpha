@@ -1,81 +1,21 @@
-import { useMemo, useState } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $plan } from "../../stores/planStore.ts";
 import { $userData, $userGoal } from "../../stores/userProfileStore.ts";
 import { allSupplements } from "../../data/supplements.ts";
 import InteractivePlanner from "./InteractivePlanner";
 import { openModal } from "../../stores/modalStore.ts";
-import {
-  PROTEIN_G_PER_KG_WEIGHT,
-  ACTIVITY_FACTORS,
-  STEPS_THRESHOLDS,
-  KCAL_PER_KG_FAT,
-  DEFAULT_DAILY_DEFICIT,
-} from "../../config/nutritionalConstants.ts";
-import ProteinCalculator from "../ProteinCalculator";
+import NutritionalSummary from "../NutritionalSummary";
+import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 
 export default function PlannerManager({ allMeals }) {
   const plan = useStore($plan);
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
 
-  const { calorieGoal, proteinGoal } = useMemo(() => {
-    // Añadimos una "guarda". Si no hay datos de usuario,
-    // devolvemos valores por defecto seguros para evitar el crash.
-    if (!userData) {
-      return { calorieGoal: 0, proteinGoal: 0 };
-    }
-
-    const calculatedProteinGoal = Math.round(
-      userData.weight * ProteinCalculator(userData)
-    );
-
-    let activityFactor = ACTIVITY_FACTORS.SEDENTARY;
-    if (userData.steps >= STEPS_THRESHOLDS.VERY_ACTIVE)
-      activityFactor = ACTIVITY_FACTORS.VERY_ACTIVE;
-    else if (userData.steps >= STEPS_THRESHOLDS.MODERATE)
-      activityFactor = ACTIVITY_FACTORS.MODERATE;
-    else if (userData.steps >= STEPS_THRESHOLDS.LIGHT)
-      activityFactor = ACTIVITY_FACTORS.LIGHT;
-
-    const bmr =
-      userData.gender === "male"
-        ? 10 * userData.weight + 6.25 * userData.height - 5 * userData.age + 5
-        : 10 * userData.weight +
-          6.25 * userData.height -
-          5 * userData.age -
-          161;
-
-    const tdee = Math.round(bmr * activityFactor);
-
-    if (
-      userGoal && // Comprobamos que userGoal también exista
-      userGoal.startDate &&
-      userGoal.endDate &&
-      new Date(userGoal.startDate) < new Date(userGoal.endDate)
-    ) {
-      const weightToLose = userData.weight - parseFloat(userGoal.targetWeight);
-      if (weightToLose > 0) {
-        const durationInDays =
-          (new Date(userGoal.endDate) - new Date(userGoal.startDate)) /
-          (1000 * 60 * 60 * 24);
-        if (durationInDays > 0) {
-          const dailyDeficit = Math.round(
-            (weightToLose * KCAL_PER_KG_FAT) / durationInDays
-          );
-          return {
-            calorieGoal: tdee - dailyDeficit,
-            proteinGoal: calculatedProteinGoal,
-          };
-        }
-      }
-    }
-
-    return {
-      calorieGoal: tdee - DEFAULT_DAILY_DEFICIT,
-      proteinGoal: calculatedProteinGoal,
-    };
-  }, [userData, userGoal]);
+  const { calorieGoal, proteinGoal } = useNutritionalCalculations(
+    userData,
+    userGoal
+  );
 
   const generateShoppingList = () => {
     const shoppingList = {};
@@ -148,6 +88,7 @@ export default function PlannerManager({ allMeals }) {
 
   return (
     <div>
+      <NutritionalSummary />
       <div class="text-center mb-8 flex flex-wrap justify-center items-center gap-4">
         <button
           onClick={generateShoppingList}

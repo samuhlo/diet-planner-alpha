@@ -2,8 +2,6 @@
 import { useStore } from "@nanostores/preact";
 import { $userData, setUserData } from "../stores/userProfileStore.ts";
 import { useState, useEffect } from "preact/hooks";
-import { PROTEIN_MATRIX } from "../config/nutritionalConstants";
-import ProteinCalculator from "./ProteinCalculator";
 
 // Valores por defecto para el formulario si no hay nada en el estado global
 const formDefaults = {
@@ -18,13 +16,10 @@ const formDefaults = {
 
 export default function UserDataForm() {
   const globalUserData = useStore($userData);
-
-  // El estado local se inicializa con los datos globales si existen, o con los defaults si no.
   const [formData, setFormData] = useState(globalUserData || formDefaults);
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
-    // Si los datos globales se cargan después (desde localStorage), actualizamos el form.
     setFormData(globalUserData || formDefaults);
   }, [globalUserData]);
 
@@ -42,7 +37,6 @@ export default function UserDataForm() {
     setFormData((prevData) => ({
       ...prevData,
       [name]: newValue,
-      // Si desmarcan el checkbox, reiniciamos los días a 0
       ...(name === "doesStrengthTraining" &&
         !checked && { strengthTrainingDays: 0 }),
     }));
@@ -79,7 +73,6 @@ export default function UserDataForm() {
             <option value="female">Femenino</option>
           </select>
         </div>
-        {/* Campos para age, height, weight, y steps usando formData y handleChange */}
         <div>
           <label for="age" class="block text-sm font-medium text-gray-700">
             Edad
@@ -135,7 +128,7 @@ export default function UserDataForm() {
           />
         </div>
 
-        {/* Nuevo campo: ¿Haces entrenamiento de fuerza? */}
+        {/* Sección de entrenamiento de fuerza */}
         <div class="pt-4 border-t border-gray-200">
           <div class="flex items-center mb-2">
             <input
@@ -154,7 +147,6 @@ export default function UserDataForm() {
             </label>
           </div>
 
-          {/* Selector de días - Solo visible si hace entrenamiento de fuerza */}
           {formData.doesStrengthTraining && (
             <div class="ml-6 mt-2">
               <label
@@ -175,17 +167,6 @@ export default function UserDataForm() {
                 <option value={3}>3 días</option>
                 <option value={4}>4 o más días</option>
               </select>
-
-              {/* Sección de recomendación de proteína */}
-              <div class="mt-3 p-3 bg-blue-50 rounded-md">
-                <p class="text-sm text-blue-800">
-                  Según tu nivel de actividad y días de entrenamiento, tu
-                  ingesta de proteína recomendada es de:{" "}
-                  <span class="font-semibold">
-                    {ProteinCalculator(formData).toFixed(1)}g/kg
-                  </span>
-                </p>
-              </div>
             </div>
           )}
         </div>
