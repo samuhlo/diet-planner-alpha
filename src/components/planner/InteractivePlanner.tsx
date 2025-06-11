@@ -64,11 +64,6 @@ export default function InteractivePlanner({
 
   return (
     <div id="weekly-planner-container">
-      {/* Resumen Semanal */}
-      <div class="mb-8">
-        <WeeklyNutritionSummary />
-      </div>
-
       <div class="space-y-6">
         {DAYS_OF_WEEK.map((day) => {
           const dayId = day.toLowerCase();
@@ -191,6 +186,10 @@ export default function InteractivePlanner({
             </div>
           );
         })}
+      </div>
+      {/* Resumen Semanal */}
+      <div class="mt-8">
+        <WeeklyNutritionSummary />
       </div>
     </div>
   );

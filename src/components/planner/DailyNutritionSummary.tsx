@@ -116,11 +116,7 @@ export default function DailyNutritionSummary({
   const proteinStatus = getProteinStatus();
 
   return (
-    <div>
-      <h4 class="text-lg font-bold mb-3 text-center text-[#3a5a40]">
-        Resumen Nutricional del Día
-      </h4>
-
+    <div class="p-2">
       {/* Valores principales */}
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <div class="text-center">
