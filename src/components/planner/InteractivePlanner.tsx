@@ -162,7 +162,7 @@ export default function InteractivePlanner({
         })}
       </div>
       {/* Resumen Semanal */}
-      <div class="mtre-8">
+      <div class="mt-8">
         <WeeklyNutritionSummary />
       </div>
     </div>
