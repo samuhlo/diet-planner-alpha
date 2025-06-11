@@ -142,7 +142,7 @@ export default function SnackSelector({
                 onChange={(e) =>
                   handleSnackChange(index, e.currentTarget.value)
                 }
-                class="flex-1 text-sm border border-gray-300 rounded px-2 py-1"
+                class="flex-1 text-sm border border-gray-300 rounded px-2 py-1 w-full"
               >
                 <option value="">Seleccionar snack...</option>
                 <optgroup label="Snacks Simples">

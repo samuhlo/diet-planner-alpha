@@ -95,7 +95,7 @@ export default function SupplementSelector({
             for={`supplements-${dayId}`}
             class="text-sm font-medium text-gray-700"
           >
-            Suplementos
+            Suplementos Proteicos
           </label>
         </div>
 
@@ -122,13 +122,13 @@ export default function SupplementSelector({
       {/* Contenido de suplementos */}
       {enabled && (
         <div class="space-y-3">
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2 ">
             <select
               value={selectedSupplement}
               onChange={(e) =>
                 handleSupplementTypeChange(e.currentTarget.value)
               }
-              class="flex-1 text-sm border border-gray-300 rounded px-2 py-1"
+              class="flex-1 text-sm border border-gray-300 rounded px-2 py-1 w-full"
             >
               <option value="">Seleccionar suplemento...</option>
               {allSupplements.map((supplement) => (

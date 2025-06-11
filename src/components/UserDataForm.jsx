@@ -135,7 +135,7 @@ export default function UserDataForm() {
               type="checkbox"
               id="doesStrengthTraining"
               name="doesStrengthTraining"
-              checked={formData.doesStrengthTraining}
+              checked={formData.doesStrengthTraining || false}
               onChange={handleChange}
               class="h-4 w-4 text-green-600 rounded border-gray-300"
             />

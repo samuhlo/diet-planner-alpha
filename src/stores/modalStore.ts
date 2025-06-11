@@ -1,6 +1,12 @@
 // src/stores/modalStore.ts
 import { map } from "nanostores";
-import type { ModalState, ModalType, Recipe, Ingredient } from "../types";
+import type {
+  ModalState,
+  ModalType,
+  Recipe,
+  Ingredient,
+  WeeklySummaryData,
+} from "../types";
 
 const initialState: ModalState = {
   isOpen: false,
@@ -13,7 +19,7 @@ export const $modal = map<ModalState>(initialState);
 // Función para abrir el modal con tipos específicos
 export const openModal = (
   type: ModalType,
-  data?: Recipe[] | Ingredient[] | null
+  data?: Recipe[] | Ingredient[] | WeeklySummaryData[] | null
 ) => {
   $modal.set({ isOpen: true, type, data: data || null });
 };

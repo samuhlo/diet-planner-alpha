@@ -7,7 +7,7 @@ import InteractivePlanner from "./InteractivePlanner";
 import { openModal } from "../../stores/modalStore";
 import NutritionalSummary from "../NutritionalSummary";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
-import type { Recipe, Ingredient } from "../../types";
+import type { Recipe, Ingredient, WeeklySummaryData } from "../../types";
 import { DAYS_OF_WEEK, MEAL_TYPES } from "../../constants/appConstants";
 
 interface PlannerManagerProps {
@@ -121,7 +121,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
       return hasContent ? { day, meals: dayMeals } : null;
     }).filter(Boolean);
 
-    openModal("summary", summaryData);
+    openModal("summary", summaryData as WeeklySummaryData[]);
   };
 
   return (
