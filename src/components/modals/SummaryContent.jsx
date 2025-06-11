@@ -38,10 +38,14 @@ export default function SummaryContent({ data: summary }) {
             )}
             {dayData.meals.supplement && (
               <li>
-                <strong class="font-semibold w-24 inline-block">
-                  Suplemento:
-                </strong>{" "}
+                <strong class="font-semibold w-24 inline-block">Supp:</strong>{" "}
                 {dayData.meals.supplement}
+              </li>
+            )}
+            {dayData.meals.snacks && (
+              <li>
+                <strong class="font-semibold w-24 inline-block">Snacks:</strong>{" "}
+                {dayData.meals.snacks}
               </li>
             )}
           </ul>

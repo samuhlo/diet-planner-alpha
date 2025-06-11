@@ -2,17 +2,23 @@ export default function ShoppingListContent({ data: ingredients }) {
   if (!ingredients || ingredients.length === 0) {
     return (
       <p class="text-center italic text-stone-500">
-        No has seleccionado ninguna receta todavía.
+        No has seleccionado ninguna receta o snack elaborado todavía.
       </p>
     );
   }
+
   return (
-    <ul class="list-disc list-inside space-y-2">
-      {ingredients.map((ing, index) => (
-        <li key={`${ing.n}-${index}`} class="text-stone-700">
-          {Number(ing.q.toPrecision(3))} {ing.u} de {ing.n}
-        </li>
-      ))}
-    </ul>
+    <div>
+      <p class="text-sm text-gray-600 mb-3">
+        Lista de ingredientes para comidas principales y snacks elaborados:
+      </p>
+      <ul class="list-disc list-inside space-y-2">
+        {ingredients.map((ing, index) => (
+          <li key={`${ing.n}-${index}`} class="text-stone-700">
+            {Number(ing.q.toPrecision(3))} {ing.u} de {ing.n}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
