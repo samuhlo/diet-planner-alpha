@@ -27,6 +27,10 @@ export default function WeightTracker() {
     }
   };
 
+  const handleDeleteWeight = () => {
+    $weightLog.set({});
+  };
+
   return (
     <div class="space-y-6">
       <div class="bg-white p-6 rounded-lg shadow-md">
@@ -61,6 +65,14 @@ export default function WeightTracker() {
               Añadir
             </button>
           </form>
+          <div class="mt-4 flex justify-center">
+            <button
+              onClick={handleDeleteWeight}
+              class="bg-red-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 transition h-10"
+            >
+              Borrar Registros
+            </button>
+          </div>
         </div>
       </div>
     </div>
