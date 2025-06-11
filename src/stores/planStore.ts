@@ -1,6 +1,11 @@
 // src/stores/planStore.ts
 import { map } from "nanostores";
-import type { WeeklyPlan, DailyPlan, SnackPlan } from "../types";
+import type {
+  WeeklyPlan,
+  DailyPlan,
+  SnackPlan,
+  SupplementPlan,
+} from "../types";
 
 // Función para cargar el plan desde localStorage
 const loadPlanFromStorage = (): WeeklyPlan => {
@@ -51,6 +56,7 @@ export function updatePlanEntry(
     | number
     | boolean
     | Array<{ snackId: string; quantity: number }>
+    | Array<{ supplementId: string; quantity: number }>
 ) {
   const currentDayPlan = $plan.get()[dayId] || {};
   const currentSection = currentDayPlan[section] || {};
@@ -76,6 +82,23 @@ export function updateSnackPlan(dayId: string, snackPlan: SnackPlan) {
   const newDayPlan = {
     ...currentDayPlan,
     snacks: snackPlan,
+  };
+
+  $plan.setKey(dayId, newDayPlan);
+}
+
+/**
+ * Actualiza el plan de suplementos completo para un día
+ */
+export function updateSupplementPlan(
+  dayId: string,
+  supplementPlan: SupplementPlan
+) {
+  const currentDayPlan = $plan.get()[dayId] || {};
+
+  const newDayPlan = {
+    ...currentDayPlan,
+    supplement: supplementPlan,
   };
 
   $plan.setKey(dayId, newDayPlan);

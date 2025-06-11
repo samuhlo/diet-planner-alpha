@@ -54,13 +54,26 @@ export default function DailyNutritionSummary({
 
     // Calcular suplementos
     const suppInfo = dailyPlan.supplement;
-    if (suppInfo?.shakes && suppInfo.shakes > 0) {
-      const suppData = allSupplements.find((s) => s.id === suppInfo.type);
-      if (suppData) {
-        totalCalories += suppData.calories * suppInfo.shakes;
-        totalProtein += suppData.protein * suppInfo.shakes;
-        // Los suplementos solo tienen calorías y proteínas
-      }
+    if (suppInfo?.enabled && suppInfo.supplements.length > 0) {
+      const supplementsWithData = suppInfo.supplements
+        .filter((s) => s.supplementId)
+        .map((s) => {
+          const supplement = allSupplements.find(
+            (sup) => sup.id === s.supplementId
+          );
+          return supplement ? { supplement, quantity: s.quantity } : null;
+        })
+        .filter(Boolean);
+
+      const supplementNutrition =
+        NutritionService.calculateSupplementsNutrition(
+          supplementsWithData as Array<{ supplement: any; quantity: number }>
+        );
+
+      totalCalories += supplementNutrition.calories;
+      totalProtein += supplementNutrition.protein;
+      totalCarbs += supplementNutrition.carbs;
+      totalFats += supplementNutrition.fats;
     }
 
     // Calcular snacks

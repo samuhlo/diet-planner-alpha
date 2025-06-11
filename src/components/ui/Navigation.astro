@@ -1,41 +1,62 @@
-
 <nav class="flex flex-wrap justify-center border-b border-stone-300 mb-8 gap-6">
-    <button id="nav-planificador" class="nav-button active" data-section="planificador">Planificador Semanal</button>
-    <button id="nav-recetario" class="nav-button" data-section="recetario">Galería de Recetas</button>
-    <button id="nav-consejos" class="nav-button" data-section="consejos">Estrategias y Consejos</button>
-    <button class="nav-button" data-section="datos">Mis Datos</button>
-    <button class="nav-button" data-section="progreso">Objetivo y Progreso</button>
+  <button
+    id="nav-planificador"
+    class="nav-button active"
+    data-section="planificador">Planificador Semanal</button
+  >
+  <button id="nav-recetario" class="nav-button" data-section="recetario"
+    >Galería de Recetas</button
+  >
+  <button id="nav-galeria" class="nav-button" data-section="galeria"
+    >Galería de Snacks y Suplementos</button
+  >
+  <button id="nav-consejos" class="nav-button" data-section="consejos"
+    >Estrategias y Consejos</button
+  >
+  <button class="nav-button" data-section="datos">Mis Datos</button>
+  <button class="nav-button" data-section="progreso">Objetivo y Progreso</button
+  >
 </nav>
 
 <script>
-    // Este script se ejecuta en el lado del cliente (en el navegador)
-    document.addEventListener('DOMContentLoaded', () => {
-        const navButtons = document.querySelectorAll('.nav-button');
-        const contentSections = document.querySelectorAll('.content-section');
+  // Este script se ejecuta en el lado del cliente (en el navegador)
+  document.addEventListener("DOMContentLoaded", () => {
+    const navButtons = document.querySelectorAll(".nav-button");
+    const contentSections = document.querySelectorAll(".content-section");
 
-        navButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Saca la clase 'active' de todos los botones y la pone solo en el que se ha clicado
-                navButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
+    navButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        // Saca la clase 'active' de todos los botones y la pone solo en el que se ha clicado
+        navButtons.forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
 
-                const targetSectionId = button.getAttribute('data-section');
+        const targetSectionId = button.getAttribute("data-section");
 
-                // Oculta todas las secciones y muestra solo la que corresponde
-                contentSections.forEach(section => {
-                    if (section.id === targetSectionId) {
-                        section.classList.remove('hidden');
-                    } else {
-                        section.classList.add('hidden');
-                    }
-                });
-            });
+        // Oculta todas las secciones y muestra solo la que corresponde
+        contentSections.forEach((section) => {
+          if (section.id === targetSectionId) {
+            section.classList.remove("hidden");
+          } else {
+            section.classList.add("hidden");
+          }
         });
+      });
     });
+  });
 </script>
 <style>
-    /* Añadimos un poco de estilo para los botones, que lo borramos antes */
-    .nav-button { transition: all 0.3s ease; border-bottom: 2px solid transparent; padding: 1rem 1.5rem; }
-    .nav-button.active { border-bottom-color: #6B8A7A; color: #3a5a40; font-weight: 600; }
-    .nav-button:hover { background-color: #f0ebe5; }
+  /* Añadimos un poco de estilo para los botones, que lo borramos antes */
+  .nav-button {
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+    padding: 1rem 1.5rem;
+  }
+  .nav-button.active {
+    border-bottom-color: #6b8a7a;
+    color: #3a5a40;
+    font-weight: 600;
+  }
+  .nav-button:hover {
+    background-color: #f0ebe5;
+  }
 </style>

@@ -7,6 +7,7 @@ import Navigation from "../components/ui/Navigation.astro";
 // Importamos todos los componentes de sección
 import WeeklyPlanner from "../components/planner/WeeklyPlanner.astro";
 import RecipeGallery from "../components/recipes/RecipeGallery.astro";
+import UnifiedGallery from "../components/gallery/UnifiedGallery.astro";
 import Tips from "../components/tips/Tips.astro";
 import UserData from "../components/UserData.astro";
 import GoalProgress from "../components/progress/GoalProgress.astro";
@@ -24,6 +25,10 @@ import GoalProgress from "../components/progress/GoalProgress.astro";
 
     <section id="recetario" class="content-section hidden">
       <RecipeGallery />
+    </section>
+
+    <section id="galeria" class="content-section hidden">
+      <UnifiedGallery />
     </section>
 
     <section id="consejos" class="content-section hidden">

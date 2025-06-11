@@ -112,6 +112,23 @@ export class NutritionService {
   }
 
   /**
+   * Calcula el resumen nutricional de múltiples suplementos
+   */
+  static calculateSupplementsNutrition(
+    supplements: Array<{ supplement: Supplement; quantity: number }>
+  ) {
+    return supplements.reduce(
+      (total, { supplement, quantity }) => ({
+        calories: total.calories + supplement.calories * quantity,
+        protein: total.protein + supplement.protein * quantity,
+        carbs: total.carbs + (supplement.carbs || 0) * quantity,
+        fats: total.fats + (supplement.fat || 0) * quantity,
+      }),
+      { calories: 0, protein: 0, carbs: 0, fats: 0 }
+    );
+  }
+
+  /**
    * Calcula el resumen nutricional de un snack
    */
   static calculateSnackNutrition(snack: Snack, quantity: number = 1) {

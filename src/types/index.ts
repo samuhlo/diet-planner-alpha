@@ -29,8 +29,11 @@ export interface MealPlan {
 }
 
 export interface SupplementPlan {
-  type: string;
-  shakes: number;
+  enabled: boolean;
+  supplements: Array<{
+    supplementId: string;
+    quantity: number;
+  }>;
 }
 
 export interface SnackPlan {
@@ -93,6 +96,11 @@ export interface Supplement {
   name: string;
   calories: number;
   protein: number;
+  carbs?: number;
+  fat?: number;
+  serving?: string;
+  description?: string;
+  tags?: string[];
 }
 
 // Tipos de modales

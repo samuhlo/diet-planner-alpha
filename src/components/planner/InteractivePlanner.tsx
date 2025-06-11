@@ -4,6 +4,7 @@ import {
   $plan,
   updatePlanEntry,
   updateSnackPlan,
+  updateSupplementPlan,
 } from "../../stores/planStore";
 import { NutritionService } from "../../services/nutritionService";
 import SnackSelector from "./SnackSelector";
@@ -66,8 +67,7 @@ export default function InteractivePlanner({
 
   const handleSupplementPlanChange = useCallback(
     (dayId: string, supplementPlan: SupplementPlan) => {
-      updatePlanEntry(dayId, "supplement", "type", supplementPlan.type);
-      updatePlanEntry(dayId, "supplement", "shakes", supplementPlan.shakes);
+      updateSupplementPlan(dayId, supplementPlan);
     },
     []
   );

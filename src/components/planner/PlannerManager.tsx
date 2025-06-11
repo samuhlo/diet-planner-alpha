@@ -111,12 +111,22 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
 
       // Procesar suplementos
       const suppInfo = dailyPlan.supplement;
-      if (suppInfo?.shakes && suppInfo.shakes > 0) {
-        const suppData = allSupplements.find((s) => s.id === suppInfo.type);
-        dayMeals.supplement = `${suppInfo.shakes} ${
-          suppData ? suppData.name : "batido(s)"
-        }`;
-        hasContent = true;
+      if (suppInfo?.enabled && suppInfo.supplements.length > 0) {
+        const supplementList = suppInfo.supplements
+          .filter((s) => s.supplementId)
+          .map((s) => {
+            const suppData = allSupplements.find(
+              (sup) => sup.id === s.supplementId
+            );
+            return suppData ? `${s.quantity}x ${suppData.name}` : null;
+          })
+          .filter(Boolean)
+          .join(", ");
+
+        if (supplementList) {
+          dayMeals.supplement = supplementList;
+          hasContent = true;
+        }
       }
 
       // Procesar snacks
