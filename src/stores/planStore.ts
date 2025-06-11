@@ -2,8 +2,38 @@
 import { map } from "nanostores";
 import type { WeeklyPlan, DailyPlan, SnackPlan } from "../types";
 
+// Función para cargar el plan desde localStorage
+const loadPlanFromStorage = (): WeeklyPlan => {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const stored = localStorage.getItem("weeklyPlan");
+    return stored ? JSON.parse(stored) : {};
+  } catch (error) {
+    console.error("Error al cargar el plan desde localStorage:", error);
+    return {};
+  }
+};
+
+// Función para guardar el plan en localStorage
+const savePlanToStorage = (plan: WeeklyPlan) => {
+  if (typeof window === "undefined") return;
+
+  try {
+    localStorage.setItem("weeklyPlan", JSON.stringify(plan));
+  } catch (error) {
+    console.error("Error al guardar el plan en localStorage:", error);
+  }
+};
+
 // Definimos la estructura de nuestro estado usando tipos específicos
-export const $plan = map<WeeklyPlan>({});
+// Inicializamos con datos desde localStorage
+export const $plan = map<WeeklyPlan>(loadPlanFromStorage());
+
+// Suscribirse a cambios en el store para guardar automáticamente
+$plan.subscribe((plan) => {
+  savePlanToStorage(plan);
+});
 
 /**
  * Actualiza una sección específica de un día en el plan.
@@ -49,4 +79,18 @@ export function updateSnackPlan(dayId: string, snackPlan: SnackPlan) {
   };
 
   $plan.setKey(dayId, newDayPlan);
+}
+
+/**
+ * Limpia todo el plan semanal (útil para resetear)
+ */
+export function clearWeeklyPlan() {
+  $plan.set({});
+}
+
+/**
+ * Carga un plan específico (útil para importar planes)
+ */
+export function loadWeeklyPlan(plan: WeeklyPlan) {
+  $plan.set(plan);
 }

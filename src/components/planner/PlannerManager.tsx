@@ -48,7 +48,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
         }
       });
 
-      // Procesar snacks elaborados
+      // Procesar snacks
       const snackInfo = dailyPlan.snacks;
       if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
         snackInfo.snacks.forEach((selectedSnack) => {
@@ -56,14 +56,33 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
             const snackData = allSnacks.find(
               (s) => s.id === selectedSnack.snackId
             );
-            if (snackData?.tipo === "elaborado" && snackData.ingredientes) {
-              snackData.ingredientes.forEach((ing) => {
-                const key = `${ing.n.toLowerCase()}_${ing.u.toLowerCase()}`;
+            if (snackData) {
+              if (snackData.tipo === "elaborado" && snackData.ingredientes) {
+                // Snacks elaborados: procesar ingredientes
+                snackData.ingredientes.forEach((ing) => {
+                  const key = `${ing.n.toLowerCase()}_${ing.u.toLowerCase()}`;
+                  if (!shoppingList[key]) {
+                    shoppingList[key] = { ...ing, q: 0 };
+                  }
+                  shoppingList[key].q += ing.q * selectedSnack.quantity;
+                });
+              } else if (snackData.tipo === "simple") {
+                // Snacks simples: crear ingrediente a partir del snack
+                // Extraer cantidad y unidad de la porción (ej: "1 taza (150g)" -> 150g)
+                const porcionMatch = snackData.porcion.match(/\((\d+)g\)/);
+                const cantidad = porcionMatch ? parseInt(porcionMatch[1]) : 100;
+                const unidad = "g";
+
+                const key = `${snackData.nombre.toLowerCase()}_${unidad}`;
                 if (!shoppingList[key]) {
-                  shoppingList[key] = { ...ing, q: 0 };
+                  shoppingList[key] = {
+                    n: snackData.nombre,
+                    q: 0,
+                    u: unidad,
+                  };
                 }
-                shoppingList[key].q += ing.q * selectedSnack.quantity;
-              });
+                shoppingList[key].q += cantidad * selectedSnack.quantity;
+              }
             }
           }
         });
