@@ -117,53 +117,53 @@ export default function DailyNutritionSummary({
 
   return (
     <div class="p-2">
-      {/* Valores principales */}
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+      {/* Valores principales compactos */}
+      <div class="grid grid-cols-4 gap-2 mb-3">
         <div class="text-center">
-          <div class="text-2xl font-bold text-gray-900">
+          <div class="text-lg font-bold text-gray-900">
             {Math.round(dailyNutrition.calories)}
           </div>
-          <div class="text-sm text-gray-500">kcal</div>
+          <div class="text-xs text-gray-500">kcal</div>
           <div class={`text-xs mt-1 ${calorieStatus.color}`}>
             {calorieStatus.status}
           </div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-gray-900">
+          <div class="text-lg font-bold text-gray-900">
             {dailyNutrition.protein.toFixed(1)}
           </div>
-          <div class="text-sm text-gray-500">proteína</div>
+          <div class="text-xs text-gray-500">proteína</div>
           <div class={`text-xs mt-1 ${proteinStatus.color}`}>
             {proteinStatus.status}
           </div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-gray-900">
+          <div class="text-lg font-bold text-gray-900">
             {dailyNutrition.carbs.toFixed(1)}
           </div>
-          <div class="text-sm text-gray-500">carbos</div>
+          <div class="text-xs text-gray-500">carbos</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-gray-900">
+          <div class="text-lg font-bold text-gray-900">
             {dailyNutrition.fats.toFixed(1)}
           </div>
-          <div class="text-sm text-gray-500">grasas</div>
+          <div class="text-xs text-gray-500">grasas</div>
         </div>
       </div>
 
-      {/* Barras de progreso */}
-      <div class="space-y-3">
+      {/* Barras de progreso compactas */}
+      <div class="space-y-2">
         <div>
-          <div class="flex justify-between text-sm mb-1">
+          <div class="flex justify-between text-xs mb-1">
             <span class="text-gray-600">Calorías</span>
             <span class="text-gray-900">
               {Math.round(dailyNutrition.calories)} / {Math.round(calorieGoal)}{" "}
               kcal
             </span>
           </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="w-full bg-gray-200 rounded-full h-1.5">
             <div
-              class={`h-2 rounded-full transition-all ${
+              class={`h-1.5 rounded-full transition-all ${
                 caloriePercentage < 80
                   ? "bg-red-500"
                   : caloriePercentage > 120
@@ -173,29 +173,18 @@ export default function DailyNutritionSummary({
               style={`width: ${Math.min(caloriePercentage, 100)}%`}
             ></div>
           </div>
-          <div class={`text-xs mt-1 ${calorieStatus.color}`}>
-            {caloriePercentage < 80
-              ? `Faltan ${Math.round(
-                  calorieGoal - dailyNutrition.calories
-                )} kcal`
-              : caloriePercentage > 120
-              ? `Exceso de ${Math.round(
-                  dailyNutrition.calories - calorieGoal
-                )} kcal`
-              : "Objetivo alcanzado"}
-          </div>
         </div>
 
         <div>
-          <div class="flex justify-between text-sm mb-1">
+          <div class="flex justify-between text-xs mb-1">
             <span class="text-gray-600">Proteína</span>
             <span class="text-gray-900">
               {dailyNutrition.protein.toFixed(1)} / {proteinGoal.toFixed(1)}g
             </span>
           </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="w-full bg-gray-200 rounded-full h-1.5">
             <div
-              class={`h-2 rounded-full transition-all ${
+              class={`h-1.5 rounded-full transition-all ${
                 proteinPercentage < 80
                   ? "bg-red-500"
                   : proteinPercentage > 120
@@ -205,59 +194,20 @@ export default function DailyNutritionSummary({
               style={`width: ${Math.min(proteinPercentage, 100)}%`}
             ></div>
           </div>
-          <div class={`text-xs mt-1 ${proteinStatus.color}`}>
-            {proteinPercentage < 80
-              ? `Faltan ${(proteinGoal - dailyNutrition.protein).toFixed(1)}g`
-              : proteinPercentage > 120
-              ? `Exceso de ${(dailyNutrition.protein - proteinGoal).toFixed(
-                  1
-                )}g`
-              : "Objetivo alcanzado"}
-          </div>
         </div>
       </div>
 
-      {/* Alertas */}
+      {/* Alertas compactas solo si hay problemas */}
       {(caloriePercentage < 80 ||
         caloriePercentage > 120 ||
         proteinPercentage < 80 ||
         proteinPercentage > 120) && (
-        <div class="mt-4 p-3 rounded-lg border-l-4 border-yellow-400 bg-yellow-50">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <svg
-                class="h-5 w-5 text-yellow-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-yellow-800">
-                Ajustes recomendados
-              </h3>
-              <div class="mt-2 text-sm text-yellow-700">
-                <ul class="list-disc list-inside space-y-1">
-                  {caloriePercentage < 80 && (
-                    <li>Añade más calorías para alcanzar tu objetivo</li>
-                  )}
-                  {caloriePercentage > 120 && (
-                    <li>Reduce las calorías para no exceder tu objetivo</li>
-                  )}
-                  {proteinPercentage < 80 && (
-                    <li>Incluye más proteínas en tus comidas</li>
-                  )}
-                  {proteinPercentage > 120 && (
-                    <li>Considera reducir la ingesta de proteínas</li>
-                  )}
-                </ul>
-              </div>
-            </div>
+        <div class="mt-3 p-2 rounded border-l-3 border-yellow-400 bg-yellow-50">
+          <div class="text-xs text-yellow-800">
+            {caloriePercentage < 80 && "Faltan calorías • "}
+            {caloriePercentage > 120 && "Exceso de calorías • "}
+            {proteinPercentage < 80 && "Falta proteína • "}
+            {proteinPercentage > 120 && "Exceso de proteína"}
           </div>
         </div>
       )}

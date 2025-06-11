@@ -7,6 +7,7 @@ import {
 } from "../../stores/planStore";
 import { NutritionService } from "../../services/nutritionService";
 import SnackSelector from "./SnackSelector";
+import SupplementSelector from "./SupplementSelector";
 import DailyNutritionSummary from "./DailyNutritionSummary";
 import WeeklyNutritionSummary from "./WeeklyNutritionSummary";
 import type {
@@ -14,6 +15,7 @@ import type {
   Supplement,
   Snack,
   SnackPlan,
+  SupplementPlan,
   DailyPlan,
 } from "../../types";
 import { allSnacks } from "../../data/snacks";
@@ -58,6 +60,14 @@ export default function InteractivePlanner({
   const handleSnackPlanChange = useCallback(
     (dayId: string, snackPlan: SnackPlan) => {
       updateSnackPlan(dayId, snackPlan);
+    },
+    []
+  );
+
+  const handleSupplementPlanChange = useCallback(
+    (dayId: string, supplementPlan: SupplementPlan) => {
+      updatePlanEntry(dayId, "supplement", "type", supplementPlan.type);
+      updatePlanEntry(dayId, "supplement", "shakes", supplementPlan.shakes);
     },
     []
   );
@@ -126,49 +136,13 @@ export default function InteractivePlanner({
               {/* Suplementos y Snacks */}
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Suplementos */}
-                <div class="bg-gray-50 p-4 rounded-lg border">
-                  <div class="flex justify-between items-center mb-2">
-                    <label class="block text-sm font-medium text-gray-700">
-                      Suplementos
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="5"
-                      class="w-16 text-center border-gray-300 rounded-md text-sm p-1"
-                      value={dailyPlan.supplement?.shakes || 0}
-                      onChange={(e) =>
-                        handlePlanChange(
-                          dayId,
-                          "supplement",
-                          "shakes",
-                          Number(e.currentTarget.value)
-                        )
-                      }
-                    />
-                  </div>
-                  <select
-                    value={
-                      dailyPlan.supplement?.type || allSupplements[0]?.id || ""
-                    }
-                    onChange={(e) =>
-                      handlePlanChange(
-                        dayId,
-                        "supplement",
-                        "type",
-                        e.currentTarget.value
-                      )
-                    }
-                    class="w-full text-sm border border-gray-300 rounded-md p-2"
-                  >
-                    {allSupplements.map((supp) => (
-                      <option key={supp.id} value={supp.id}>
-                        {supp.name} ({supp.calories} kcal, {supp.protein}g
-                        proteína)
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <SupplementSelector
+                  dayId={dayId}
+                  currentSupplementPlan={dailyPlan.supplement}
+                  onSupplementPlanChange={(supplementPlan) =>
+                    handleSupplementPlanChange(dayId, supplementPlan)
+                  }
+                />
 
                 {/* Snacks */}
                 <SnackSelector
@@ -188,7 +162,7 @@ export default function InteractivePlanner({
         })}
       </div>
       {/* Resumen Semanal */}
-      <div class="mt-8">
+      <div class="mtre-8">
         <WeeklyNutritionSummary />
       </div>
     </div>
