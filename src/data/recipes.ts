@@ -1,24 +1,5 @@
 // src/data/recipes.ts
-
-// Estructura ingrediente
-export interface Ingredient {
-  n: string; // n: nombre
-  q: number; // q: cantidad
-  u: string; // u: unidad
-}
-
-// Estructura receta
-export interface Recipe {
-  nombre: string;
-  tipo: "Desayuno" | "Almuerzo" | "Cena" | "Snack";
-  tags: string[];
-  calorias: number;
-  p: number; // Proteínas
-  c: number; // Carbohidratos
-  f: number; // Grasas (Fats)
-  ingredientes: Ingredient[];
-  preparacion?: string;
-}
+import type { Recipe, Ingredient } from "../types";
 
 export const allMeals: Recipe[] = [
   // Existing recipes
@@ -198,48 +179,108 @@ export const allMeals: Recipe[] = [
     tipo: "Cena",
     tags: ["Cena", "Rápida", "Fácil", "Vegetariana", "Vegana"],
     calorias: 400,
-    p: 25,
-    c: 40,
+    p: 20,
+    c: 45,
     f: 15,
     ingredientes: [
       { n: "garbanzos cocidos", q: 150, u: "g" },
       { n: "tofu firme", q: 100, u: "g" },
-      { n: "brócoli", q: 100, u: "g" },
-      { n: "salsa de soja", q: 2, u: "cucharada" },
+      { n: "pimiento", q: 1, u: "unidad" },
+      { n: "cebolla", q: 0.5, u: "unidad" },
+      { n: "salsa de soja", q: 2, u: "cucharadas" },
     ],
     preparacion:
-      "1. Saltear el tofu en dados hasta dorar. 2. Añadir brócoli y saltear. 3. Incorporar garbanzos y salsa de soja. Cocinar 2 min más.",
+      "1. Saltear tofu hasta dorar. 2. Añadir verduras y saltear. 3. Añadir garbanzos y salsa de soja. 4. Cocinar 5 min más.",
   },
   {
-    nombre: "Revuelto con espárragos y jamón",
+    nombre: "Sopa de verduras con pollo",
+    tipo: "Cena",
+    tags: ["Cena", "Fácil"],
+    calorias: 280,
+    p: 35,
+    c: 20,
+    f: 8,
+    ingredientes: [
+      { n: "pechuga de pollo", q: 150, u: "g" },
+      { n: "zanahoria", q: 1, u: "unidad" },
+      { n: "calabacín", q: 0.5, u: "unidad" },
+      { n: "cebolla", q: 0.5, u: "unidad" },
+      { n: "caldo de pollo", q: 500, u: "ml" },
+    ],
+    preparacion:
+      "1. Cocer pollo en caldo. 2. Añadir verduras picadas. 3. Cocinar hasta que las verduras estén tiernas.",
+  },
+  {
+    nombre: "Ensalada de atún con aguacate",
     tipo: "Cena",
     tags: ["Cena", "Rápida", "Fácil"],
-    calorias: 300,
-    p: 25,
-    c: 8,
-    f: 19,
+    calorias: 380,
+    p: 30,
+    c: 10,
+    f: 25,
     ingredientes: [
-      { n: "huevo", q: 2, u: "unidad" },
-      { n: "espárrago triguero", q: 100, u: "g" },
-      { n: "jamón serrano", q: 30, u: "g" },
+      { n: "atún al natural", q: 2, u: "lata" },
+      { n: "aguacate", q: 0.5, u: "unidad" },
+      { n: "tomate", q: 1, u: "unidad" },
+      { n: "cebolla", q: 0.25, u: "unidad" },
+      { n: "limón", q: 0.5, u: "unidad" },
     ],
   },
   {
-    nombre: "'Lasaña' de Calabacín y Atún",
+    nombre: "Revuelto de champiñones y espinacas",
     tipo: "Cena",
-    tags: ["Cena", "Elaborada"],
-    calorias: 380,
-    p: 35,
-    c: 15,
-    f: 20,
+    tags: ["Cena", "Rápida", "Fácil", "Vegetariana"],
+    calorias: 220,
+    p: 18,
+    c: 8,
+    f: 12,
     ingredientes: [
-      { n: "calabacín", q: 1, u: "unidad" },
-      { n: "atún", q: 2, u: "lata" },
-      { n: "tomate triturado", q: 200, u: "g" },
-      { n: "cebolla", q: 0.5, u: "unidad" },
+      { n: "huevo", q: 2, u: "unidad" },
+      { n: "champiñón", q: 100, u: "g" },
+      { n: "espinaca", q: 50, u: "g" },
+      { n: "cebolla", q: 0.25, u: "unidad" },
     ],
-    preparacion:
-      "1. Horno 190°C. 2. Cortar calabacín en láminas. 3. Hacer sofrito. 4. Montar capas y hornear 20-25 min.",
+  },
+  {
+    nombre: "Yogur griego con frutos secos",
+    tipo: "Snack",
+    tags: ["Snack", "Rápida", "Fácil", "Vegetariana"],
+    calorias: 200,
+    p: 15,
+    c: 10,
+    f: 12,
+    ingredientes: [
+      { n: "yogur griego natural", q: 150, u: "g" },
+      { n: "nueces", q: 15, u: "g" },
+      { n: "miel", q: 1, u: "cucharadita" },
+    ],
+  },
+  {
+    nombre: "Batido de proteínas con plátano",
+    tipo: "Snack",
+    tags: ["Snack", "Rápida", "Fácil"],
+    calorias: 180,
+    p: 25,
+    c: 15,
+    f: 2,
+    ingredientes: [
+      { n: "proteína en polvo", q: 30, u: "g" },
+      { n: "plátano", q: 1, u: "unidad" },
+      { n: "leche desnatada", q: 200, u: "ml" },
+    ],
+  },
+  {
+    nombre: "Manzana con queso cottage",
+    tipo: "Snack",
+    tags: ["Snack", "Rápida", "Fácil", "Vegetariana"],
+    calorias: 150,
+    p: 12,
+    c: 15,
+    f: 3,
+    ingredientes: [
+      { n: "manzana", q: 1, u: "unidad" },
+      { n: "queso cottage", q: 100, u: "g" },
+    ],
   },
 
   // New recipes from PDF
@@ -427,3 +468,21 @@ export const allMeals: Recipe[] = [
       "1. Cocina el salmón. 2. Hornea las patatas. 3. Sirve junto con la salsa.",
   },
 ];
+
+// Funciones de utilidad para trabajar con recetas
+export const getRecipesByType = (type: Recipe["tipo"]): Recipe[] => {
+  return allMeals.filter((recipe) => recipe.tipo === type);
+};
+
+export const getRecipesByTag = (tag: string): Recipe[] => {
+  return allMeals.filter((recipe) => recipe.tags.includes(tag));
+};
+
+export const searchRecipes = (query: string): Recipe[] => {
+  const lowercaseQuery = query.toLowerCase();
+  return allMeals.filter(
+    (recipe) =>
+      recipe.nombre.toLowerCase().includes(lowercaseQuery) ||
+      recipe.tags.some((tag) => tag.toLowerCase().includes(lowercaseQuery))
+  );
+};

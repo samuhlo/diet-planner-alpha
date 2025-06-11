@@ -1,28 +1,41 @@
 ---
 // src/pages/index.astro
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/ui/Header.jsx';
-import Navigation from '../components/ui/Navigation.astro';
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/ui/Header.jsx";
+import Navigation from "../components/ui/Navigation.astro";
 
 // Importamos todos los componentes de sección
-import WeeklyPlanner from '../components/planner/WeeklyPlanner.astro';
-import RecipeGallery from '../components/recipes/RecipeGallery.astro';
-import Tips from '../components/tips/Tips.astro';
-import UserData from '../components/UserData.astro';
-import GoalProgress from '../components/progress/GoalProgress.astro';
+import WeeklyPlanner from "../components/planner/WeeklyPlanner.astro";
+import RecipeGallery from "../components/recipes/RecipeGallery.astro";
+import Tips from "../components/tips/Tips.astro";
+import UserData from "../components/UserData.astro";
+import GoalProgress from "../components/progress/GoalProgress.astro";
 ---
-<Layout title="Plan de Dieta Interactivo">
-    
-    <Header client:load />
-    <Navigation />
 
-    <main>
-        <!-- Colocamos todos nuestros componentes de sección -->
-        <WeeklyPlanner />
-        <RecipeGallery />
-        <Tips />
-        <UserData />
-        <GoalProgress/>
-    </main>
-    
+<Layout title="Plan de Dieta Interactivo">
+  <Header client:load />
+  <Navigation />
+
+  <main>
+    <!-- Colocamos todos nuestros componentes de sección -->
+    <section id="planificador" class="content-section">
+      <WeeklyPlanner />
+    </section>
+
+    <section id="recetario" class="content-section hidden">
+      <RecipeGallery />
+    </section>
+
+    <section id="consejos" class="content-section hidden">
+      <Tips />
+    </section>
+
+    <section id="datos" class="content-section hidden">
+      <UserData />
+    </section>
+
+    <section id="progreso" class="content-section hidden">
+      <GoalProgress />
+    </section>
+  </main>
 </Layout>

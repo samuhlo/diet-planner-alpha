@@ -1,13 +1,17 @@
 ---
-import { allMeals } from '../../data/recipes';
-import PlannerManager from './PlannerManager.jsx'; // <--- CAMBIO IMPORTANTE
+import PlannerManager from "./PlannerManager.tsx";
+import { allMeals } from "../../data/recipes";
 ---
-<section id="planificador" class="content-section">
-    <div class="text-center mb-8 max-w-3xl mx-auto">
-        <h2 class="text-3xl font-bold text-[#3a5a40]">Planificador Semanal Interactivo</h2>
-        <p class="mt-2 text-stone-600">Diseña tu semana, ajusta los comensales y revisa el análisis nutricional diario. Cuando termines, genera tu lista de la compra y analiza tu déficit semanal.</p>
-    </div>
 
-    <PlannerManager client:visible allMeals={allMeals} />
-</section>
+<div class="text-center mb-8 max-w-3xl mx-auto">
+  <h2 class="text-3xl font-bold text-[#3a5a40]">
+    Planificador Semanal Interactivo
+  </h2>
+  <p class="mt-2 text-stone-600">
+    Diseña tu semana, ajusta los comensales y revisa el análisis nutricional
+    diario. Cuando termines, genera tu lista de la compra y analiza tu déficit
+    semanal.
+  </p>
+</div>
 
+<PlannerManager client:load allMeals={allMeals} />

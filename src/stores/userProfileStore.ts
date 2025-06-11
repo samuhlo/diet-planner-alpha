@@ -1,27 +1,8 @@
 // src/stores/userProfileStore.ts
 import { map, computed } from "nanostores";
-
-// --- TIPOS (Mejorado para seguridad y claridad en lugar de `any`) ---
-type UserData = {
-  weight: number;
-  height: number;
-  age: number;
-  gender: string;
-  steps: number;
-  doesStrengthTraining: boolean;
-  strengthTrainingDays: number;
-  // ...otras propiedades que puedas tener
-};
-
-type UserGoal = {
-  startDate: string;
-  endDate: string;
-  targetWeight: number;
-  // ...otras propiedades
-};
+import type { UserData, UserGoal, WeightEntry } from "../types";
 
 // --- FUNCIÓN AUXILIAR ---
-// Sin cambios aquí, esta función es correcta.
 const getFromStorage = <T>(key: string, defaultValue: T): T => {
   if (typeof window !== "undefined") {
     const item = localStorage.getItem(key);
@@ -35,7 +16,6 @@ const getFromStorage = <T>(key: string, defaultValue: T): T => {
 };
 
 // --- STORE DE DATOS PERSONALES ---
-// El store puede contener un objeto UserData o ser null.
 export const $userData = map<UserData | any>(getFromStorage("userData", null));
 
 $userData.subscribe((value) => {
@@ -48,13 +28,11 @@ $userData.subscribe((value) => {
   }
 });
 
-// AHORA: Una función helper para establecer o limpiar los datos del usuario.
-export const setUserData = (newUserData: UserData | any) => {
+export const setUserData = (newUserData: UserData | null) => {
   $userData.set(newUserData);
 };
 
 // --- STORE DEL OBJETIVO ---
-// El store puede contener un objeto UserGoal o ser null.
 const defaultGoal: UserGoal = {
   startDate: "",
   endDate: "",
@@ -73,22 +51,18 @@ $userGoal.subscribe((value) => {
   }
 });
 
-// AHORA: Una función para actualizar una clave. Nota: Asume que $userGoal no es null al llamarla.
 export const updateUserGoal = <K extends keyof UserGoal>(
   key: K,
   value: UserGoal[K]
 ) => {
-  const currentGoal = $userGoal.get() || {};
+  const currentGoal = $userGoal.get();
   $userGoal.set({ ...currentGoal, [key]: value });
 };
 
 // --- STORE COMPUTADA PARA VERIFICACIÓN ---
-// CORRECTO: `computed` ya usa la API moderna, no necesita cambios.
-// Esta store deriva su valor de otras y reacciona a sus cambios automáticamente.
 export const $isProfileComplete = computed(
   [$userData, $userGoal],
   (userData, userGoal) => {
-    // Comprobamos que los objetos no sean nulos y que tengan las propiedades necesarias.
     const isDataComplete =
       userData && userData.weight && userData.height && userData.age;
     const isGoalComplete =
@@ -102,8 +76,8 @@ export const $isProfileComplete = computed(
 );
 
 // --- STORE DEL REGISTRO DE PESO ---
-const defaultWeightLog: Record<string, { weight: number; date: string }> = {};
-export const $weightLog = map<Record<string, { weight: number; date: string }>>(
+const defaultWeightLog: Record<string, WeightEntry> = {};
+export const $weightLog = map<Record<string, WeightEntry>>(
   getFromStorage("weightLog", defaultWeightLog)
 );
 
@@ -117,8 +91,7 @@ $weightLog.subscribe((value) => {
   }
 });
 
-// Función para añadir una nueva entrada de peso
-export const addWeightEntry = (entry: { weight: number; date: string }) => {
+export const addWeightEntry = (entry: WeightEntry) => {
   const id = `entry-${Date.now()}`;
   $weightLog.setKey(id, entry);
   return id;

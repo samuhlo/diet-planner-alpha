@@ -55,18 +55,18 @@ const NutritionalSummary = () => {
   ];
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md mb-8">
-      <div className="flex flex-wrap justify-around items-start gap-x-6 gap-y-4 text-center">
+    <div class="bg-white p-4 rounded-lg shadow-md mb-8">
+      <div class="flex flex-wrap justify-around items-start gap-x-6 gap-y-4 text-center">
         {summaryItems.map((item) => (
           <div key={item.label}>
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {item.label}
             </h3>
-            <p className={`text-xl font-bold ${item.color}`}>
+            <p class={`text-xl font-bold ${item.color}`}>
               {item.value}{" "}
-              <span className="text-base font-normal">{item.unit}</span>
+              <span class="text-base font-normal">{item.unit}</span>
             </p>
-            <p className="text-xs text-gray-500 mt-1">{item.description}</p>
+            <p class="text-xs text-gray-500 mt-1">{item.description}</p>
           </div>
         ))}
       </div>
