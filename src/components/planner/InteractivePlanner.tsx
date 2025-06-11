@@ -75,122 +75,118 @@ export default function InteractivePlanner({
           const dailyPlan = plan[dayId] || {};
 
           return (
-            <div key={dayId} class="space-y-4">
-              {/* Resumen Diario */}
-              <DailyNutritionSummary dayId={dayId} dayName={day} />
+            <div key={dayId} class="bg-white p-6 rounded-lg shadow-md">
+              <h3 class="text-xl font-bold mb-6 text-center md:text-left text-[#6B8A7A]">
+                {day}
+              </h3>
 
-              {/* Planificador del día */}
-              <div class="bg-white p-4 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold mb-4 text-center md:text-left text-[#6B8A7A]">
-                  {day}
-                </h3>
-
-                {/* Comidas principales */}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                  {MEAL_TYPES.map((mealType) => (
-                    <div key={mealType} class="meal-slot lg:col-span-1">
-                      <div class="flex justify-between items-center mb-1">
-                        <label class="block text-sm font-medium text-stone-700 capitalize">
-                          {mealType}
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          class="w-12 text-center border-gray-300 rounded-md text-sm p-1"
-                          value={dailyPlan[mealType]?.diners || 1}
-                          onChange={(e) =>
-                            handlePlanChange(
-                              dayId,
-                              mealType,
-                              "diners",
-                              Number(e.currentTarget.value)
-                            )
-                          }
-                        />
-                      </div>
-                      <select
-                        value={dailyPlan[mealType]?.recipeName || ""}
+              {/* Comidas principales */}
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {MEAL_TYPES.map((mealType) => (
+                  <div key={mealType} class="meal-slot lg:col-span-1">
+                    <div class="flex justify-between items-center mb-1">
+                      <label class="block text-sm font-medium text-stone-700 capitalize">
+                        {mealType}
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        class="w-12 text-center border-gray-300 rounded-md text-sm p-1"
+                        value={dailyPlan[mealType]?.diners || 1}
                         onChange={(e) =>
                           handlePlanChange(
                             dayId,
                             mealType,
-                            "recipeName",
-                            e.currentTarget.value
-                          )
-                        }
-                        class="w-full text-sm border border-gray-300 rounded-md p-2"
-                      >
-                        <option value="">
-                          Seleccionar {mealType.toLowerCase()}...
-                        </option>
-                        {mealsByType[mealType]?.map((meal) => (
-                          <option key={meal.nombre} value={meal.nombre}>
-                            {meal.nombre} ({meal.calorias} kcal)
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Suplementos y Snacks */}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Suplementos */}
-                  <div class="bg-gray-50 p-4 rounded-lg border">
-                    <div class="flex justify-between items-center mb-2">
-                      <label class="block text-sm font-medium text-gray-700">
-                        Suplementos
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="5"
-                        class="w-16 text-center border-gray-300 rounded-md text-sm p-1"
-                        value={dailyPlan.supplement?.shakes || 0}
-                        onChange={(e) =>
-                          handlePlanChange(
-                            dayId,
-                            "supplement",
-                            "shakes",
+                            "diners",
                             Number(e.currentTarget.value)
                           )
                         }
                       />
                     </div>
                     <select
-                      value={
-                        dailyPlan.supplement?.type ||
-                        allSupplements[0]?.id ||
-                        ""
-                      }
+                      value={dailyPlan[mealType]?.recipeName || ""}
                       onChange={(e) =>
                         handlePlanChange(
                           dayId,
-                          "supplement",
-                          "type",
+                          mealType,
+                          "recipeName",
                           e.currentTarget.value
                         )
                       }
                       class="w-full text-sm border border-gray-300 rounded-md p-2"
                     >
-                      {allSupplements.map((supp) => (
-                        <option key={supp.id} value={supp.id}>
-                          {supp.name} ({supp.calories} kcal, {supp.protein}g
-                          proteína)
+                      <option value="">
+                        Seleccionar {mealType.toLowerCase()}...
+                      </option>
+                      {mealsByType[mealType]?.map((meal) => (
+                        <option key={meal.nombre} value={meal.nombre}>
+                          {meal.nombre} ({meal.calorias} kcal)
                         </option>
                       ))}
                     </select>
                   </div>
+                ))}
+              </div>
 
-                  {/* Snacks */}
-                  <SnackSelector
-                    dayId={dayId}
-                    currentSnackPlan={dailyPlan.snacks}
-                    onSnackPlanChange={(snackPlan) =>
-                      handleSnackPlanChange(dayId, snackPlan)
+              {/* Suplementos y Snacks */}
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Suplementos */}
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                  <div class="flex justify-between items-center mb-2">
+                    <label class="block text-sm font-medium text-gray-700">
+                      Suplementos
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="5"
+                      class="w-16 text-center border-gray-300 rounded-md text-sm p-1"
+                      value={dailyPlan.supplement?.shakes || 0}
+                      onChange={(e) =>
+                        handlePlanChange(
+                          dayId,
+                          "supplement",
+                          "shakes",
+                          Number(e.currentTarget.value)
+                        )
+                      }
+                    />
+                  </div>
+                  <select
+                    value={
+                      dailyPlan.supplement?.type || allSupplements[0]?.id || ""
                     }
-                  />
+                    onChange={(e) =>
+                      handlePlanChange(
+                        dayId,
+                        "supplement",
+                        "type",
+                        e.currentTarget.value
+                      )
+                    }
+                    class="w-full text-sm border border-gray-300 rounded-md p-2"
+                  >
+                    {allSupplements.map((supp) => (
+                      <option key={supp.id} value={supp.id}>
+                        {supp.name} ({supp.calories} kcal, {supp.protein}g
+                        proteína)
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
+                {/* Snacks */}
+                <SnackSelector
+                  dayId={dayId}
+                  currentSnackPlan={dailyPlan.snacks}
+                  onSnackPlanChange={(snackPlan) =>
+                    handleSnackPlanChange(dayId, snackPlan)
+                  }
+                />
+              </div>
+              {/* Resumen Nutricional Integrado */}
+              <div class="mt-6">
+                <DailyNutritionSummary dayId={dayId} dayName={day} />
               </div>
             </div>
           );
