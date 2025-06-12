@@ -125,8 +125,11 @@ export default function SnackSelector({
 
         {enabled && (
           <div class="flex items-center space-x-2">
-            <label class="text-xs text-gray-600">Cantidad:</label>
+            <label for={`snack-count-${dayId}`} class="text-xs text-gray-600">
+              Cantidad:
+            </label>
             <select
+              id={`snack-count-${dayId}`}
               value={snackCount}
               onChange={(e) =>
                 handleSnackCountChange(Number(e.currentTarget.value))

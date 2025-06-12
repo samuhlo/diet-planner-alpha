@@ -140,8 +140,14 @@ export default function SupplementSelector({
 
         {enabled && (
           <div class="flex items-center space-x-2">
-            <label class="text-xs text-gray-600">Cantidad:</label>
+            <label
+              for={`supplement-count-${dayId}`}
+              class="text-xs text-gray-600"
+            >
+              Cantidad:
+            </label>
             <select
+              id={`supplement-count-${dayId}`}
               value={supplementCount}
               onChange={(e) =>
                 handleSupplementCountChange(Number(e.currentTarget.value))

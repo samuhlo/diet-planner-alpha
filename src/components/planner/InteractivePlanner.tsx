@@ -82,32 +82,41 @@ export default function InteractivePlanner({
 
           return (
             <div key={dayId} class="bg-white p-6 rounded-lg shadow-md">
-              <h3 class="text-xl font-bold mb-6 text-center md:text-left text-[#6B8A7A]">
+              <h3 class="text-xl font-bold mb-6 text-center sm:text-left text-[#6B8A7A] uppercase">
                 {day}
               </h3>
 
               {/* Comidas principales */}
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 {MEAL_TYPES.map((mealType) => (
                   <div key={mealType} class="meal-slot lg:col-span-1">
                     <div class="flex justify-between items-center mb-1">
-                      <label class="block text-sm font-medium text-stone-700 capitalize">
+                      <span class="block text-sm font-medium text-stone-700 capitalize">
                         {mealType}
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        class="w-12 text-center border-gray-300 rounded-md text-sm p-1"
-                        value={dailyPlan[mealType]?.diners || 1}
-                        onChange={(e) =>
-                          handlePlanChange(
-                            dayId,
-                            mealType,
-                            "diners",
-                            Number(e.currentTarget.value)
-                          )
-                        }
-                      />
+                      </span>
+                      <div class="flex items-center space-x-2">
+                        <label
+                          for={`diners-${dayId}-${mealType}`}
+                          class="text-xs text-gray-600"
+                        >
+                          Comensales:
+                        </label>
+                        <input
+                          type="number"
+                          id={`diners-${dayId}-${mealType}`}
+                          min="1"
+                          class="w-12 text-center border-gray-300 rounded-md text-sm p-1"
+                          value={dailyPlan[mealType]?.diners || 1}
+                          onChange={(e) =>
+                            handlePlanChange(
+                              dayId,
+                              mealType,
+                              "diners",
+                              Number(e.currentTarget.value)
+                            )
+                          }
+                        />
+                      </div>
                     </div>
                     <RecipeSelector
                       mealType={mealType}

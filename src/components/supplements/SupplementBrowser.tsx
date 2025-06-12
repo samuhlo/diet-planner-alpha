@@ -223,10 +223,14 @@ export default function SupplementBrowser({
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {/* Filtro por categoría */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="supplement-category-filter"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               Categoría
             </label>
             <select
+              id="supplement-category-filter"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.currentTarget.value)}
               class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"
@@ -242,10 +246,14 @@ export default function SupplementBrowser({
 
           {/* Filtro por objetivo */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="supplement-goal-filter"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               Objetivo
             </label>
             <select
+              id="supplement-goal-filter"
               value={selectedGoal}
               onChange={(e) => setSelectedGoal(e.currentTarget.value)}
               class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"
@@ -261,10 +269,14 @@ export default function SupplementBrowser({
 
           {/* Filtro por calorías */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="supplement-calories-filter"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               Calorías
             </label>
             <select
+              id="supplement-calories-filter"
               value={selectedCalories}
               onChange={(e) => setSelectedCalories(e.currentTarget.value)}
               class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"
@@ -280,10 +292,14 @@ export default function SupplementBrowser({
 
           {/* Filtro por proteína */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="supplement-protein-filter"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               Proteína
             </label>
             <select
+              id="supplement-protein-filter"
               value={selectedProtein}
               onChange={(e) => setSelectedProtein(e.currentTarget.value)}
               class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"
@@ -299,11 +315,15 @@ export default function SupplementBrowser({
 
           {/* Ordenamiento */}
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="supplement-sort-filter"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               Ordenar por
             </label>
             <div class="flex gap-2">
               <select
+                id="supplement-sort-filter"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.currentTarget.value as any)}
                 class="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"

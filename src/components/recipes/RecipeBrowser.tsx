@@ -139,10 +139,14 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Filtro por tipo */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="recipe-type-filter"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               Tipo de comida
             </label>
             <select
+              id="recipe-type-filter"
               value={selectedType}
               onChange={(e) => {
                 const value = e.currentTarget.value;
@@ -163,10 +167,14 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
 
           {/* Filtro por fuente */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="recipe-source-filter"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               Fuente
             </label>
             <select
+              id="recipe-source-filter"
               value={selectedSource}
               onChange={(e) => setSelectedSource(e.currentTarget.value)}
               class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"
@@ -182,11 +190,15 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
 
           {/* Ordenamiento */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="recipe-sort-filter"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               Ordenar por
             </label>
             <div class="flex gap-2">
               <select
+                id="recipe-sort-filter"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.currentTarget.value as any)}
                 class="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"
