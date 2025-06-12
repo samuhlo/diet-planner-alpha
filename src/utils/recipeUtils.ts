@@ -3,19 +3,16 @@ import type { Recipe } from "../types";
 /**
  * Obtiene todas las recetas de un tipo específico
  */
-export const getRecipesByType = (
-  recipes: Recipe[],
-  type: Recipe["tipo"]
-): Recipe[] => {
-  return recipes.filter((recipe) => recipe.tipo === type);
-};
+export function getRecipesByType(recipes: Recipe[], tipo: string): Recipe[] {
+  return recipes.filter((recipe) => recipe.tipo === tipo);
+}
 
 /**
  * Obtiene todas las recetas que contengan un tag específico
  */
-export const getRecipesByTag = (recipes: Recipe[], tag: string): Recipe[] => {
+export function getRecipesByTag(recipes: Recipe[], tag: string): Recipe[] {
   return recipes.filter((recipe) => recipe.tags.includes(tag));
-};
+}
 
 /**
  * Busca recetas por nombre o tags
@@ -98,3 +95,19 @@ export const filterRecipes = (
     return true;
   });
 };
+
+/**
+ * Obtiene todos los tags únicos de todas las recetas
+ */
+export function getAllUniqueTags(recipes: Recipe[]): string[] {
+  const allTags = recipes.flatMap((recipe) => recipe.tags);
+  return [...new Set(allTags)].sort();
+}
+
+/**
+ * Obtiene todos los tipos únicos de todas las recetas
+ */
+export function getAllUniqueTypes(recipes: Recipe[]): string[] {
+  const allTypes = recipes.map((recipe) => recipe.tipo);
+  return [...new Set(allTypes)].sort();
+}

@@ -13,6 +13,18 @@ export default function RecipeDetailModal({
 }: RecipeDetailModalProps) {
   if (!isOpen || !recipe) return null;
 
+  const getCalorieColor = (calories: number) => {
+    if (calories < 300) return "text-green-600";
+    if (calories < 500) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getProteinColor = (protein: number) => {
+    if (protein >= 30) return "text-green-600";
+    if (protein >= 20) return "text-yellow-600";
+    return "text-red-600";
+  };
+
   const getMealTypeColor = (tipo: string) => {
     switch (tipo) {
       case "Desayuno":
@@ -26,29 +38,11 @@ export default function RecipeDetailModal({
     }
   };
 
-  const getMealTypeIcon = (tipo: string) => {
-    switch (tipo) {
-      case "Desayuno":
-        return "🌅";
-      case "Almuerzo":
-        return "🌞";
-      case "Cena":
-        return "🌙";
-      default:
-        return "🍽️";
-    }
-  };
-
-  const getCalorieColor = (calories: number) => {
-    if (calories < 300) return "text-green-600";
-    if (calories < 500) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  const getProteinColor = (protein: number) => {
-    if (protein >= 30) return "text-green-600";
-    if (protein >= 20) return "text-yellow-600";
-    return "text-red-600";
+  // Función para formatear la preparación en pasos
+  const formatPreparation = (preparation: string) => {
+    // Dividir por números seguidos de punto (1. 2. 3. etc.)
+    const steps = preparation.split(/(?=\d+\.)/);
+    return steps.filter((step) => step.trim().length > 0);
   };
 
   return (
@@ -62,37 +56,43 @@ export default function RecipeDetailModal({
       {/* Modal */}
       <div class="flex min-h-full items-center justify-center p-4">
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          {/* Header */}
-          <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-3"></div>
-              <button
-                onClick={onClose}
-                class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-              >
-                <svg
-                  class="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-          </div>
+          {/* Botón de cerrar flotante */}
+          <button
+            onClick={onClose}
+            class="absolute top-4 right-4 z-10 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
 
           {/* Content */}
           <div class="p-6">
             {/* Nombre de la receta */}
-            <h2 class="text-2xl font-bold text-gray-900 mb-4 leading-tight">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4 leading-tight pr-12">
               {recipe.nombre}
             </h2>
+
+            {/* Tipo de comida */}
+            <div class="mb-6">
+              <span
+                class={`px-3 py-1 rounded-full text-sm font-semibold ${getMealTypeColor(
+                  recipe.tipo
+                )}`}
+              >
+                {recipe.tipo}
+              </span>
+            </div>
 
             {/* Tags */}
             {recipe.tags && recipe.tags.length > 0 && (
@@ -115,13 +115,21 @@ export default function RecipeDetailModal({
               </h3>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-gray-900">
+                  <div
+                    class={`text-2xl font-bold text-gray-900 ${getCalorieColor(
+                      recipe.calorias
+                    )}`}
+                  >
                     {recipe.calorias}
                   </div>
                   <div class="text-sm text-gray-600">Calorías</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-gray-900">
+                  <div
+                    class={`text-2xl font-bold text-gray-900 ${getProteinColor(
+                      recipe.p
+                    )}`}
+                  >
                     {recipe.p}g
                   </div>
                   <div class="text-sm text-gray-600">Proteína</div>
@@ -173,9 +181,15 @@ export default function RecipeDetailModal({
                   Preparación
                 </h3>
                 <div class="bg-yellow-50 rounded-xl p-4 border-l-4 border-yellow-400">
-                  <p class="text-gray-800 leading-relaxed whitespace-pre-line">
-                    {recipe.preparacion}
-                  </p>
+                  <ol class="space-y-2">
+                    {formatPreparation(recipe.preparacion).map(
+                      (step, index) => (
+                        <li key={index} class="text-gray-800 leading-relaxed">
+                          {step.trim()}
+                        </li>
+                      )
+                    )}
+                  </ol>
                 </div>
               </div>
             )}

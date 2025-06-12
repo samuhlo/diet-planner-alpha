@@ -7,7 +7,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Revuelto (3 huevos) con atún y espinacas",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 340,
     p: 35,
     c: 5,
@@ -22,7 +22,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Tortilla (3 huevos) con queso",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Rápida", "Fácil", "Vegetariana"],
+    tags: ["Rápida", "Fácil", "Vegetariana"],
     calorias: 330,
     p: 25,
     c: 2,
@@ -36,7 +36,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Revuelto (2 huevos) con queso fresco",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Rápida", "Fácil", "Vegetariana"],
+    tags: ["Rápida", "Fácil", "Vegetariana"],
     calorias: 250,
     p: 28,
     c: 5,
@@ -50,7 +50,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Bol de yogur griego con queso y arándanos",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Rápida", "Fácil", "Vegetariana"],
+    tags: ["Rápida", "Fácil", "Vegetariana"],
     calorias: 280,
     p: 25,
     c: 15,
@@ -65,7 +65,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Frittata de Espinacas y Feta",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Elaborada", "Vegetariana"],
+    tags: ["Elaborada", "Vegetariana"],
     calorias: 280,
     p: 18,
     c: 8,
@@ -86,7 +86,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Ensalada gigante con atún y huevo",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Fácil"],
+    tags: ["Fácil"],
     calorias: 420,
     p: 45,
     c: 15,
@@ -104,7 +104,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Lentejas estofadas con caballa",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Fácil"],
+    tags: ["Fácil"],
     calorias: 500,
     p: 40,
     c: 55,
@@ -121,7 +121,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Pollo/Merluza a la plancha con pisto",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 330,
     p: 45,
     c: 15,
@@ -135,7 +135,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Ensalada de quinoa y verduras asadas",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Fácil", "Vegetariana"],
+    tags: ["Fácil", "Vegetariana"],
     calorias: 450,
     p: 15,
     c: 50,
@@ -154,7 +154,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Pescado en Papillote con Verduras",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Elaborada"],
+    tags: ["Elaborada"],
     calorias: 350,
     p: 40,
     c: 10,
@@ -174,7 +174,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Crema de lentejas rojas al curry",
     tipo: "Cena",
-    tags: ["Cena", "Rápida", "Fácil", "Vegetariana", "Vegana"],
+    tags: ["Rápida", "Fácil", "Vegana"],
     calorias: 350,
     p: 18,
     c: 45,
@@ -193,7 +193,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Wok de garbanzos y tofu",
     tipo: "Cena",
-    tags: ["Cena", "Rápida", "Fácil", "Vegetariana", "Vegana"],
+    tags: ["Rápida", "Fácil", "Vegetariana", "Vegana"],
     calorias: 400,
     p: 20,
     c: 45,
@@ -212,7 +212,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Ensalada de garbanzos y atún",
     tipo: "Cena",
-    tags: ["Cena", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 380,
     p: 35,
     c: 30,
@@ -229,7 +229,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Sopa de verduras con pollo",
     tipo: "Cena",
-    tags: ["Cena", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 280,
     p: 30,
     c: 20,
@@ -246,7 +246,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Bowl de salmón con quinoa",
     tipo: "Cena",
-    tags: ["Cena", "Elaborada"],
+    tags: ["Elaborada"],
     calorias: 450,
     p: 35,
     c: 40,
@@ -263,7 +263,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Pasta integral con atún y verduras",
     tipo: "Cena",
-    tags: ["Cena", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 420,
     p: 25,
     c: 60,
@@ -280,7 +280,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Tortilla de patatas light",
     tipo: "Cena",
-    tags: ["Cena", "Fácil", "Vegetariana"],
+    tags: ["Fácil", "Vegetariana"],
     calorias: 350,
     p: 20,
     c: 35,
@@ -296,7 +296,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Ensalada de pollo y aguacate",
     tipo: "Cena",
-    tags: ["Cena", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 380,
     p: 35,
     c: 15,
@@ -313,7 +313,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Sopa de lentejas",
     tipo: "Cena",
-    tags: ["Cena", "Fácil", "Vegetariana"],
+    tags: ["Fácil", "Vegetariana"],
     calorias: 320,
     p: 18,
     c: 45,
@@ -329,7 +329,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Pescado al horno con verduras",
     tipo: "Cena",
-    tags: ["Cena", "Fácil"],
+    tags: ["Fácil"],
     calorias: 300,
     p: 35,
     c: 15,
@@ -348,7 +348,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Pancakes Frutos Rojos",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Elaborada"],
+    tags: ["Elaborada"],
     calorias: 440,
     p: 25,
     c: 60,
@@ -369,7 +369,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Pancake-Toast Sueño de Chocolate",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Rápida", "Elaborada"],
+    tags: ["Rápida", "Elaborada"],
     calorias: 410,
     p: 25,
     c: 55,
@@ -389,7 +389,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: 'French Toast "The Rock style"',
     tipo: "Desayuno",
-    tags: ["Desayuno", "Elaborada"],
+    tags: ["Elaborada"],
     calorias: 400,
     p: 30,
     c: 45,
@@ -411,7 +411,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: 'French Toast "Italian style"',
     tipo: "Desayuno",
-    tags: ["Desayuno", "Salado", "Rápida"],
+    tags: ["Salado", "Rápida"],
     calorias: 425,
     p: 35,
     c: 40,
@@ -434,7 +434,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Tostas de jamón y aguacate",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 450,
     p: 25,
     c: 35,
@@ -455,7 +455,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Protein Cereal Bowl (Frambuesa)",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 415,
     p: 35,
     c: 45,
@@ -476,7 +476,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Protein Cereal Bowl (Chocolate)",
     tipo: "Desayuno",
-    tags: ["Desayuno", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 415,
     p: 35,
     c: 45,
@@ -499,7 +499,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Crepes estilo Caprese",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Fácil", "Vegetariana"],
+    tags: ["Fácil", "Vegetariana"],
     calorias: 450,
     p: 30,
     c: 30,
@@ -519,7 +519,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Boniato Burger",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Fácil"],
+    tags: ["Fácil"],
     calorias: 440,
     p: 30,
     c: 45,
@@ -538,7 +538,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Ensalada Burrito",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Rápida", "Fácil"],
+    tags: ["Rápida", "Fácil"],
     calorias: 425,
     p: 35,
     c: 30,
@@ -558,7 +558,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Pimientos Rellenos",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Elaborada"],
+    tags: ["Elaborada"],
     calorias: 400,
     p: 25,
     c: 40,
@@ -578,7 +578,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Megawraps fit",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Elaborada", "Rápida"],
+    tags: ["Elaborada", "Rápida"],
     calorias: 380,
     p: 30,
     c: 35,
@@ -600,7 +600,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Bomba de patata",
     tipo: "Almuerzo",
-    tags: ["Almuerzo", "Elaborada"],
+    tags: ["Elaborada"],
     calorias: 430,
     p: 25,
     c: 45,
@@ -622,7 +622,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Palomitas de pollo",
     tipo: "Snack",
-    tags: ["Snack", "Fácil"],
+    tags: ["Fácil"],
     calorias: 180,
     p: 25,
     c: 15,
@@ -643,7 +643,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Lasaña de repollo",
     tipo: "Cena",
-    tags: ["Cena", "Elaborada"],
+    tags: ["Elaborada"],
     calorias: 320,
     p: 30,
     c: 20,
@@ -662,7 +662,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Pizza Keto",
     tipo: "Cena",
-    tags: ["Cena", "Elaborada", "Keto"],
+    tags: ["Elaborada", "Keto"],
     calorias: 400,
     p: 40,
     c: 10,
@@ -681,7 +681,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Patatas supremas",
     tipo: "Cena",
-    tags: ["Cena", "Fácil"],
+    tags: ["Fácil"],
     calorias: 400,
     p: 25,
     c: 45,
@@ -702,7 +702,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Canelones de Berenjena",
     tipo: "Cena",
-    tags: ["Cena", "Elaborada"],
+    tags: ["Elaborada"],
     calorias: 320,
     p: 25,
     c: 20,
@@ -722,7 +722,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Slim Pasta Carbonara",
     tipo: "Cena",
-    tags: ["Cena", "Rápida"],
+    tags: ["Rápida"],
     calorias: 340,
     p: 30,
     c: 25,
@@ -740,7 +740,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Slim Pasta Pesto",
     tipo: "Cena",
-    tags: ["Cena", "Rápida", "Vegetariana"],
+    tags: ["Rápida", "Vegetariana"],
     calorias: 340,
     p: 25,
     c: 30,
@@ -760,7 +760,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Slim Pasta Boloñesa",
     tipo: "Cena",
-    tags: ["Cena", "Rápida"],
+    tags: ["Rápida"],
     calorias: 340,
     p: 30,
     c: 25,
@@ -778,7 +778,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Huevos Rotos Meat Lovers",
     tipo: "Cena",
-    tags: ["Cena", "Fácil"],
+    tags: ["Fácil"],
     calorias: 410,
     p: 35,
     c: 30,
@@ -796,7 +796,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Huevos Rotos Cheese Lovers",
     tipo: "Cena",
-    tags: ["Cena", "Fácil"],
+    tags: ["Fácil"],
     calorias: 410,
     p: 30,
     c: 25,
@@ -815,7 +815,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Pastel de brócoli",
     tipo: "Cena",
-    tags: ["Cena", "Fácil"],
+    tags: ["Fácil"],
     calorias: 410,
     p: 45,
     c: 15,
@@ -834,7 +834,7 @@ export const allMeals: Recipe[] = [
   {
     nombre: "Salmón con patatas alioli",
     tipo: "Cena",
-    tags: ["Cena", "Fácil"],
+    tags: ["Fácil"],
     calorias: 425,
     p: 30,
     c: 30,
