@@ -1,5 +1,6 @@
 import type { Snack } from "../types";
 
+// Datos de snacks - solo información, sin funciones de utilidad
 export const allSnacks: Snack[] = [
   // SNACKS SIMPLES
   {
@@ -281,29 +282,3 @@ export const allSnacks: Snack[] = [
     porcion: "1 vaso (250ml)",
   },
 ];
-
-// Funciones de utilidad para trabajar con snacks
-export const getSnacksByType = (type: Snack["tipo"]): Snack[] => {
-  return allSnacks.filter((snack) => snack.tipo === type);
-};
-
-export const getSnacksByTag = (tag: string): Snack[] => {
-  return allSnacks.filter((snack) => snack.tags.includes(tag));
-};
-
-export const searchSnacks = (query: string): Snack[] => {
-  const lowercaseQuery = query.toLowerCase();
-  return allSnacks.filter(
-    (snack) =>
-      snack.nombre.toLowerCase().includes(lowercaseQuery) ||
-      snack.tags.some((tag) => tag.toLowerCase().includes(lowercaseQuery))
-  );
-};
-
-export const getSimpleSnacks = (): Snack[] => {
-  return getSnacksByType("simple");
-};
-
-export const getElaboratedSnacks = (): Snack[] => {
-  return getSnacksByType("elaborado");
-};

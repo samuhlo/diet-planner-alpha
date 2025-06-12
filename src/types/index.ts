@@ -56,6 +56,16 @@ export interface WeeklyPlan {
   [dayId: string]: DailyPlan;
 }
 
+// Tipos de fuentes
+export interface RecipeSource {
+  id: string;
+  name: string;
+  authors?: string;
+  url?: string;
+  year?: number;
+  type: "book" | "website" | "magazine" | "personal" | "other";
+}
+
 // Tipos de recetas
 export interface Ingredient {
   n: string; // nombre
@@ -73,6 +83,7 @@ export interface Recipe {
   f: number; // Grasas
   ingredientes: Ingredient[];
   preparacion?: string;
+  source?: RecipeSource;
 }
 
 // Tipos de snacks
@@ -120,8 +131,7 @@ export interface ModalState {
 // Tipos de consejos
 export interface Tip {
   id: string;
-  titulo: string;
-  contenido: string;
-  categoria: string;
+  title: string;
+  content: string;
   tags: string[];
 }

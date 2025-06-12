@@ -1,15 +1,6 @@
-export interface Supplement {
-  id: string; // Un identificador único
-  name: string; // El nombre que verá el usuario
-  calories: number; // Calorías por toma
-  protein: number; // Proteína por toma
-  carbs?: number; // Carbohidratos por toma
-  fat?: number; // Grasas por toma
-  serving?: string; // Descripción de la porción
-  description?: string; // Descripción del suplemento
-  tags?: string[]; // Tags para categorización
-}
+import type { Supplement } from "../types";
 
+// Datos de suplementos - solo información, sin funciones de utilidad
 export const allSupplements: Supplement[] = [
   {
     id: "default-whey",

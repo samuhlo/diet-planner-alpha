@@ -1,11 +1,7 @@
 // src/data/tips.ts
-export interface Tip {
-  id: string;
-  title: string;
-  content: string; // El contenido puede incluir HTML para el formato
-  tags: string[];
-}
+import type { Tip } from "../types";
 
+// Datos de tips - solo información, sin funciones de utilidad
 export const allTips: Tip[] = [
   {
     id: "batido-verde",

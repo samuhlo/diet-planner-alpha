@@ -7,7 +7,6 @@ import { allSupplements } from "../../data/supplements";
 import { allSnacks } from "../../data/snacks";
 import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
-import type { DailyPlan } from "../../types";
 import { MEAL_TYPES } from "../../constants/appConstants";
 
 interface DailyNutritionSummaryProps {

@@ -1,8 +1,9 @@
-// src/data/recipes.ts
-import type { Recipe, Ingredient } from "../types";
+import type { Recipe } from "../types";
+import { recipeSources } from "./recipeSources";
 
+// Datos de recetas - solo información, sin funciones de utilidad
 export const allMeals: Recipe[] = [
-  // Existing recipes
+  // DESAYUNOS
   {
     nombre: "Revuelto (3 huevos) con atún y espinacas",
     tipo: "Desayuno",
@@ -16,6 +17,7 @@ export const allMeals: Recipe[] = [
       { n: "atún al natural", q: 1, u: "lata" },
       { n: "espinaca fresca", q: 1, u: "puñado" },
     ],
+    source: recipeSources.personal,
   },
   {
     nombre: "Tortilla (3 huevos) con queso",
@@ -29,6 +31,7 @@ export const allMeals: Recipe[] = [
       { n: "huevo", q: 3, u: "unidad" },
       { n: "queso", q: 1, u: "loncha" },
     ],
+    source: recipeSources.personal,
   },
   {
     nombre: "Revuelto (2 huevos) con queso fresco",
@@ -42,6 +45,7 @@ export const allMeals: Recipe[] = [
       { n: "huevo", q: 2, u: "unidad" },
       { n: "queso fresco batido 0%", q: 100, u: "g" },
     ],
+    source: recipeSources.personal,
   },
   {
     nombre: "Bol de yogur griego con queso y arándanos",
@@ -56,6 +60,7 @@ export const allMeals: Recipe[] = [
       { n: "queso curado", q: 30, u: "g" },
       { n: "arándano", q: 1, u: "puñado" },
     ],
+    source: recipeSources.personal,
   },
   {
     nombre: "Frittata de Espinacas y Feta",
@@ -74,25 +79,10 @@ export const allMeals: Recipe[] = [
     ],
     preparacion:
       "1. Horno 180°C. 2. Saltear verduras. 3. Batir huevos, añadir feta y salteado. 4. Hornear 20-25 min.",
+    source: recipeSources.squatFit,
   },
-  {
-    nombre: "Crema de lentejas rojas al curry",
-    tipo: "Cena",
-    tags: ["Cena", "Rápida", "Fácil", "Vegetariana", "Vegana"],
-    calorias: 350,
-    p: 18,
-    c: 45,
-    f: 10,
-    ingredientes: [
-      { n: "lenteja roja", q: 100, u: "g" },
-      { n: "cebolla", q: 0.5, u: "unidad" },
-      { n: "zanahoria", q: 1, u: "unidad" },
-      { n: "leche de coco light", q: 100, u: "ml" },
-      { n: "curry en polvo", q: 1, u: "cucharadita" },
-    ],
-    preparacion:
-      "1. Sofreír cebolla y zanahoria. 2. Añadir lentejas, curry y agua/caldo. Cocer 15 min. 3. Añadir leche de coco y triturar.",
-  },
+
+  // ALMUERZOS
   {
     nombre: "Ensalada gigante con atún y huevo",
     tipo: "Almuerzo",
@@ -109,6 +99,7 @@ export const allMeals: Recipe[] = [
       { n: "atún al natural", q: 2, u: "lata" },
       { n: "huevo duro", q: 1, u: "unidad" },
     ],
+    source: recipeSources.personal,
   },
   {
     nombre: "Lentejas estofadas con caballa",
@@ -125,6 +116,7 @@ export const allMeals: Recipe[] = [
       { n: "zanahoria", q: 1, u: "unidad" },
       { n: "caballa en conserva", q: 2, u: "lata" },
     ],
+    source: recipeSources.personal,
   },
   {
     nombre: "Pollo/Merluza a la plancha con pisto",
@@ -138,6 +130,7 @@ export const allMeals: Recipe[] = [
       { n: "pechuga de pollo o merluza", q: 200, u: "g" },
       { n: "pisto de verduras", q: 150, u: "g" },
     ],
+    source: recipeSources.personal,
   },
   {
     nombre: "Ensalada de quinoa y verduras asadas",
@@ -156,6 +149,7 @@ export const allMeals: Recipe[] = [
     ],
     preparacion:
       "1. Cocer la quinoa. 2. Asar las verduras en dados. 3. Mezclar todo con el queso feta y aliñar con limón.",
+    source: recipeSources.squatFit,
   },
   {
     nombre: "Pescado en Papillote con Verduras",
@@ -173,6 +167,28 @@ export const allMeals: Recipe[] = [
     ],
     preparacion:
       "1. Horno 200°C. 2. Poner verduras y pescado en papel de horno. 3. Cerrar y hornear 15-20 min.",
+    source: recipeSources.squatFit,
+  },
+
+  // CENAS
+  {
+    nombre: "Crema de lentejas rojas al curry",
+    tipo: "Cena",
+    tags: ["Cena", "Rápida", "Fácil", "Vegetariana", "Vegana"],
+    calorias: 350,
+    p: 18,
+    c: 45,
+    f: 10,
+    ingredientes: [
+      { n: "lenteja roja", q: 100, u: "g" },
+      { n: "cebolla", q: 0.5, u: "unidad" },
+      { n: "zanahoria", q: 1, u: "unidad" },
+      { n: "leche de coco light", q: 100, u: "ml" },
+      { n: "curry en polvo", q: 1, u: "cucharadita" },
+    ],
+    preparacion:
+      "1. Sofreír cebolla y zanahoria. 2. Añadir lentejas, curry y agua/caldo. Cocer 15 min. 3. Añadir leche de coco y triturar.",
+    source: recipeSources.squatFit,
   },
   {
     nombre: "Wok de garbanzos y tofu",
@@ -191,298 +207,139 @@ export const allMeals: Recipe[] = [
     ],
     preparacion:
       "1. Saltear tofu hasta dorar. 2. Añadir verduras y saltear. 3. Añadir garbanzos y salsa de soja. 4. Cocinar 5 min más.",
+    source: recipeSources.squatFit,
+  },
+  {
+    nombre: "Ensalada de garbanzos y atún",
+    tipo: "Cena",
+    tags: ["Cena", "Rápida", "Fácil"],
+    calorias: 380,
+    p: 35,
+    c: 30,
+    f: 15,
+    ingredientes: [
+      { n: "garbanzos cocidos", q: 150, u: "g" },
+      { n: "atún al natural", q: 1, u: "lata" },
+      { n: "tomate", q: 1, u: "unidad" },
+      { n: "cebolla", q: 0.25, u: "unidad" },
+      { n: "aceite de oliva", q: 1, u: "cucharada" },
+    ],
+    source: recipeSources.personal,
   },
   {
     nombre: "Sopa de verduras con pollo",
     tipo: "Cena",
-    tags: ["Cena", "Fácil"],
+    tags: ["Cena", "Rápida", "Fácil"],
     calorias: 280,
-    p: 35,
+    p: 30,
     c: 20,
-    f: 8,
+    f: 10,
     ingredientes: [
       { n: "pechuga de pollo", q: 150, u: "g" },
+      { n: "caldo de verduras", q: 500, u: "ml" },
       { n: "zanahoria", q: 1, u: "unidad" },
-      { n: "calabacín", q: 0.5, u: "unidad" },
-      { n: "cebolla", q: 0.5, u: "unidad" },
-      { n: "caldo de pollo", q: 500, u: "ml" },
+      { n: "puerro", q: 0.5, u: "unidad" },
+      { n: "apio", q: 1, u: "rama" },
     ],
-    preparacion:
-      "1. Cocer pollo en caldo. 2. Añadir verduras picadas. 3. Cocinar hasta que las verduras estén tiernas.",
+    source: recipeSources.personal,
   },
   {
-    nombre: "Ensalada de atún con aguacate",
+    nombre: "Bowl de salmón con quinoa",
+    tipo: "Cena",
+    tags: ["Cena", "Elaborada"],
+    calorias: 450,
+    p: 35,
+    c: 40,
+    f: 20,
+    ingredientes: [
+      { n: "salmón", q: 150, u: "g" },
+      { n: "quinoa", q: 80, u: "g" },
+      { n: "aguacate", q: 0.5, u: "unidad" },
+      { n: "tomate cherry", q: 6, u: "unidad" },
+      { n: "limón", q: 0.5, u: "unidad" },
+    ],
+    source: recipeSources.squatFit,
+  },
+  {
+    nombre: "Pasta integral con atún y verduras",
+    tipo: "Cena",
+    tags: ["Cena", "Rápida", "Fácil"],
+    calorias: 420,
+    p: 25,
+    c: 60,
+    f: 12,
+    ingredientes: [
+      { n: "pasta integral", q: 100, u: "g" },
+      { n: "atún al natural", q: 1, u: "lata" },
+      { n: "brócoli", q: 100, u: "g" },
+      { n: "tomate", q: 1, u: "unidad" },
+      { n: "aceite de oliva", q: 1, u: "cucharada" },
+    ],
+    source: recipeSources.personal,
+  },
+  {
+    nombre: "Tortilla de patatas light",
+    tipo: "Cena",
+    tags: ["Cena", "Fácil", "Vegetariana"],
+    calorias: 350,
+    p: 20,
+    c: 35,
+    f: 15,
+    ingredientes: [
+      { n: "huevo", q: 3, u: "unidad" },
+      { n: "patata", q: 150, u: "g" },
+      { n: "cebolla", q: 0.5, u: "unidad" },
+      { n: "aceite de oliva", q: 1, u: "cucharada" },
+    ],
+    source: recipeSources.personal,
+  },
+  {
+    nombre: "Ensalada de pollo y aguacate",
     tipo: "Cena",
     tags: ["Cena", "Rápida", "Fácil"],
     calorias: 380,
-    p: 30,
-    c: 10,
-    f: 25,
+    p: 35,
+    c: 15,
+    f: 20,
     ingredientes: [
-      { n: "atún al natural", q: 2, u: "lata" },
+      { n: "pechuga de pollo", q: 150, u: "g" },
       { n: "aguacate", q: 0.5, u: "unidad" },
+      { n: "lechuga", q: 1, u: "bol" },
       { n: "tomate", q: 1, u: "unidad" },
       { n: "cebolla", q: 0.25, u: "unidad" },
+    ],
+    source: recipeSources.personal,
+  },
+  {
+    nombre: "Sopa de lentejas",
+    tipo: "Cena",
+    tags: ["Cena", "Fácil", "Vegetariana"],
+    calorias: 320,
+    p: 18,
+    c: 45,
+    f: 8,
+    ingredientes: [
+      { n: "lentejas", q: 100, u: "g" },
+      { n: "cebolla", q: 0.5, u: "unidad" },
+      { n: "zanahoria", q: 1, u: "unidad" },
+      { n: "caldo de verduras", q: 500, u: "ml" },
+    ],
+    source: recipeSources.personal,
+  },
+  {
+    nombre: "Pescado al horno con verduras",
+    tipo: "Cena",
+    tags: ["Cena", "Fácil"],
+    calorias: 300,
+    p: 35,
+    c: 15,
+    f: 12,
+    ingredientes: [
+      { n: "merluza o salmón", q: 200, u: "g" },
+      { n: "zanahoria", q: 1, u: "unidad" },
+      { n: "calabacín", q: 0.5, u: "unidad" },
       { n: "limón", q: 0.5, u: "unidad" },
     ],
-  },
-  {
-    nombre: "Revuelto de champiñones y espinacas",
-    tipo: "Cena",
-    tags: ["Cena", "Rápida", "Fácil", "Vegetariana"],
-    calorias: 220,
-    p: 18,
-    c: 8,
-    f: 12,
-    ingredientes: [
-      { n: "huevo", q: 2, u: "unidad" },
-      { n: "champiñón", q: 100, u: "g" },
-      { n: "espinaca", q: 50, u: "g" },
-      { n: "cebolla", q: 0.25, u: "unidad" },
-    ],
-  },
-  {
-    nombre: "Yogur griego con frutos secos",
-    tipo: "Snack",
-    tags: ["Snack", "Rápida", "Fácil", "Vegetariana"],
-    calorias: 200,
-    p: 15,
-    c: 10,
-    f: 12,
-    ingredientes: [
-      { n: "yogur griego natural", q: 150, u: "g" },
-      { n: "nueces", q: 15, u: "g" },
-      { n: "miel", q: 1, u: "cucharadita" },
-    ],
-  },
-  {
-    nombre: "Batido de proteínas con plátano",
-    tipo: "Snack",
-    tags: ["Snack", "Rápida", "Fácil"],
-    calorias: 180,
-    p: 25,
-    c: 15,
-    f: 2,
-    ingredientes: [
-      { n: "proteína en polvo", q: 30, u: "g" },
-      { n: "plátano", q: 1, u: "unidad" },
-      { n: "leche desnatada", q: 200, u: "ml" },
-    ],
-  },
-  {
-    nombre: "Manzana con queso cottage",
-    tipo: "Snack",
-    tags: ["Snack", "Rápida", "Fácil", "Vegetariana"],
-    calorias: 150,
-    p: 12,
-    c: 15,
-    f: 3,
-    ingredientes: [
-      { n: "manzana", q: 1, u: "unidad" },
-      { n: "queso cottage", q: 100, u: "g" },
-    ],
-  },
-
-  // New recipes from PDF
-  {
-    nombre: "Pancakes Frutos Rojos",
-    tipo: "Desayuno",
-    tags: ["Desayuno", "Elaborada"],
-    calorias: 440,
-    p: 25,
-    c: 60,
-    f: 10,
-    ingredientes: [
-      { n: "claras de huevo", q: 85, u: "ml" },
-      { n: "harina de trigo", q: 85, u: "g" },
-      { n: "leche desnatada", q: 250, u: "ml" },
-      { n: "levadura", q: 6, u: "g" },
-      { n: "Mix sabor choco blanco", q: 0.5, u: "sobre" },
-      { n: "fresas", q: 60, u: "g" },
-      { n: "arándanos", q: 40, u: "g" },
-    ],
-    preparacion:
-      "1. Integra todos los ingredientes de la masa y reposa 20 min. 2. Calienta una sartén con spray de aceite a fuego medio. 3. Vierte la masa y deja 1-2 min por lado. Sirve con los toppings.",
-  },
-  {
-    nombre: "Crepes estilo Caprese",
-    tipo: "Almuerzo",
-    tags: ["Almuerzo", "Fácil", "Vegetariana"],
-    calorias: 450,
-    p: 30,
-    c: 30,
-    f: 23,
-    ingredientes: [
-      { n: "claras de huevo", q: 60, u: "ml" },
-      { n: "huevo", q: 1, u: "unidad" },
-      { n: "leche de almendras 0%", q: 100, u: "ml" },
-      { n: "harina de avena", q: 25, u: "g" },
-      { n: "mozzarella light", q: 80, u: "g" },
-      { n: "tomate", q: 2, u: "unidad" },
-    ],
-    preparacion:
-      "1. Mezcla los ingredientes de la masa y vierte en una sartén. Da para 3-5 crepes. 2. Lamina el tomate y la mozzarella. 3. Sirve con salsa pesto.",
-  },
-  {
-    nombre: "Boniato Burger",
-    tipo: "Almuerzo",
-    tags: ["Almuerzo", "Fácil"],
-    calorias: 440,
-    p: 30,
-    c: 45,
-    f: 15,
-    ingredientes: [
-      { n: "carne picada ternera", q: 120, u: "g" },
-      { n: "boniato", q: 150, u: "g" },
-      { n: "tomate", q: 25, u: "g" },
-      { n: "mozzarella light", q: 40, u: "g" },
-      { n: "lechuga", q: 1, u: "hoja" },
-    ],
-    preparacion:
-      "1. Mezcla la carne con especias y forma la hamburguesa. 2. Cocina a fuego 6/10 por 5-10 min. 3. Lava el boniato, córtalo como pan y cuécelo al microondas. 4. Monta y sirve.",
-  },
-  {
-    nombre: "Palomitas de pollo",
-    tipo: "Snack",
-    tags: ["Snack", "Fácil"],
-    calorias: 180,
-    p: 25,
-    c: 15,
-    f: 2,
-    ingredientes: [
-      { n: "pechuga de pollo", q: 133, u: "g" },
-      { n: "huevo", q: 0.33, u: "unidad" },
-      { n: "clara de huevo", q: 0.33, u: "unidad" },
-      { n: "pan rallado", q: 40, u: "g" },
-      { n: "copos de maíz 0%", q: 27, u: "g" },
-    ],
-    preparacion:
-      "1. Mezcla claras con huevo en un bol, y pan con copos en otro. 2. Reboza el pollo, primero en huevo y luego en la mezcla de pan. 3. Coloca en una bandeja de horno y hornea a 150°C durante 30 minutos.",
-  },
-  {
-    nombre: "Ensalada Burrito",
-    tipo: "Almuerzo",
-    tags: ["Almuerzo", "Rápida", "Fácil"],
-    calorias: 425,
-    p: 35,
-    c: 30,
-    f: 18,
-    ingredientes: [
-      { n: "lechuga", q: 150, u: "g" },
-      { n: "guacamole casero", q: 20, u: "g" },
-      { n: "salsa fajitas", q: 40, u: "g" },
-      { n: "maíz dulce", q: 30, u: "g" },
-      { n: "dip alubias rojas", q: 70, u: "g" },
-      { n: "pollo picado BBQ", q: 70, u: "g" },
-    ],
-    preparacion:
-      "1. Lava la lechuga si es necesario. 2. Mezcla todos los ingredientes en un bol.",
-  },
-  {
-    nombre: "Pimientos Rellenos",
-    tipo: "Almuerzo",
-    tags: ["Almuerzo", "Elaborada"],
-    calorias: 400,
-    p: 25,
-    c: 40,
-    f: 15,
-    ingredientes: [
-      { n: "pimientos tricolor", q: 400, u: "g" },
-      { n: "cuscús cocido", q: 80, u: "g" },
-      { n: "queso en polvo", q: 10, u: "g" },
-      { n: "mozzarella light", q: 60, u: "g" },
-      { n: "pollo picado BBQ", q: 80, u: "g" },
-      { n: "tomate frito", q: 20, u: "g" },
-    ],
-    preparacion:
-      "1. Hornea los pimientos vacíos a 170°C por 15 min. 2. Saltea los ingredientes del relleno. 3. Rellena los pimientos, añade mozzarella y hornea otros 15 min.",
-  },
-  {
-    nombre: "Lasaña de repollo",
-    tipo: "Cena",
-    tags: ["Cena", "Elaborada"],
-    calorias: 320,
-    p: 30,
-    c: 20,
-    f: 14,
-    ingredientes: [
-      { n: "repollo chimichurri", q: 210, u: "g" },
-      { n: "pollo picado BBQ", q: 100, u: "g" },
-      { n: "cuscús cocido", q: 20, u: "g" },
-      { n: "tomate triturado", q: 40, u: "g" },
-      { n: "mozzarella light", q: 60, u: "g" },
-    ],
-    preparacion:
-      "1. Mezcla los ingredientes del relleno. 2. En una fuente de horno, alterna capas de repollo y relleno. 3. Cubre con toppings y hornea a 200°C por 5 min.",
-  },
-  {
-    nombre: "Pizza Keto",
-    tipo: "Cena",
-    tags: ["Cena", "Elaborada", "Vegetariana"],
-    calorias: 400,
-    p: 40,
-    c: 10,
-    f: 22,
-    ingredientes: [
-      { n: "claras de huevo", q: 240, u: "g" },
-      { n: "harina de coco", q: 24, u: "g" },
-      { n: "salsa Pizza", q: 40, u: "g" },
-      { n: "mozzarella light", q: 80, u: "g" },
-      { n: "jamón york", q: 25, u: "g" },
-    ],
-    preparacion:
-      "1. Mezcla los ingredientes de la masa y cocina en una sartén. 2. Añade los toppings y hornea a 200°C por 5 min.",
-  },
-  {
-    nombre: "Pastel de brócoli",
-    tipo: "Cena",
-    tags: ["Cena", "Fácil"],
-    calorias: 410,
-    p: 45,
-    c: 15,
-    f: 20,
-    ingredientes: [
-      { n: "brócoli cocido", q: 250, u: "g" },
-      { n: "salsa carbonara", q: 30, u: "g" },
-      { n: "leche de almendras 0%", q: 80, u: "ml" },
-      { n: "pollo picado BBQ", q: 100, u: "g" },
-      { n: "mozzarella light", q: 70, u: "g" },
-    ],
-    preparacion:
-      "1. Saltea los ingredientes del relleno. 2. Coloca en una bandeja para horno, cubre con queso y hornea a 200°C por 4 min.",
-  },
-  {
-    nombre: "Salmón con patatas alioli",
-    tipo: "Cena",
-    tags: ["Cena", "Fácil"],
-    calorias: 425,
-    p: 30,
-    c: 30,
-    f: 20,
-    ingredientes: [
-      { n: "patatas", q: 200, u: "g" },
-      { n: "salmón", q: 120, u: "g" },
-      { n: "salsa Alioli Light", q: 70, u: "g" },
-    ],
-    preparacion:
-      "1. Cocina el salmón. 2. Hornea las patatas. 3. Sirve junto con la salsa.",
+    source: recipeSources.personal,
   },
 ];
-
-// Funciones de utilidad para trabajar con recetas
-export const getRecipesByType = (type: Recipe["tipo"]): Recipe[] => {
-  return allMeals.filter((recipe) => recipe.tipo === type);
-};
-
-export const getRecipesByTag = (tag: string): Recipe[] => {
-  return allMeals.filter((recipe) => recipe.tags.includes(tag));
-};
-
-export const searchRecipes = (query: string): Recipe[] => {
-  const lowercaseQuery = query.toLowerCase();
-  return allMeals.filter(
-    (recipe) =>
-      recipe.nombre.toLowerCase().includes(lowercaseQuery) ||
-      recipe.tags.some((tag) => tag.toLowerCase().includes(lowercaseQuery))
-  );
-};
