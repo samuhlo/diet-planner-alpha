@@ -3,11 +3,29 @@ import type { Recipe } from "../../types";
 
 interface RecipeCardProps {
   item: Recipe;
+  onViewRecipe?: (recipe: Recipe) => void;
 }
 
-export default function RecipeCard({ item: receta }: RecipeCardProps): VNode {
+export default function RecipeCard({
+  item: receta,
+  onViewRecipe,
+}: RecipeCardProps): VNode {
+  const getCalorieColor = (calories: number) => {
+    if (calories < 300) return "text-green-600";
+    if (calories < 500) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getProteinColor = (protein: number) => {
+    if (protein >= 30) return "text-green-600";
+    if (protein >= 20) return "text-yellow-600";
+    return "text-red-600";
+  };
+
   return (
-    <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-200">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+      {/* Header con tipo de comida */}
+
       <div class="p-4 flex-grow">
         <h4 class="text-lg font-bold text-stone-800 mb-2 line-clamp-2">
           {receta.nombre}
@@ -15,7 +33,7 @@ export default function RecipeCard({ item: receta }: RecipeCardProps): VNode {
 
         {/* Tags */}
         <div class="mb-3 flex flex-wrap gap-1">
-          {receta.tags.map((tag) => (
+          {receta.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
               class="bg-gray-200 text-gray-700 text-xs font-semibold px-2.5 py-0.5 rounded-full"
@@ -23,51 +41,48 @@ export default function RecipeCard({ item: receta }: RecipeCardProps): VNode {
               {tag}
             </span>
           ))}
+          {receta.tags.length > 3 && (
+            <span class="bg-gray-200 text-gray-500 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+              +{receta.tags.length - 3}
+            </span>
+          )}
         </div>
 
-        {/* Información nutricional */}
-        <div class="mb-3 p-2 bg-gray-50 rounded-md">
-          <p class="text-sm text-stone-600 font-medium">
-            {receta.calorias} kcal
-          </p>
-          <div class="flex justify-between text-xs text-stone-500 mt-1">
-            <span>P: {receta.p}g</span>
-            <span>C: {receta.c}g</span>
-            <span>F: {receta.f}g</span>
+        {/* Información nutricional mejorada */}
+        <div class="mb-4">
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div class="text-center p-2 bg-gray-50 rounded-lg">
+              <div
+                class={`text-lg font-bold ${getCalorieColor(receta.calorias)}`}
+              >
+                {receta.calorias}
+              </div>
+              <div class="text-xs text-gray-600">kcal</div>
+            </div>
+            <div class="text-center p-2 bg-gray-50 rounded-lg">
+              <div class={`text-lg font-bold ${getProteinColor(receta.p)}`}>
+                {receta.p}g
+              </div>
+              <div class="text-xs text-gray-600">proteína</div>
+            </div>
+          </div>
+          <div class="flex justify-between text-sm text-gray-600">
+            <span>Carbos: {receta.c}g</span>
+            <span>Grasas: {receta.f}g</span>
           </div>
         </div>
 
-        {/* Tipo de comida */}
-        <div class="mb-3">
-          <span
-            class={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-              receta.tipo === "Desayuno"
-                ? "bg-yellow-100 text-yellow-800"
-                : receta.tipo === "Almuerzo"
-                ? "bg-orange-100 text-orange-800"
-                : receta.tipo === "Cena"
-                ? "bg-purple-100 text-purple-800"
-                : "bg-green-100 text-green-800"
-            }`}
-          >
-            {receta.tipo}
-          </span>
-        </div>
-
-        {/* Fuente (si existe) */}
-        {receta.source && (
-          <div class="mt-auto pt-2 border-t border-gray-100">
-            <p class="text-xs text-gray-500">
-              Fuente: <span class="font-medium">{receta.source.name}</span>
-              {receta.source.authors && (
-                <span class="block text-xs text-gray-400">
-                  por {receta.source.authors}
-                </span>
-              )}
-            </p>
-          </div>
-        )}
+        {/* Botón para ver receta */}
       </div>
+      <button
+        onClick={() => onViewRecipe?.(receta)}
+        class="w-3/4 self-center mb-5
+         bg-[#6B8A7A] text-white font-semibold py-1  rounded-lg hover:bg-[#5a7a6a] transition-colors duration-200 mt-[-1em] "
+      >
+        <span class="flex items-center justify-center space-x-2">
+          <span>Ver Receta</span>
+        </span>
+      </button>
     </div>
   );
 }

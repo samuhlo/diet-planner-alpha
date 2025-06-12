@@ -1,6 +1,7 @@
 import type { VNode } from "preact";
 import { useState, useMemo } from "preact/hooks";
 import RecipeCard from "./RecipeCard.tsx";
+import RecipeDetailModal from "./RecipeDetailModal.tsx";
 import type { Recipe } from "../../types";
 import {
   searchRecipes,
@@ -25,6 +26,8 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
   const [selectedSource, setSelectedSource] = useState<string>("");
   const [sortBy, setSortBy] = useState<"name" | "calories" | "protein">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Obtener datos únicos para filtros
   const allTags = useMemo(() => {
@@ -107,6 +110,16 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
     setSelectedSource("");
     setSortBy("name");
     setSortOrder("asc");
+  };
+
+  const handleViewRecipe = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedRecipe(null);
   };
 
   const hasActiveFilters =
@@ -255,7 +268,11 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredRecipes.length > 0 ? (
           filteredRecipes.map((receta) => (
-            <RecipeCard key={receta.nombre} item={receta} />
+            <RecipeCard
+              key={receta.nombre}
+              item={receta}
+              onViewRecipe={handleViewRecipe}
+            />
           ))
         ) : (
           <div class="col-span-full text-center py-12">
@@ -273,6 +290,13 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
           </div>
         )}
       </div>
+
+      {/* Modal de detalles */}
+      <RecipeDetailModal
+        recipe={selectedRecipe}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
     </div>
   );
 }
