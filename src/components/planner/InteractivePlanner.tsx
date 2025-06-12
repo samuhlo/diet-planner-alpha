@@ -102,6 +102,7 @@ export default function InteractivePlanner({
                     <label
                       for={`diners-${dayId}-${mealType}`}
                       class="text-xs text-gray-600"
+                      title="Solo afecta a la cantidad de ingredientes en la lista de la compra"
                     >
                       Comensales:
                     </label>
@@ -119,6 +120,7 @@ export default function InteractivePlanner({
                           Number(e.currentTarget.value)
                         )
                       }
+                      title="Número de personas que comerán esta comida (solo afecta a la lista de la compra)"
                     />
                   </div>
                 </div>

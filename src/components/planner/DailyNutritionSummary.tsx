@@ -41,12 +41,13 @@ export default function DailyNutritionSummary({
       const mealInfo = dailyPlan[mealType];
       if (mealInfo?.recipeName) {
         const mealData = allMeals.find((m) => m.nombre === mealInfo.recipeName);
-        const diners = mealInfo.diners || 1;
+        // Los valores nutricionales son siempre para 1 persona (plan individual)
+        // Los comensales solo afectan a la lista de la compra
         if (mealData) {
-          totalCalories += mealData.calorias * diners;
-          totalProtein += mealData.p * diners;
-          totalCarbs += mealData.c * diners;
-          totalFats += mealData.f * diners;
+          totalCalories += mealData.calorias;
+          totalProtein += mealData.p;
+          totalCarbs += mealData.c;
+          totalFats += mealData.f;
         }
       }
     });

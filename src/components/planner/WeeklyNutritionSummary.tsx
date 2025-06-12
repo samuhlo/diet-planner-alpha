@@ -43,12 +43,13 @@ export default function WeeklyNutritionSummary() {
           const mealData = allMeals.find(
             (m) => m.nombre === mealInfo.recipeName
           );
-          const diners = mealInfo.diners || 1;
+          // Los valores nutricionales son siempre para 1 persona (plan individual)
+          // Los comensales solo afectan a la lista de la compra
           if (mealData) {
-            dayCalories += mealData.calorias * diners;
-            dayProtein += mealData.p * diners;
-            dayCarbs += mealData.c * diners;
-            dayFats += mealData.f * diners;
+            dayCalories += mealData.calorias;
+            dayProtein += mealData.p;
+            dayCarbs += mealData.c;
+            dayFats += mealData.f;
             hasData = true;
           }
         }
