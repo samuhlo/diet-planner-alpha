@@ -22,6 +22,17 @@ export default function SnackSelector({
     Array<{ snackId: string; quantity: number }>
   >(currentSnackPlan?.snacks || [{ snackId: "", quantity: 1 }]);
 
+  // Sincronizar estado local con props cuando cambien
+  useEffect(() => {
+    setEnabled(currentSnackPlan?.enabled || false);
+    setSnackCount(currentSnackPlan?.snacks.length || 1);
+    setSelectedSnacks(
+      currentSnackPlan?.snacks && currentSnackPlan.snacks.length > 0
+        ? currentSnackPlan.snacks
+        : [{ snackId: "", quantity: 1 }]
+    );
+  }, [currentSnackPlan]);
+
   // Memoizar la función de callback para evitar bucles infinitos
   const memoizedOnSnackPlanChange = useCallback(onSnackPlanChange, []);
 

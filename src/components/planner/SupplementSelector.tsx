@@ -29,6 +29,18 @@ export default function SupplementSelector({
       : [{ supplementId: "", quantity: 1 }]
   );
 
+  // Sincronizar estado local con props cuando cambien
+  useEffect(() => {
+    setEnabled(currentSupplementPlan?.enabled || false);
+    setSupplementCount(currentSupplementPlan?.supplements?.length || 1);
+    setSelectedSupplements(
+      currentSupplementPlan?.supplements &&
+        currentSupplementPlan.supplements.length > 0
+        ? currentSupplementPlan.supplements
+        : [{ supplementId: "", quantity: 1 }]
+    );
+  }, [currentSupplementPlan]);
+
   // Memoizar la función de callback para evitar bucles infinitos
   const memoizedOnSupplementPlanChange = useCallback(
     onSupplementPlanChange,
