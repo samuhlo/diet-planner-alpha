@@ -1,4 +1,11 @@
-export default function SnackCard({ item: snack }) {
+import type { VNode } from "preact";
+import type { Snack } from "../../types";
+
+interface SnackCardProps {
+  item: Snack;
+}
+
+export default function SnackCard({ item: snack }: SnackCardProps): VNode {
   return (
     <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
       <div class="p-4 flex-grow">

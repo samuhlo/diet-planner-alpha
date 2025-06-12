@@ -14,36 +14,18 @@ export default function SupplementSelector({
   currentSupplementPlan,
   onSupplementPlanChange,
 }: SupplementSelectorProps) {
-  // Migrar estructura antigua a nueva si es necesario
-  const migrateSupplementPlan = (oldPlan: any): SupplementPlan => {
-    if (oldPlan && oldPlan.shakes && oldPlan.type) {
-      // Estructura antigua: migrar a nueva
-      return {
-        enabled: oldPlan.shakes > 0,
-        supplements:
-          oldPlan.shakes > 0
-            ? [{ supplementId: oldPlan.type, quantity: oldPlan.shakes }]
-            : [],
-      };
-    }
-    // Estructura nueva o sin datos
-    if (oldPlan && oldPlan.enabled && Array.isArray(oldPlan.supplements)) {
-      return oldPlan;
-    }
-    return { enabled: false, supplements: [] };
-  };
-
-  const migratedPlan = migrateSupplementPlan(currentSupplementPlan);
-
-  const [enabled, setEnabled] = useState(migratedPlan.enabled);
+  const [enabled, setEnabled] = useState(
+    currentSupplementPlan?.enabled || false
+  );
   const [supplementCount, setSupplementCount] = useState(
-    migratedPlan.supplements?.length || 1
+    currentSupplementPlan?.supplements?.length || 1
   );
   const [selectedSupplements, setSelectedSupplements] = useState<
     Array<{ supplementId: string; quantity: number }>
   >(
-    migratedPlan.supplements?.length > 0
-      ? migratedPlan.supplements
+    currentSupplementPlan?.supplements &&
+      currentSupplementPlan.supplements.length > 0
+      ? currentSupplementPlan.supplements
       : [{ supplementId: "", quantity: 1 }]
   );
 

@@ -1,4 +1,13 @@
-export default function SummaryContent({ data: summary }) {
+import type { VNode } from "preact";
+import type { WeeklySummaryData } from "../../types";
+
+interface SummaryContentProps {
+  data: WeeklySummaryData[];
+}
+
+export default function SummaryContent({
+  data: summary,
+}: SummaryContentProps): VNode {
   if (!summary || summary.length === 0) {
     return (
       <p class="text-center text-stone-500 italic">

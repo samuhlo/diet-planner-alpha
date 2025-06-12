@@ -1,8 +1,9 @@
-// src/components/Header.jsx
+// src/components/Header.tsx
 import { useStore } from "@nanostores/preact";
+import type { VNode } from "preact";
 import { $isProfileComplete } from "../../stores/userProfileStore";
 
-export default function Header() {
+export default function Header(): VNode {
   // Nos suscribimos a la store computada para saber si mostrar la alerta.
   const isProfileComplete = useStore($isProfileComplete);
 

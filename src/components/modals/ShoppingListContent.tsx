@@ -1,4 +1,13 @@
-export default function ShoppingListContent({ data: ingredients }) {
+import type { VNode } from "preact";
+import type { Ingredient } from "../../types";
+
+interface ShoppingListContentProps {
+  data: Ingredient[];
+}
+
+export default function ShoppingListContent({
+  data: ingredients,
+}: ShoppingListContentProps): VNode {
   if (!ingredients || ingredients.length === 0) {
     return (
       <p class="text-center italic text-stone-500">

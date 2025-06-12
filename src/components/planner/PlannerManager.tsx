@@ -5,7 +5,7 @@ import { allSupplements } from "../../data/supplements";
 import { allSnacks } from "../../data/snacks";
 import InteractivePlanner from "./InteractivePlanner";
 import { openModal } from "../../stores/modalStore";
-import NutritionalSummary from "../NutritionalSummary";
+import NutritionalSummary from "../common/NutritionalSummary.tsx";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 import type { Recipe, Ingredient, WeeklySummaryData } from "../../types";
 import { DAYS_OF_WEEK, MEAL_TYPES } from "../../constants/appConstants";

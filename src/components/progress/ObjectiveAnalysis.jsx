@@ -1,4 +1,3 @@
-// src/components/ObjectiveAnalysis.jsx
 import { useStore } from "@nanostores/preact";
 import {
   $userData,

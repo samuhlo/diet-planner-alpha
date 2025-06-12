@@ -1,26 +1,39 @@
+import type { VNode } from "preact";
 import { useStore } from "@nanostores/preact";
-import { useState } from "preact/hooks"; // <-- Importar useState
+import { useState } from "preact/hooks";
 import { $modal, closeModal } from "../../stores/modalStore.ts";
-import ShoppingListContent from "./ShoppingListContent.jsx";
-import SummaryContent from "./SummaryContent.jsx";
+import ShoppingListContent from "./ShoppingListContent.tsx";
+import SummaryContent from "./SummaryContent.tsx";
+import type { Ingredient, WeeklySummaryData } from "../../types";
+
+interface ModalComponent<T> {
+  Component: (props: { data: T }) => VNode;
+  title: string;
+}
 
 const MODAL_COMPONENTS = {
-  shopping: { Component: ShoppingListContent, title: "Lista de la Compra" },
-  summary: { Component: SummaryContent, title: "Resumen del Plan" },
+  shopping: {
+    Component: ShoppingListContent,
+    title: "Lista de la Compra",
+  } as ModalComponent<Ingredient[]>,
+  summary: {
+    Component: SummaryContent,
+    title: "Resumen del Plan",
+  } as ModalComponent<WeeklySummaryData[]>,
 };
 
-export default function AppModal() {
+export default function AppModal(): VNode | null {
   const { isOpen, type, data } = useStore($modal);
   // Estado local para el feedback del botón de copiar
   const [copySuccess, setCopySuccess] = useState(false);
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     closeModal();
     setCopySuccess(false); // Reseteamos el estado al cerrar
   };
 
   // --- NUEVA FUNCIÓN DE COPIADO ---
-  const handleCopy = () => {
+  const handleCopy = (): void => {
     if (!type || !data) return;
 
     let textToCopy = "";
@@ -28,7 +41,7 @@ export default function AppModal() {
     switch (type) {
       case "shopping":
         textToCopy = "Lista de la Compra:\n";
-        data.forEach((ing) => {
+        (data as Ingredient[]).forEach((ing) => {
           textToCopy += `• ${Number(ing.q.toPrecision(3))} ${ing.u} de ${
             ing.n
           }\n`;
@@ -37,7 +50,7 @@ export default function AppModal() {
 
       case "summary":
         textToCopy = "Resumen del Plan Semanal:\n\n";
-        data.forEach((dayData) => {
+        (data as WeeklySummaryData[]).forEach((dayData) => {
           textToCopy += `--- ${dayData.day} ---\n`;
           if (dayData.meals.desayuno)
             textToCopy += `Desayuno: ${dayData.meals.desayuno}\n`;
@@ -59,9 +72,13 @@ export default function AppModal() {
     });
   };
 
-  if (!isOpen || !type) return null;
+  if (!isOpen || !type || !data) return null;
 
-  const { Component, title } = MODAL_COMPONENTS[type];
+  const modalComponent =
+    MODAL_COMPONENTS[type as keyof typeof MODAL_COMPONENTS];
+  if (!modalComponent) return null;
+
+  const { Component, title } = modalComponent;
   // Solo mostramos el botón de copiar si el modal es de tipo 'shopping' o 'summary'
   const showCopyButton = type === "shopping" || type === "summary";
 
@@ -95,7 +112,12 @@ export default function AppModal() {
           </div>
         </div>
         <div class="p-6 overflow-y-auto">
-          <Component data={data} />
+          {type === "shopping" && (
+            <ShoppingListContent data={data as Ingredient[]} />
+          )}
+          {type === "summary" && (
+            <SummaryContent data={data as WeeklySummaryData[]} />
+          )}
         </div>
       </div>
     </div>

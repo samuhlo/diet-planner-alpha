@@ -1,12 +1,13 @@
-import { useBrowser } from "../../hooks/useBrowser";
-import RecipeCard from "./RecipeCard";
+import type { VNode } from "preact";
+import { useBrowser } from "../../hooks/useBrowser.js";
+import RecipeCard from "./RecipeCard.tsx";
 import type { Recipe } from "../../types";
 
 interface RecipeBrowserProps {
   allMeals: Recipe[];
 }
 
-export default function RecipeBrowser({ allMeals }: RecipeBrowserProps) {
+export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
   const {
     activeTags,
     searchTerm,
@@ -14,11 +15,7 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps) {
     allTags,
     handleTagChange,
     filteredItems,
-  } = useBrowser({
-    items: allMeals,
-    searchKeys: ["nombre"],
-    tagKey: "tags",
-  });
+  } = useBrowser({ items: allMeals, searchKeys: ["nombre"], tagKey: "tags" });
 
   return (
     <div>

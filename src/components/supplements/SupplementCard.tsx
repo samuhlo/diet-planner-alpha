@@ -1,4 +1,13 @@
-export default function SupplementCard({ item: supplement }) {
+import type { VNode } from "preact";
+import type { Supplement } from "../../types";
+
+interface SupplementCardProps {
+  item: Supplement;
+}
+
+export default function SupplementCard({
+  item: supplement,
+}: SupplementCardProps): VNode {
   return (
     <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
       <div class="p-4 flex-grow">

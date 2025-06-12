@@ -1,8 +1,17 @@
+import type { VNode } from "preact";
 import { useStore } from "@nanostores/preact";
-import { $userData, $userGoal } from "../stores/userProfileStore";
-import { useNutritionalCalculations } from "../hooks/useNutritionalCalculations";
+import { $userData, $userGoal } from "../../stores/userProfileStore.ts";
+import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 
-const NutritionalSummary = () => {
+interface SummaryItem {
+  label: string;
+  value: number;
+  unit: string;
+  color: string;
+  description: string;
+}
+
+const NutritionalSummary = (): VNode | null => {
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
 
@@ -11,7 +20,7 @@ const NutritionalSummary = () => {
 
   if (!userData) return null;
 
-  const summaryItems = [
+  const summaryItems: SummaryItem[] = [
     {
       label: "Metabolismo Basal (BMR)",
       value: bmr,

@@ -1,14 +1,14 @@
 ---
 // src/pages/index.astro
 import Layout from "../layouts/Layout.astro";
-import Header from "../components/ui/Header.jsx";
+import Header from "../components/ui/Header.tsx";
 import Navigation from "../components/ui/Navigation.astro";
 
 // Importamos todos los componentes de sección
 import WeeklyPlanner from "../components/planner/WeeklyPlanner.astro";
-import RecipeGallery from "../components/recipes/RecipeGallery.astro";
+import RecipeGallery from "../components/gallery/RecipeGallery.astro";
 import UnifiedGallery from "../components/gallery/UnifiedGallery.astro";
-import Tips from "../components/tips/Tips.astro";
+import TipsGallery from "../components/gallery/TipsGallery.astro";
 import UserData from "../components/UserData.astro";
 import GoalProgress from "../components/progress/GoalProgress.astro";
 ---
@@ -32,7 +32,7 @@ import GoalProgress from "../components/progress/GoalProgress.astro";
     </section>
 
     <section id="consejos" class="content-section hidden">
-      <Tips />
+      <TipsGallery />
     </section>
 
     <section id="datos" class="content-section hidden">

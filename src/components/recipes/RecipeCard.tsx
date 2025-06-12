@@ -1,4 +1,11 @@
-export default function RecipeCard({ item: receta }) {
+import type { VNode } from "preact";
+import type { Recipe } from "../../types";
+
+interface RecipeCardProps {
+  item: Recipe;
+}
+
+export default function RecipeCard({ item: receta }: RecipeCardProps): VNode {
   return (
     <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
       <div class="p-4 flex-grow">

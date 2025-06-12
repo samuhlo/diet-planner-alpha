@@ -1,7 +1,13 @@
+import type { VNode } from "preact";
 import { useBrowser } from "../../hooks/useBrowser.js";
-import SupplementCard from "./SupplementCard.jsx";
+import SnackCard from "./SnackCard.tsx";
+import type { Snack } from "../../types";
 
-export default function SupplementBrowser({ allSupplements }) {
+interface SnackBrowserProps {
+  allSnacks: Snack[];
+}
+
+export default function SnackBrowser({ allSnacks }: SnackBrowserProps): VNode {
   const {
     activeTags,
     searchTerm,
@@ -9,11 +15,7 @@ export default function SupplementBrowser({ allSupplements }) {
     allTags,
     handleTagChange,
     filteredItems,
-  } = useBrowser({
-    items: allSupplements,
-    searchKeys: ["name"],
-    tagKey: "tags",
-  });
+  } = useBrowser({ items: allSnacks, searchKeys: ["nombre"], tagKey: "tags" });
 
   return (
     <div>
@@ -21,7 +23,7 @@ export default function SupplementBrowser({ allSupplements }) {
       <div class="bg-white p-4 rounded-lg shadow-md mb-8 space-y-4">
         <input
           type="text"
-          placeholder="Buscar suplementos por nombre..."
+          placeholder="Buscar snacks por nombre..."
           value={searchTerm}
           onInput={(e) => setSearchTerm(e.currentTarget.value)}
           class="w-full p-2 border border-gray-300 rounded-md"
@@ -46,12 +48,12 @@ export default function SupplementBrowser({ allSupplements }) {
       {/* Grid de Resultados */}
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredItems.length > 0 ? (
-          filteredItems.map((supplement) => (
-            <SupplementCard key={supplement.id} item={supplement} />
+          filteredItems.map((snack) => (
+            <SnackCard key={snack.id} item={snack} />
           ))
         ) : (
           <p class="text-stone-500 italic col-span-full text-center">
-            No se han encontrado suplementos.
+            No se han encontrado snacks.
           </p>
         )}
       </div>

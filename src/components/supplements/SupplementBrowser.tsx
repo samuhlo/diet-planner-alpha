@@ -1,7 +1,15 @@
+import type { VNode } from "preact";
 import { useBrowser } from "../../hooks/useBrowser.js";
-import RecipeCard from "./RecipeCard.jsx"; // El renderizador sigue siendo útil
+import SupplementCard from "./SupplementCard.tsx";
+import type { Supplement } from "../../types";
 
-export default function RecipeBrowser({ allMeals }) {
+interface SupplementBrowserProps {
+  allSupplements: Supplement[];
+}
+
+export default function SupplementBrowser({
+  allSupplements,
+}: SupplementBrowserProps): VNode {
   const {
     activeTags,
     searchTerm,
@@ -9,7 +17,11 @@ export default function RecipeBrowser({ allMeals }) {
     allTags,
     handleTagChange,
     filteredItems,
-  } = useBrowser({ items: allMeals, searchKeys: ["nombre"], tagKey: "tags" });
+  } = useBrowser({
+    items: allSupplements,
+    searchKeys: ["name"],
+    tagKey: "tags",
+  });
 
   return (
     <div>
@@ -17,7 +29,7 @@ export default function RecipeBrowser({ allMeals }) {
       <div class="bg-white p-4 rounded-lg shadow-md mb-8 space-y-4">
         <input
           type="text"
-          placeholder="Buscar por palabra clave..."
+          placeholder="Buscar suplementos por nombre..."
           value={searchTerm}
           onInput={(e) => setSearchTerm(e.currentTarget.value)}
           class="w-full p-2 border border-gray-300 rounded-md"
@@ -42,12 +54,12 @@ export default function RecipeBrowser({ allMeals }) {
       {/* Grid de Resultados */}
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredItems.length > 0 ? (
-          filteredItems.map((receta) => (
-            <RecipeCard key={receta.nombre} item={receta} />
+          filteredItems.map((supplement) => (
+            <SupplementCard key={supplement.id} item={supplement} />
           ))
         ) : (
           <p class="text-stone-500 italic col-span-full text-center">
-            No se han encontrado recetas.
+            No se han encontrado suplementos.
           </p>
         )}
       </div>
