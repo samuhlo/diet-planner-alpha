@@ -9,6 +9,7 @@ import {
 import { NutritionService } from "../../services/nutritionService";
 import SnackSelector from "./SnackSelector";
 import SupplementSelector from "./SupplementSelector";
+import RecipeSelector from "./RecipeSelector";
 import DailyNutritionSummary from "./DailyNutritionSummary";
 import WeeklyNutritionSummary from "./WeeklyNutritionSummary";
 import type {
@@ -39,9 +40,9 @@ export default function InteractivePlanner({
 
   const mealsByType = useMemo(
     () => ({
-      Desayuno: allMeals.filter((m) => m.tags.includes("Desayuno")),
-      Almuerzo: allMeals.filter((m) => m.tags.includes("Almuerzo")),
-      Cena: allMeals.filter((m) => m.tags.includes("Cena")),
+      Desayuno: allMeals.filter((m) => m.tipo === "Desayuno"),
+      Almuerzo: allMeals.filter((m) => m.tipo === "Almuerzo"),
+      Cena: allMeals.filter((m) => m.tipo === "Cena"),
     }),
     [allMeals]
   );
@@ -108,27 +109,19 @@ export default function InteractivePlanner({
                         }
                       />
                     </div>
-                    <select
-                      value={dailyPlan[mealType]?.recipeName || ""}
-                      onChange={(e) =>
+                    <RecipeSelector
+                      mealType={mealType}
+                      selectedRecipe={dailyPlan[mealType]?.recipeName}
+                      onRecipeSelect={(recipeName) =>
                         handlePlanChange(
                           dayId,
                           mealType,
                           "recipeName",
-                          e.currentTarget.value
+                          recipeName
                         )
                       }
-                      class="w-full text-sm border border-gray-300 rounded-md p-2"
-                    >
-                      <option value="">
-                        Seleccionar {mealType.toLowerCase()}...
-                      </option>
-                      {mealsByType[mealType]?.map((meal) => (
-                        <option key={meal.nombre} value={meal.nombre}>
-                          {meal.nombre} ({meal.calorias} kcal)
-                        </option>
-                      ))}
-                    </select>
+                      allMeals={allMeals}
+                    />
                   </div>
                 ))}
               </div>
