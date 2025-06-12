@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "preact/hooks";
+import { useState, useEffect, useRef } from "preact/hooks";
 import type { Snack, SnackPlan } from "../../types";
 import { allSnacks } from "../../data/snacks";
 import { NutritionService } from "../../services/nutritionService";
@@ -22,66 +22,121 @@ export default function SnackSelector({
     Array<{ snackId: string; quantity: number }>
   >(currentSnackPlan?.snacks || [{ snackId: "", quantity: 1 }]);
 
-  // Sincronizar estado local con props cuando cambien
+  const isUserEditingRef = useRef(false);
+  const lastUserActionRef = useRef<SnackPlan | null>(null);
+
+  // Sincronizar estado local con props cuando cambien (solo si no está editando el usuario)
   useEffect(() => {
-    setEnabled(currentSnackPlan?.enabled || false);
-    setSnackCount(currentSnackPlan?.snacks.length || 1);
-    setSelectedSnacks(
-      currentSnackPlan?.snacks && currentSnackPlan.snacks.length > 0
-        ? currentSnackPlan.snacks
-        : [{ snackId: "", quantity: 1 }]
-    );
+    if (!isUserEditingRef.current) {
+      const newEnabled = currentSnackPlan?.enabled || false;
+      const newSnackCount = currentSnackPlan?.snacks.length || 1;
+      const newSelectedSnacks =
+        currentSnackPlan?.snacks && currentSnackPlan.snacks.length > 0
+          ? currentSnackPlan.snacks
+          : [{ snackId: "", quantity: 1 }];
+
+      setEnabled(newEnabled);
+      setSnackCount(newSnackCount);
+      setSelectedSnacks(newSelectedSnacks);
+    }
   }, [currentSnackPlan]);
-
-  // Memoizar la función de callback para evitar bucles infinitos
-  const memoizedOnSnackPlanChange = useCallback(onSnackPlanChange, []);
-
-  // Actualizar el plan cuando cambien los valores
-  useEffect(() => {
-    const snackPlan: SnackPlan = {
-      enabled,
-      snacks: enabled ? selectedSnacks.filter((s) => s.snackId) : [],
-    };
-    memoizedOnSnackPlanChange(snackPlan);
-  }, [enabled, selectedSnacks, memoizedOnSnackPlanChange]);
 
   // Manejar cambios en el checkbox principal
   const handleEnabledChange = (checked: boolean) => {
+    isUserEditingRef.current = true;
     setEnabled(checked);
     if (!checked) {
       setSelectedSnacks([{ snackId: "", quantity: 1 }]);
       setSnackCount(1);
     }
+
+    // Notificar cambio inmediatamente
+    const snackPlan: SnackPlan = {
+      enabled: checked,
+      snacks: checked ? selectedSnacks.filter((s) => s.snackId) : [],
+    };
+    lastUserActionRef.current = snackPlan;
+    onSnackPlanChange(snackPlan);
+
+    // Resetear la bandera después de que el store se actualice
+    setTimeout(() => {
+      isUserEditingRef.current = false;
+    }, 200);
   };
 
   // Manejar cambios en la cantidad de snacks
   const handleSnackCountChange = (count: number) => {
+    isUserEditingRef.current = true;
     setSnackCount(count);
+    let newSnacks;
+
     if (count > selectedSnacks.length) {
       // Añadir nuevos slots
-      const newSnacks = [...selectedSnacks];
+      newSnacks = [...selectedSnacks];
       for (let i = selectedSnacks.length; i < count; i++) {
         newSnacks.push({ snackId: "", quantity: 1 });
       }
-      setSelectedSnacks(newSnacks);
     } else {
       // Remover slots extra
-      setSelectedSnacks(selectedSnacks.slice(0, count));
+      newSnacks = selectedSnacks.slice(0, count);
     }
+
+    setSelectedSnacks(newSnacks);
+
+    // Notificar cambio inmediatamente
+    const snackPlan: SnackPlan = {
+      enabled,
+      snacks: enabled ? newSnacks.filter((s) => s.snackId) : [],
+    };
+    lastUserActionRef.current = snackPlan;
+    onSnackPlanChange(snackPlan);
+
+    // Resetear la bandera después de que el store se actualice
+    setTimeout(() => {
+      isUserEditingRef.current = false;
+    }, 200);
   };
 
   // Manejar cambios en un snack específico
   const handleSnackChange = (index: number, snackId: string) => {
+    isUserEditingRef.current = true;
     const newSnacks = [...selectedSnacks];
     newSnacks[index] = { ...newSnacks[index], snackId };
     setSelectedSnacks(newSnacks);
+
+    // Notificar cambio inmediatamente
+    const snackPlan: SnackPlan = {
+      enabled,
+      snacks: enabled ? newSnacks.filter((s) => s.snackId) : [],
+    };
+    lastUserActionRef.current = snackPlan;
+    onSnackPlanChange(snackPlan);
+
+    // Resetear la bandera después de que el store se actualice
+    setTimeout(() => {
+      isUserEditingRef.current = false;
+    }, 200);
   };
 
   // Manejar cambios en la cantidad de un snack
   const handleQuantityChange = (index: number, quantity: number) => {
+    isUserEditingRef.current = true;
     const newSnacks = [...selectedSnacks];
     newSnacks[index] = { ...newSnacks[index], quantity };
     setSelectedSnacks(newSnacks);
+
+    // Notificar cambio inmediatamente
+    const snackPlan: SnackPlan = {
+      enabled,
+      snacks: enabled ? newSnacks.filter((s) => s.snackId) : [],
+    };
+    lastUserActionRef.current = snackPlan;
+    onSnackPlanChange(snackPlan);
+
+    // Resetear la bandera después de que el store se actualice
+    setTimeout(() => {
+      isUserEditingRef.current = false;
+    }, 200);
   };
 
   // Calcular totales nutricionales

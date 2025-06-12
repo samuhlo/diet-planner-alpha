@@ -146,7 +146,7 @@ export default function WeeklyNutritionSummary() {
       dailyBreakdown,
       daysWithData,
     };
-  }, [plan, calorieGoal, proteinGoal]);
+  }, [plan]);
 
   // Calcular porcentajes y estados
   const caloriePercentage =

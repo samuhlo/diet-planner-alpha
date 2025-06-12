@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "preact/hooks";
+import { useState, useEffect, useRef } from "preact/hooks";
 import type { Supplement, SupplementPlan } from "../../types";
 import { allSupplements } from "../../data/supplements";
 import { NutritionService } from "../../services/nutritionService";
@@ -29,72 +29,125 @@ export default function SupplementSelector({
       : [{ supplementId: "", quantity: 1 }]
   );
 
-  // Sincronizar estado local con props cuando cambien
+  const isUserEditingRef = useRef(false);
+  const lastUserActionRef = useRef<SupplementPlan | null>(null);
+
+  // Sincronizar estado local con props cuando cambien (solo si no está editando el usuario)
   useEffect(() => {
-    setEnabled(currentSupplementPlan?.enabled || false);
-    setSupplementCount(currentSupplementPlan?.supplements?.length || 1);
-    setSelectedSupplements(
-      currentSupplementPlan?.supplements &&
+    if (!isUserEditingRef.current) {
+      const newEnabled = currentSupplementPlan?.enabled || false;
+      const newSupplementCount =
+        currentSupplementPlan?.supplements?.length || 1;
+      const newSelectedSupplements =
+        currentSupplementPlan?.supplements &&
         currentSupplementPlan.supplements.length > 0
-        ? currentSupplementPlan.supplements
-        : [{ supplementId: "", quantity: 1 }]
-    );
+          ? currentSupplementPlan.supplements
+          : [{ supplementId: "", quantity: 1 }];
+
+      setEnabled(newEnabled);
+      setSupplementCount(newSupplementCount);
+      setSelectedSupplements(newSelectedSupplements);
+    }
   }, [currentSupplementPlan]);
-
-  // Memoizar la función de callback para evitar bucles infinitos
-  const memoizedOnSupplementPlanChange = useCallback(
-    onSupplementPlanChange,
-    []
-  );
-
-  // Actualizar el plan cuando cambien los valores
-  useEffect(() => {
-    const supplementPlan: SupplementPlan = {
-      enabled,
-      supplements: enabled
-        ? selectedSupplements.filter((s) => s.supplementId)
-        : [],
-    };
-    memoizedOnSupplementPlanChange(supplementPlan);
-  }, [enabled, selectedSupplements, memoizedOnSupplementPlanChange]);
 
   // Manejar cambios en el checkbox principal
   const handleEnabledChange = (checked: boolean) => {
+    isUserEditingRef.current = true;
     setEnabled(checked);
     if (!checked) {
       setSelectedSupplements([{ supplementId: "", quantity: 1 }]);
       setSupplementCount(1);
     }
+
+    // Notificar cambio inmediatamente
+    const supplementPlan: SupplementPlan = {
+      enabled: checked,
+      supplements: checked
+        ? selectedSupplements.filter((s) => s.supplementId)
+        : [],
+    };
+    lastUserActionRef.current = supplementPlan;
+    onSupplementPlanChange(supplementPlan);
+
+    // Resetear la bandera después de que el store se actualice
+    setTimeout(() => {
+      isUserEditingRef.current = false;
+    }, 200);
   };
 
   // Manejar cambios en la cantidad de suplementos
   const handleSupplementCountChange = (count: number) => {
+    isUserEditingRef.current = true;
     setSupplementCount(count);
+    let newSupplements;
+
     if (count > selectedSupplements.length) {
       // Añadir nuevos slots
-      const newSupplements = [...selectedSupplements];
+      newSupplements = [...selectedSupplements];
       for (let i = selectedSupplements.length; i < count; i++) {
         newSupplements.push({ supplementId: "", quantity: 1 });
       }
-      setSelectedSupplements(newSupplements);
     } else {
       // Remover slots extra
-      setSelectedSupplements(selectedSupplements.slice(0, count));
+      newSupplements = selectedSupplements.slice(0, count);
     }
+
+    setSelectedSupplements(newSupplements);
+
+    // Notificar cambio inmediatamente
+    const supplementPlan: SupplementPlan = {
+      enabled,
+      supplements: enabled ? newSupplements.filter((s) => s.supplementId) : [],
+    };
+    lastUserActionRef.current = supplementPlan;
+    onSupplementPlanChange(supplementPlan);
+
+    // Resetear la bandera después de que el store se actualice
+    setTimeout(() => {
+      isUserEditingRef.current = false;
+    }, 200);
   };
 
   // Manejar cambios en un suplemento específico
   const handleSupplementChange = (index: number, supplementId: string) => {
+    isUserEditingRef.current = true;
     const newSupplements = [...selectedSupplements];
     newSupplements[index] = { ...newSupplements[index], supplementId };
     setSelectedSupplements(newSupplements);
+
+    // Notificar cambio inmediatamente
+    const supplementPlan: SupplementPlan = {
+      enabled,
+      supplements: enabled ? newSupplements.filter((s) => s.supplementId) : [],
+    };
+    lastUserActionRef.current = supplementPlan;
+    onSupplementPlanChange(supplementPlan);
+
+    // Resetear la bandera después de que el store se actualice
+    setTimeout(() => {
+      isUserEditingRef.current = false;
+    }, 200);
   };
 
   // Manejar cambios en la cantidad de un suplemento
   const handleQuantityChange = (index: number, quantity: number) => {
+    isUserEditingRef.current = true;
     const newSupplements = [...selectedSupplements];
     newSupplements[index] = { ...newSupplements[index], quantity };
     setSelectedSupplements(newSupplements);
+
+    // Notificar cambio inmediatamente
+    const supplementPlan: SupplementPlan = {
+      enabled,
+      supplements: enabled ? newSupplements.filter((s) => s.supplementId) : [],
+    };
+    lastUserActionRef.current = supplementPlan;
+    onSupplementPlanChange(supplementPlan);
+
+    // Resetear la bandera después de que el store se actualice
+    setTimeout(() => {
+      isUserEditingRef.current = false;
+    }, 200);
   };
 
   // Calcular totales nutricionales

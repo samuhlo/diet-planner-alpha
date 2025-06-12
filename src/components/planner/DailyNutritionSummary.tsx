@@ -102,7 +102,7 @@ export default function DailyNutritionSummary({
       carbs: totalCarbs,
       fats: totalFats,
     };
-  }, [dailyPlan, calorieGoal, proteinGoal]);
+  }, [dailyPlan]);
 
   // Calcular porcentajes y estados
   const caloriePercentage = (dailyNutrition.calories / calorieGoal) * 100;

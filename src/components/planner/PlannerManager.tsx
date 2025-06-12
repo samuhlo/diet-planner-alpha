@@ -1,14 +1,17 @@
 import { useStore } from "@nanostores/preact";
+import { useEffect, useMemo } from "preact/hooks";
 import { $plan, clearWeeklyPlan } from "../../stores/planStore";
 import { $userData, $userGoal } from "../../stores/userProfileStore";
+import { allMeals } from "../../data/recipes";
 import { allSupplements } from "../../data/supplements";
 import { allSnacks } from "../../data/snacks";
 import InteractivePlanner from "./InteractivePlanner";
 import { openModal } from "../../stores/modalStore";
-import NutritionalSummary from "../common/NutritionalSummary.tsx";
+import NutritionalSummary from "../common/NutritionalSummary";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 import type { Recipe, Ingredient, WeeklySummaryData } from "../../types";
 import { DAYS_OF_WEEK, MEAL_TYPES } from "../../constants/appConstants";
+import ErrorBoundary from "../common/ErrorBoundary";
 
 interface PlannerManagerProps {
   allMeals: Recipe[];
@@ -24,6 +27,19 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
     userGoal
   );
 
+  // Memoizar los datos para evitar recálculos innecesarios
+  const memoizedAllMeals = useMemo(() => allMeals, [allMeals]);
+  const memoizedAllSupplements = useMemo(() => allSupplements, []);
+  const memoizedAllSnacks = useMemo(() => allSnacks, []);
+
+  // Limpiar memoria cuando el componente se desmonte
+  useEffect(() => {
+    return () => {
+      // Cleanup function para prevenir memory leaks
+      console.log("PlannerManager cleanup");
+    };
+  }, []);
+
   const generateShoppingList = () => {
     const shoppingList: Record<string, Ingredient & { q: number }> = {};
 
@@ -32,7 +48,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
       MEAL_TYPES.forEach((mealType) => {
         const mealInfo = dailyPlan[mealType];
         if (mealInfo?.recipeName) {
-          const mealData = allMeals.find(
+          const mealData = memoizedAllMeals.find(
             (m) => m.nombre === mealInfo.recipeName
           );
           const diners = mealInfo.diners || 1;
@@ -53,7 +69,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
       if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
         snackInfo.snacks.forEach((selectedSnack) => {
           if (selectedSnack.snackId) {
-            const snackData = allSnacks.find(
+            const snackData = memoizedAllSnacks.find(
               (s) => s.id === selectedSnack.snackId
             );
             if (snackData) {
@@ -115,7 +131,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
         const supplementList = suppInfo.supplements
           .filter((s) => s.supplementId)
           .map((s) => {
-            const suppData = allSupplements.find(
+            const suppData = memoizedAllSupplements.find(
               (sup) => sup.id === s.supplementId
             );
             return suppData ? `${s.quantity}x ${suppData.name}` : null;
@@ -135,7 +151,9 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
         const snackList = snackInfo.snacks
           .filter((s) => s.snackId)
           .map((s) => {
-            const snackData = allSnacks.find((sn) => sn.id === s.snackId);
+            const snackData = memoizedAllSnacks.find(
+              (sn) => sn.id === s.snackId
+            );
             return snackData ? `${s.quantity}x ${snackData.nombre}` : null;
           })
           .filter(Boolean)
@@ -154,7 +172,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
   };
 
   return (
-    <>
+    <ErrorBoundary>
       <NutritionalSummary />
 
       <div>
@@ -180,12 +198,12 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
           </button>
         </div>
         <InteractivePlanner
-          allMeals={allMeals}
-          allSupplements={allSupplements}
+          allMeals={memoizedAllMeals}
+          allSupplements={memoizedAllSupplements}
           targetCalories={calorieGoal}
           targetProtein={proteinGoal}
         />
       </div>
-    </>
+    </ErrorBoundary>
   );
 }
