@@ -1,5 +1,6 @@
 import type { VNode } from "preact";
 import { useStore } from "@nanostores/preact";
+import { useState, useEffect } from "preact/hooks";
 import { $userData, $userGoal } from "../../stores/userProfileStore.ts";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 
@@ -14,6 +15,12 @@ interface SummaryItem {
 const NutritionalSummary = (): VNode | null => {
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Verificar que el componente está hidratado
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const {
     bmr,
@@ -24,6 +31,20 @@ const NutritionalSummary = (): VNode | null => {
     carbGoal,
     fatGoal,
   } = useNutritionalCalculations(userData, userGoal);
+
+  // No renderizar nada hasta que esté hidratado
+  if (!isHydrated) {
+    return (
+      <div class="bg-white p-4 rounded-lg shadow-md mb-8">
+        <div class="flex items-center justify-center h-16">
+          <div class="text-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6B8A7A] mx-auto mb-2"></div>
+            <p class="text-gray-600 text-sm">Cargando resumen...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!userData) return null;
 

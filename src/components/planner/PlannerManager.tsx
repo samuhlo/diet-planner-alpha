@@ -1,5 +1,6 @@
+import type { VNode } from "preact";
 import { useStore } from "@nanostores/preact";
-import { useEffect, useMemo } from "preact/hooks";
+import { useState, useMemo, useEffect } from "preact/hooks";
 import { $plan, clearWeeklyPlan } from "../../stores/planStore";
 import { $userData, $userGoal } from "../../stores/userProfileStore";
 import { allMeals } from "../../data/recipes";
@@ -21,11 +22,17 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
   const plan = useStore($plan);
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const { calorieGoal, proteinGoal } = useNutritionalCalculations(
     userData,
     userGoal
   );
+
+  // Verificar que el componente está hidratado
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Memoizar los datos para evitar recálculos innecesarios
   const memoizedAllMeals = useMemo(() => allMeals, [allMeals]);
@@ -39,6 +46,22 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
       console.log("PlannerManager cleanup");
     };
   }, []);
+
+  // Mostrar loader mientras se hidrata
+  if (!isHydrated) {
+    return (
+      <ErrorBoundary>
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+          <div class="flex items-center justify-center h-32">
+            <div class="text-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6B8A7A] mx-auto mb-2"></div>
+              <p class="text-gray-600 text-sm">Cargando planificador...</p>
+            </div>
+          </div>
+        </div>
+      </ErrorBoundary>
+    );
+  }
 
   const generateShoppingList = () => {
     const shoppingList: Record<string, Ingredient & { q: number }> = {};

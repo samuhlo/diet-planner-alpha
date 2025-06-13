@@ -4,7 +4,7 @@ import {
   $userGoal,
   $weightLog,
 } from "../../stores/userProfileStore.ts";
-import { useMemo } from "preact/hooks";
+import { useMemo, useState, useEffect } from "preact/hooks";
 import {
   KCAL_PER_KG_FAT,
   ACTIVITY_FACTORS,
@@ -23,10 +23,17 @@ export default function ObjectiveAnalysis() {
   const goal = useStore($userGoal);
   const userData = useStore($userData);
   const weightLogObject = useStore($weightLog);
+  const [isHydrated, setIsHydrated] = useState(false);
+
   const weightLog = useMemo(
     () => Object.values(weightLogObject || {}),
     [weightLogObject]
   );
+
+  // Verificar que el componente está hidratado
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const analysis = useMemo(() => {
     if (!userData || !goal || !goal.goalType) {
@@ -177,6 +184,23 @@ export default function ObjectiveAnalysis() {
       activityLevel,
     };
   }, [goal, userData, weightLog]);
+
+  // Mostrar loader mientras se hidrata
+  if (!isHydrated) {
+    return (
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-bold text-stone-800 mb-4">
+          Análisis del Objetivo
+        </h3>
+        <div class="flex items-center justify-center h-32">
+          <div class="text-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6B8A7A] mx-auto mb-2"></div>
+            <p class="text-gray-600 text-sm">Cargando análisis...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div class="bg-white p-6 rounded-lg shadow-md">
