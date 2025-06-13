@@ -23,24 +23,63 @@
     const navButtons = document.querySelectorAll(".nav-button");
     const contentSections = document.querySelectorAll(".content-section");
 
+    // Función para cambiar a una sección específica
+    function switchToSection(sectionId: string) {
+      // Actualizar botones de navegación
+      navButtons.forEach((btn) => {
+        btn.classList.remove("active");
+        if (btn.getAttribute("data-section") === sectionId) {
+          btn.classList.add("active");
+        }
+      });
+
+      // Mostrar/ocultar secciones de contenido
+      contentSections.forEach((section) => {
+        if (section.id === sectionId) {
+          section.classList.remove("hidden");
+        } else {
+          section.classList.add("hidden");
+        }
+      });
+
+      // Guardar la sección activa en localStorage
+      localStorage.setItem("activeSection", sectionId);
+    }
+
+    // Función para cargar la sección activa desde localStorage
+    function loadActiveSection() {
+      const savedSection = localStorage.getItem("activeSection");
+
+      // Si hay una sección guardada y existe en la página, usarla
+      if (savedSection && document.getElementById(savedSection)) {
+        switchToSection(savedSection);
+      } else {
+        // Si no hay sección guardada o no existe, usar la primera (planificador)
+        const firstSection = navButtons[0].getAttribute("data-section");
+        if (firstSection) {
+          switchToSection(firstSection);
+        }
+      }
+    }
+
+    // Cargar la sección activa al cargar la página
+    loadActiveSection();
+
+    // Event listeners para los botones de navegación
     navButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        // Saca la clase 'active' de todos los botones y la pone solo en el que se ha clicado
-        navButtons.forEach((btn) => btn.classList.remove("active"));
-        button.classList.add("active");
-
         const targetSectionId = button.getAttribute("data-section");
-
-        // Oculta todas las secciones y muestra solo la que corresponde
-        contentSections.forEach((section) => {
-          if (section.id === targetSectionId) {
-            section.classList.remove("hidden");
-          } else {
-            section.classList.add("hidden");
-          }
-        });
+        if (targetSectionId) {
+          switchToSection(targetSectionId);
+        }
       });
     });
+
+    // Emitir evento cuando la navegación esté lista
+    setTimeout(() => {
+      const event = new CustomEvent("navigationReady");
+      document.dispatchEvent(event);
+    }, 100);
   });
 </script>
 <style>

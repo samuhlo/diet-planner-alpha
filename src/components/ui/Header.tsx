@@ -1,11 +1,23 @@
 // src/components/Header.tsx
 import { useStore } from "@nanostores/preact";
 import type { VNode } from "preact";
+import { useState, useEffect } from "preact/hooks";
 import { $isProfileComplete } from "../../stores/userProfileStore";
 
 export default function Header(): VNode {
   // Nos suscribimos a la store computada para saber si mostrar la alerta.
   const isProfileComplete = useStore($isProfileComplete);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Efecto para manejar el estado de carga inicial
+  useEffect(() => {
+    // Dar tiempo a que se carguen los datos desde localStorage
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <header>
@@ -18,8 +30,8 @@ export default function Header(): VNode {
         </p>
       </div>
 
-      {/* Alerta Condicional */}
-      {!isProfileComplete && (
+      {/* Alerta Condicional - solo mostrar si no está cargando y el perfil no está completo */}
+      {!isLoading && !isProfileComplete && (
         <div
           class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg mb-8"
           role="alert"

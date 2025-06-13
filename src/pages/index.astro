@@ -17,7 +17,21 @@ import GoalProgress from "../components/progress/GoalProgress.astro";
   <Header client:load />
   <Navigation />
 
-  <main>
+  <!-- Loader inicial -->
+  <div
+    id="initial-loader"
+    class="flex items-center justify-center min-h-screen bg-gray-50"
+  >
+    <div class="text-center">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6B8A7A] mx-auto mb-4"
+      >
+      </div>
+      <p class="text-gray-600 text-lg">Cargando planificador...</p>
+    </div>
+  </div>
+
+  <main id="main-content" class="hidden">
     <!-- Colocamos todos nuestros componentes de sección -->
     <section id="planificador" class="content-section">
       <WeeklyPlanner />
@@ -44,3 +58,32 @@ import GoalProgress from "../components/progress/GoalProgress.astro";
     </section>
   </main>
 </Layout>
+
+<script>
+  // Script para manejar el loader inicial
+  document.addEventListener("DOMContentLoaded", () => {
+    const loader = document.getElementById("initial-loader");
+    const mainContent = document.getElementById("main-content");
+
+    // Función para ocultar el loader y mostrar el contenido
+    function hideLoader() {
+      if (loader && mainContent) {
+        loader.style.display = "none";
+        mainContent.classList.remove("hidden");
+      }
+    }
+
+    // Escuchar el evento de navegación lista
+    document.addEventListener("navigationReady", () => {
+      // Ocultar el loader cuando la navegación esté lista
+      hideLoader();
+    });
+
+    // Fallback: ocultar el loader después de un tiempo máximo
+    setTimeout(() => {
+      if (loader && loader.style.display !== "none") {
+        hideLoader();
+      }
+    }, 2000);
+  });
+</script>
