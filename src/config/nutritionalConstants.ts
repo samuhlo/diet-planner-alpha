@@ -26,6 +26,20 @@ export const MIN_DAILY_CALORIES = 1200;
 export const PROTEIN_INTAKE_LOWER_BOUND_FACTOR = 0.8;
 export const PROTEIN_INTAKE_UPPER_BOUND_FACTOR = 1.5;
 
+// --- CÁLCULO DE CARBOHIDRATOS ---
+// Calorías por gramo de proteína
+export const KCAL_PER_G_PROTEIN = 4;
+// Calorías por gramo de carbohidratos
+export const KCAL_PER_G_CARBS = 4;
+// Calorías por gramo de grasa
+export const KCAL_PER_G_FAT = 9;
+// Porcentaje de calorías que deben venir de grasas (mínimo recomendado)
+export const MIN_FAT_PERCENTAGE = 0.2; // 20%
+// Porcentaje de calorías que deben venir de grasas (máximo recomendado)
+export const MAX_FAT_PERCENTAGE = 0.35; // 35%
+// Porcentaje de calorías que deben venir de grasas (objetivo)
+export const TARGET_FAT_PERCENTAGE = 0.25; // 25%
+
 // --- UMBRALES DE SEGURIDAD ---
 // Límite de pérdida de peso semanal (kg) a partir del cual se muestra una advertencia.
 export const WARNING_WEEKLY_WEIGHT_LOSS_KG = 1.0;

@@ -22,10 +22,8 @@ export default function DailyNutritionSummary({
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
 
-  const { calorieGoal, proteinGoal } = useNutritionalCalculations(
-    userData,
-    userGoal
-  );
+  const { calorieGoal, proteinGoal, carbGoal, fatGoal } =
+    useNutritionalCalculations(userData, userGoal);
 
   // Obtener solo el plan del día específico para evitar recálculos innecesarios
   const dailyPlan = plan[dayId] || {};
@@ -108,6 +106,8 @@ export default function DailyNutritionSummary({
   // Calcular porcentajes y estados
   const caloriePercentage = (dailyNutrition.calories / calorieGoal) * 100;
   const proteinPercentage = (dailyNutrition.protein / proteinGoal) * 100;
+  const carbPercentage = (dailyNutrition.carbs / carbGoal) * 100;
+  const fatPercentage = (dailyNutrition.fats / fatGoal) * 100;
 
   const getCalorieStatus = () => {
     if (caloriePercentage < 80)
@@ -125,8 +125,26 @@ export default function DailyNutritionSummary({
     return { status: "óptimo", color: "text-green-600", bg: "bg-green-50" };
   };
 
+  const getCarbStatus = () => {
+    if (carbPercentage < 80)
+      return { status: "bajo", color: "text-red-600", bg: "bg-red-50" };
+    if (carbPercentage > 120)
+      return { status: "alto", color: "text-orange-600", bg: "bg-orange-50" };
+    return { status: "óptimo", color: "text-green-600", bg: "bg-green-50" };
+  };
+
+  const getFatStatus = () => {
+    if (fatPercentage < 80)
+      return { status: "bajo", color: "text-red-600", bg: "bg-red-50" };
+    if (fatPercentage > 120)
+      return { status: "alto", color: "text-orange-600", bg: "bg-orange-50" };
+    return { status: "óptimo", color: "text-green-600", bg: "bg-green-50" };
+  };
+
   const calorieStatus = getCalorieStatus();
   const proteinStatus = getProteinStatus();
+  const carbStatus = getCarbStatus();
+  const fatStatus = getFatStatus();
 
   return (
     <div class="p-2">
@@ -155,12 +173,18 @@ export default function DailyNutritionSummary({
             {dailyNutrition.carbs.toFixed(1)}
           </div>
           <div class="text-xs text-gray-500">carbos</div>
+          <div class={`text-xs mt-1 ${carbStatus.color}`}>
+            {carbStatus.status}
+          </div>
         </div>
         <div class="text-center">
           <div class="text-lg font-bold text-gray-900">
             {dailyNutrition.fats.toFixed(1)}
           </div>
           <div class="text-xs text-gray-500">grasas</div>
+          <div class={`text-xs mt-1 ${fatStatus.color}`}>
+            {fatStatus.status}
+          </div>
         </div>
       </div>
 
@@ -208,19 +232,69 @@ export default function DailyNutritionSummary({
             ></div>
           </div>
         </div>
+
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Carbohidratos</span>
+            <span class="text-gray-900">
+              {dailyNutrition.carbs.toFixed(1)} / {carbGoal.toFixed(1)}g
+            </span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-1.5">
+            <div
+              class={`h-1.5 rounded-full transition-all ${
+                carbPercentage < 80
+                  ? "bg-red-500"
+                  : carbPercentage > 120
+                  ? "bg-orange-500"
+                  : "bg-green-500"
+              }`}
+              style={`width: ${Math.min(carbPercentage, 100)}%`}
+            ></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Grasas</span>
+            <span class="text-gray-900">
+              {dailyNutrition.fats.toFixed(1)} / {fatGoal.toFixed(1)}g
+            </span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-1.5">
+            <div
+              class={`h-1.5 rounded-full transition-all ${
+                fatPercentage < 80
+                  ? "bg-red-500"
+                  : fatPercentage > 120
+                  ? "bg-orange-500"
+                  : "bg-green-500"
+              }`}
+              style={`width: ${Math.min(fatPercentage, 100)}%`}
+            ></div>
+          </div>
+        </div>
       </div>
 
       {/* Alertas compactas solo si hay problemas */}
       {(caloriePercentage < 80 ||
         caloriePercentage > 120 ||
         proteinPercentage < 80 ||
-        proteinPercentage > 120) && (
+        proteinPercentage > 120 ||
+        carbPercentage < 80 ||
+        carbPercentage > 120 ||
+        fatPercentage < 80 ||
+        fatPercentage > 120) && (
         <div class="mt-3 p-2 rounded border-l-3 border-yellow-400 bg-yellow-50">
           <div class="text-xs text-yellow-800">
             {caloriePercentage < 80 && "Faltan calorías • "}
             {caloriePercentage > 120 && "Exceso de calorías • "}
             {proteinPercentage < 80 && "Falta proteína • "}
-            {proteinPercentage > 120 && "Exceso de proteína"}
+            {proteinPercentage > 120 && "Exceso de proteína • "}
+            {carbPercentage < 80 && "Faltan carbohidratos • "}
+            {carbPercentage > 120 && "Exceso de carbohidratos • "}
+            {fatPercentage < 80 && "Faltan grasas • "}
+            {fatPercentage > 120 && "Exceso de grasas"}
           </div>
         </div>
       )}

@@ -15,8 +15,15 @@ const NutritionalSummary = (): VNode | null => {
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
 
-  const { bmr, tdee, proteinFactor, proteinGoal, calorieGoal } =
-    useNutritionalCalculations(userData, userGoal);
+  const {
+    bmr,
+    tdee,
+    proteinFactor,
+    proteinGoal,
+    calorieGoal,
+    carbGoal,
+    fatGoal,
+  } = useNutritionalCalculations(userData, userGoal);
 
   if (!userData) return null;
 
@@ -51,6 +58,20 @@ const NutritionalSummary = (): VNode | null => {
       unit: "g/día",
       color: "text-amber-600",
       description: `${proteinFactor.toFixed(1)} g/kg de peso`,
+    },
+    {
+      label: "Carbohidratos",
+      value: carbGoal,
+      unit: "g/día",
+      color: "text-orange-600",
+      description: "Calorías restantes",
+    },
+    {
+      label: "Grasas",
+      value: fatGoal,
+      unit: "g/día",
+      color: "text-red-600",
+      description: "25% de calorías",
     },
     {
       label: "Objetivo de Peso",
