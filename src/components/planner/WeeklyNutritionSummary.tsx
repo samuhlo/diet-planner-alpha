@@ -16,10 +16,8 @@ export default function WeeklyNutritionSummary() {
   const userGoal = useStore($userGoal);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { calorieGoal, proteinGoal } = useNutritionalCalculations(
-    userData,
-    userGoal
-  );
+  const { calorieGoal, proteinGoal, carbGoal, fatGoal } =
+    useNutritionalCalculations(userData, userGoal);
 
   const weeklyNutrition = useMemo(() => {
     let totalCalories = 0;
@@ -155,6 +153,8 @@ export default function WeeklyNutritionSummary() {
     (weeklyNutrition.averages.calories / calorieGoal) * 100;
   const proteinPercentage =
     (weeklyNutrition.averages.protein / proteinGoal) * 100;
+  const carbPercentage = (weeklyNutrition.averages.carbs / carbGoal) * 100;
+  const fatPercentage = (weeklyNutrition.averages.fats / fatGoal) * 100;
 
   const getCalorieStatus = () => {
     if (caloriePercentage < 80)
@@ -172,8 +172,26 @@ export default function WeeklyNutritionSummary() {
     return { status: "óptimo", color: "text-green-600", bg: "bg-green-50" };
   };
 
+  const getCarbStatus = () => {
+    if (carbPercentage < 80)
+      return { status: "bajo", color: "text-red-600", bg: "bg-red-50" };
+    if (carbPercentage > 120)
+      return { status: "alto", color: "text-orange-600", bg: "bg-orange-50" };
+    return { status: "óptimo", color: "text-green-600", bg: "bg-green-50" };
+  };
+
+  const getFatStatus = () => {
+    if (fatPercentage < 80)
+      return { status: "bajo", color: "text-red-600", bg: "bg-red-50" };
+    if (fatPercentage > 120)
+      return { status: "alto", color: "text-orange-600", bg: "bg-orange-50" };
+    return { status: "óptimo", color: "text-green-600", bg: "bg-green-50" };
+  };
+
   const calorieStatus = getCalorieStatus();
   const proteinStatus = getProteinStatus();
+  const carbStatus = getCarbStatus();
+  const fatStatus = getFatStatus();
 
   return (
     <div class="bg-white p-6 rounded-lg shadow-md border">
@@ -236,6 +254,9 @@ export default function WeeklyNutritionSummary() {
             </div>
             <div class="text-sm text-gray-500">carbos/día</div>
           </div>
+          <div class={`text-xs mt-1 font-medium ${carbStatus.color}`}>
+            {carbStatus.status.toUpperCase()}
+          </div>
         </div>
         <div class="flex justify-center flex-col items-center  bg-gray-50 rounded-lg p-2">
           <div class="flex justify-center items-center gap-1">
@@ -243,6 +264,9 @@ export default function WeeklyNutritionSummary() {
               {weeklyNutrition.averages.fats.toFixed(1)}
             </div>
             <div class="text-sm text-gray-500">grasas/día</div>
+          </div>
+          <div class={`text-xs mt-1 font-medium ${fatStatus.color}`}>
+            {fatStatus.status.toUpperCase()}
           </div>
         </div>
       </div>
@@ -309,6 +333,50 @@ export default function WeeklyNutritionSummary() {
                 ></div>
               </div>
             </div>
+
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Carbohidratos Promedio</span>
+                <span class="text-gray-900">
+                  {weeklyNutrition.averages.carbs.toFixed(1)} /{" "}
+                  {carbGoal.toFixed(1)}g
+                </span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  class={`h-3 rounded-full transition-all ${
+                    carbPercentage < 80
+                      ? "bg-red-500"
+                      : carbPercentage > 120
+                      ? "bg-orange-500"
+                      : "bg-green-500"
+                  }`}
+                  style={`width: ${Math.min(carbPercentage, 100)}%`}
+                ></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Grasas Promedio</span>
+                <span class="text-gray-900">
+                  {weeklyNutrition.averages.fats.toFixed(1)} /{" "}
+                  {fatGoal.toFixed(1)}g
+                </span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  class={`h-3 rounded-full transition-all ${
+                    fatPercentage < 80
+                      ? "bg-red-500"
+                      : fatPercentage > 120
+                      ? "bg-orange-500"
+                      : "bg-green-500"
+                  }`}
+                  style={`width: ${Math.min(fatPercentage, 100)}%`}
+                ></div>
+              </div>
+            </div>
           </div>
 
           {/* Desglose diario */}
@@ -339,6 +407,9 @@ export default function WeeklyNutritionSummary() {
                       </div>
                       <div class="text-gray-600">
                         {day.carbs.toFixed(1)}g carb
+                      </div>
+                      <div class="text-gray-600">
+                        {day.fats.toFixed(1)}g grasas
                       </div>
                     </div>
                   ) : (
@@ -386,7 +457,11 @@ export default function WeeklyNutritionSummary() {
           {(caloriePercentage < 80 ||
             caloriePercentage > 120 ||
             proteinPercentage < 80 ||
-            proteinPercentage > 120) && (
+            proteinPercentage > 120 ||
+            carbPercentage < 80 ||
+            carbPercentage > 120 ||
+            fatPercentage < 80 ||
+            fatPercentage > 120) && (
             <div class="mt-6 p-4 rounded-lg border-l-4 border-yellow-400 bg-yellow-50">
               <div class="flex  justify-start">
                 <div class="flex-shrink-0">
@@ -430,6 +505,26 @@ export default function WeeklyNutritionSummary() {
                         <li>
                           Considera reducir la ingesta promedio de proteínas
                         </li>
+                      )}
+                      {carbPercentage < 80 && (
+                        <li>
+                          Añade más carbohidratos en promedio para alcanzar tu
+                          objetivo semanal
+                        </li>
+                      )}
+                      {carbPercentage > 120 && (
+                        <li>
+                          Considera reducir la ingesta promedio de carbohidratos
+                        </li>
+                      )}
+                      {fatPercentage < 80 && (
+                        <li>
+                          Incluye más grasas saludables en promedio en tus
+                          comidas semanales
+                        </li>
+                      )}
+                      {fatPercentage > 120 && (
+                        <li>Considera reducir la ingesta promedio de grasas</li>
                       )}
                     </ul>
                   </div>
