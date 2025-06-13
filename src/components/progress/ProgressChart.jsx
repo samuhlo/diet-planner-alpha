@@ -48,8 +48,26 @@ export default function ProgressChart({ weightLog, goal }) {
     const endDate = new Date(goal.endDate);
     const targetWeight = parseFloat(goal.targetWeight);
 
-    // Obtener el peso inicial (primer registro)
-    const initialWeight = weightLog.length > 0 ? weightLog[0].weight : null;
+    // Ordenar el weightLog por fecha para obtener el peso más reciente antes del inicio del objetivo
+    const sortedWeightLog = [...weightLog].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+
+    // Buscar el peso inicial: el último peso registrado antes o en la fecha de inicio del objetivo
+    let initialWeight = null;
+    for (let i = sortedWeightLog.length - 1; i >= 0; i--) {
+      const entryDate = new Date(sortedWeightLog[i].date);
+      if (entryDate <= startDate) {
+        initialWeight = sortedWeightLog[i].weight;
+        break;
+      }
+    }
+
+    // Si no hay peso antes del inicio, usar el primer peso registrado
+    if (!initialWeight && sortedWeightLog.length > 0) {
+      initialWeight = sortedWeightLog[0].weight;
+    }
+
     if (!initialWeight) return null;
 
     const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
@@ -122,9 +140,36 @@ export default function ProgressChart({ weightLog, goal }) {
 
     // Agregar línea de peso objetivo desde inicio hasta fin
     if (goalLineData) {
+      // Crear un array de datos que coincida con las fechas del gráfico
+      const goalDataForChart = chartLabels.map((label) => {
+        // Buscar si esta fecha está en la línea de objetivo
+        const goalIndex = goalLineData.labels.indexOf(label);
+        if (goalIndex !== -1) {
+          return goalLineData.data[goalIndex];
+        }
+
+        // Si no está en la línea de objetivo, calcular interpolación
+        const currentDate = new Date(label.split("/").reverse().join("-"));
+        const startDate = goalLineData.startDate;
+        const endDate = goalLineData.endDate;
+
+        if (currentDate >= startDate && currentDate <= endDate) {
+          const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+          const daysFromStart =
+            (currentDate - startDate) / (1000 * 60 * 60 * 24);
+          const progress = daysFromStart / totalDays;
+          return (
+            goalLineData.initialWeight -
+            progress * (goalLineData.initialWeight - goalLineData.targetWeight)
+          );
+        }
+
+        return null; // Fuera del rango del objetivo
+      });
+
       datasets.push({
         label: "Peso Objetivo",
-        data: goalLineData.data,
+        data: goalDataForChart,
         borderColor: "#f56500",
         borderDash: [8, 4],
         borderWidth: 2,

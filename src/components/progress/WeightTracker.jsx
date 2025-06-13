@@ -182,17 +182,26 @@ export default function WeightTracker() {
           <h3 class="text-xl font-bold text-stone-800 mb-4">
             Resumen de Progreso
           </h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div class="text-center">
               <div class="text-2xl font-bold text-blue-600">
                 {stats.latestWeight} kg
               </div>
-              <div class="text-sm text-gray-600">Peso actual</div>
+              <div class="text-sm text-gray-400">Peso actual</div>
             </div>
+            {/*Peso objetivo*/}
+            {goal && (
+              <div class="text-center">
+                <div class="text-2xl font-bold text-red-400">
+                  {goal.targetWeight} kg
+                </div>
+                <div class="text-sm text-gray-600">Peso objetivo</div>
+              </div>
+            )}
             <div class="text-center">
               <div
                 class={`text-2xl font-bold ${
-                  stats.totalChange >= 0 ? "text-red-600" : "text-green-600"
+                  stats.totalChange >= 0 ? "text-red-400" : "text-green-600"
                 }`}
               >
                 {stats.totalChange >= 0 ? "+" : ""}
@@ -203,7 +212,7 @@ export default function WeightTracker() {
             <div class="text-center">
               <div
                 class={`text-2xl font-bold ${
-                  stats.weeklyChange >= 0 ? "text-red-600" : "text-green-600"
+                  stats.weeklyChange >= 0 ? "text-red-400" : "text-green-600"
                 }`}
               >
                 {stats.weeklyChange >= 0 ? "+" : ""}
