@@ -32,6 +32,16 @@ export const setUserData = (newUserData: UserData | null) => {
   $userData.set(newUserData);
 };
 
+export const updateUserWeight = (weight: number) => {
+  const currentUserData = $userData.get();
+  if (currentUserData) {
+    $userData.setKey("weight", weight);
+  } else {
+    // Si no hay datos de usuario, crear un objeto básico con el peso
+    $userData.set({ weight });
+  }
+};
+
 // --- STORE DEL OBJETIVO ---
 const defaultGoal: UserGoal = {
   startDate: "",
@@ -94,5 +104,9 @@ $weightLog.subscribe((value) => {
 export const addWeightEntry = (entry: WeightEntry) => {
   const id = `entry-${Date.now()}`;
   $weightLog.setKey(id, entry);
+
+  // Actualizar automáticamente el peso del usuario con el nuevo peso
+  updateUserWeight(entry.weight);
+
   return id;
 };

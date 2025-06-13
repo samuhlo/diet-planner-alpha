@@ -176,32 +176,32 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
       <NutritionalSummary />
       <div>
         <div class="text-center mb-8 flex flex-wrap justify-center items-center gap-4">
-          <InteractivePlanner
-            allMeals={memoizedAllMeals}
-            allSupplements={memoizedAllSupplements}
-            targetCalories={calorieGoal}
-            targetProtein={proteinGoal}
-          />
           <button
             onClick={generateShoppingList}
             class="bg-[#436d4b] text-white font-bold py-3 px-8 rounded-lg hover:bg-[#2c4230] transition shadow-lg"
           >
-            🛒 Lista de la Compra
+            Lista de la Compra
           </button>
           <button
             onClick={generateWeekSummary}
             class="bg-blue-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition shadow-lg"
           >
-            📋 Ver Resumen
+            Ver Resumen
           </button>
           {/* Clear plan button */}
           <button
             onClick={clearWeeklyPlan}
             class="bg-red-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-red-700 transition shadow-lg"
           >
-            🧹 Limpiar Plan
+            Limpiar Plan
           </button>
         </div>
+        <InteractivePlanner
+          allMeals={memoizedAllMeals}
+          allSupplements={memoizedAllSupplements}
+          targetCalories={calorieGoal}
+          targetProtein={proteinGoal}
+        />
       </div>
     </ErrorBoundary>
   );
