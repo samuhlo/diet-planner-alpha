@@ -1,5 +1,3 @@
-// src/constants/appConstants.ts
-
 // Días de la semana
 export const DAYS_OF_WEEK = [
   "Lunes",

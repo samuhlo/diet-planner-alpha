@@ -207,35 +207,43 @@ export default function WeeklyNutritionSummary() {
 
       {/* Vista compacta - siempre visible */}
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <div class="text-center p-3 bg-gray-50 rounded-lg">
-          <div class="text-2xl font-bold text-gray-900">
-            {Math.round(weeklyNutrition.averages.calories)}
+        <div class=" flex justify-center flex-col items-center  bg-gray-50 rounded-lg p-2">
+          <div class="flex justify-center items-center gap-1">
+            <div class="text-2xl font-bold text-gray-900">
+              {Math.round(weeklyNutrition.averages.calories)}
+            </div>
+            <div class="text-sm text-gray-500">kcal/día</div>
           </div>
-          <div class="text-sm text-gray-500">kcal/día</div>
           <div class={`text-xs mt-1 font-medium ${calorieStatus.color}`}>
-            {calorieStatus.status}
+            {calorieStatus.status.toUpperCase()}
           </div>
         </div>
-        <div class="text-center p-3 bg-gray-50 rounded-lg">
-          <div class="text-2xl font-bold text-gray-900">
-            {weeklyNutrition.averages.protein.toFixed(1)}
+        <div class="flex justify-center flex-col items-center  bg-gray-50 rounded-lg p-2">
+          <div class="flex justify-center items-center gap-1">
+            <div class="text-2xl font-bold text-gray-900">
+              {weeklyNutrition.averages.protein.toFixed(1)}
+            </div>
+            <div class="text-sm text-gray-500">proteína/día</div>
           </div>
-          <div class="text-sm text-gray-500">proteína/día</div>
           <div class={`text-xs mt-1 font-medium ${proteinStatus.color}`}>
-            {proteinStatus.status}
+            {proteinStatus.status.toUpperCase()}
           </div>
         </div>
-        <div class="text-center p-3 bg-gray-50 rounded-lg">
-          <div class="text-2xl font-bold text-gray-900">
-            {weeklyNutrition.averages.carbs.toFixed(1)}
+        <div class="flex justify-center flex-col items-center  bg-gray-50 rounded-lg p-2">
+          <div class="flex justify-center items-center gap-1">
+            <div class="text-2xl font-bold text-gray-900">
+              {weeklyNutrition.averages.carbs.toFixed(1)}
+            </div>
+            <div class="text-sm text-gray-500">carbos/día</div>
           </div>
-          <div class="text-sm text-gray-500">carbos/día</div>
         </div>
-        <div class="text-center p-3 bg-gray-50 rounded-lg">
-          <div class="text-2xl font-bold text-gray-900">
-            {weeklyNutrition.averages.fats.toFixed(1)}
+        <div class="flex justify-center flex-col items-center  bg-gray-50 rounded-lg p-2">
+          <div class="flex justify-center items-center gap-1">
+            <div class="text-2xl font-bold text-gray-900">
+              {weeklyNutrition.averages.fats.toFixed(1)}
+            </div>
+            <div class="text-sm text-gray-500">grasas/día</div>
           </div>
-          <div class="text-sm text-gray-500">grasas/día</div>
         </div>
       </div>
 
