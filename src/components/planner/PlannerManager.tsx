@@ -174,9 +174,14 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
   return (
     <ErrorBoundary>
       <NutritionalSummary />
-
       <div>
         <div class="text-center mb-8 flex flex-wrap justify-center items-center gap-4">
+          <InteractivePlanner
+            allMeals={memoizedAllMeals}
+            allSupplements={memoizedAllSupplements}
+            targetCalories={calorieGoal}
+            targetProtein={proteinGoal}
+          />
           <button
             onClick={generateShoppingList}
             class="bg-[#436d4b] text-white font-bold py-3 px-8 rounded-lg hover:bg-[#2c4230] transition shadow-lg"
@@ -197,12 +202,6 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
             🧹 Limpiar Plan
           </button>
         </div>
-        <InteractivePlanner
-          allMeals={memoizedAllMeals}
-          allSupplements={memoizedAllSupplements}
-          targetCalories={calorieGoal}
-          targetProtein={proteinGoal}
-        />
       </div>
     </ErrorBoundary>
   );
