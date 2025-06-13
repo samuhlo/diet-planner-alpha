@@ -47,6 +47,7 @@ const defaultGoal: UserGoal = {
   startDate: "",
   endDate: "",
   targetWeight: 0,
+  goalType: "maintain", // Por defecto mantener peso
 };
 
 export const $userGoal = map<UserGoal>(getFromStorage("userGoal", defaultGoal));

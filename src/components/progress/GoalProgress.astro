@@ -1,19 +1,17 @@
 ---
 // src/components/GoalProgress.astro
-import GoalForm from './GoalForm.jsx';
-import ObjectiveAnalysis from './ObjectiveAnalysis.jsx';
-import WeightTracker from './WeightTracker.jsx';
+import WeightTracker from "./WeightTracker.jsx";
 ---
+
 <section id="progreso" class="content-section hidden">
-    <div class="text-center mb-8 max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold text-[#3a5a40]">Objetivo y Progreso</h2>
-        <p class="mt-2 text-stone-600">Establece tu meta y registra tus mediciones para ver tu evolución en el tiempo.</p>
-    </div>
-    <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8">
-        <div class="space-y-6">
-            <GoalForm client:visible />
-            <ObjectiveAnalysis client:visible />
-        </div>
-        <WeightTracker client:visible />
-    </div>
+  <div class="text-center mb-8 max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-[#3a5a40]">Seguimiento de Progreso</h2>
+    <p class="mt-2 text-stone-600">
+      Registra tus mediciones de peso para ver tu evolución en el tiempo y
+      mantener un seguimiento de tu progreso.
+    </p>
+  </div>
+  <div class="max-w-4xl mx-auto">
+    <WeightTracker client:visible />
+  </div>
 </section>

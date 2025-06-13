@@ -64,7 +64,12 @@ export function useNutritionalCalculations(userData, userGoal) {
     // 5. Calcular objetivo calórico
     let calorieGoal = tdee; // Por defecto, mantenimiento
 
-    if (userGoal?.targetWeight && userGoal?.startDate && userGoal?.endDate) {
+    if (
+      userGoal?.goalType === "lose" &&
+      userGoal?.targetWeight &&
+      userGoal?.startDate &&
+      userGoal?.endDate
+    ) {
       const weightToLose = userData.weight - parseFloat(userGoal.targetWeight);
       if (weightToLose > 0) {
         const durationInDays =
@@ -77,8 +82,11 @@ export function useNutritionalCalculations(userData, userGoal) {
           calorieGoal = Math.max(MIN_DAILY_CALORIES, tdee - dailyDeficit);
         }
       }
+    } else if (userGoal?.goalType === "maintain") {
+      // Para mantener peso, usar TDEE sin déficit
+      calorieGoal = tdee;
     } else {
-      // Si no hay meta definida, usar déficit por defecto
+      // Si no hay meta definida o es tipo "lose" sin datos completos, usar déficit por defecto
       calorieGoal = Math.max(MIN_DAILY_CALORIES, tdee - DEFAULT_DAILY_DEFICIT);
     }
 

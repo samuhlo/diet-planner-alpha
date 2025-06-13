@@ -15,6 +15,7 @@ export interface UserGoal {
   startDate: string;
   endDate: string;
   targetWeight: number;
+  goalType: "maintain" | "lose";
 }
 
 export interface WeightEntry {
