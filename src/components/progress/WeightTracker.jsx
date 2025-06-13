@@ -6,13 +6,15 @@ import {
   $userData,
   addWeightEntry,
 } from "../../stores/userProfileStore.ts";
-import { useState, useMemo } from "preact/hooks";
+import { useState, useMemo, useEffect } from "preact/hooks";
 import ProgressChart from "./ProgressChart";
 
 export default function WeightTracker() {
   const goal = useStore($userGoal);
   const userData = useStore($userData);
   const weightLogObject = useStore($weightLog);
+  const [isHydrated, setIsHydrated] = useState(false);
+
   const weightLog = useMemo(
     () => Object.values(weightLogObject || {}),
     [weightLogObject]
@@ -25,6 +27,11 @@ export default function WeightTracker() {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Verificar que el componente está hidratado
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Ordenar registros por fecha
   const sortedWeightLog = useMemo(() => {
@@ -80,6 +87,22 @@ export default function WeightTracker() {
       totalEntries: weights.length,
     };
   }, [sortedWeightLog]);
+
+  // Mostrar loader mientras se hidrata
+  if (!isHydrated) {
+    return (
+      <div class="space-y-6">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="flex items-center justify-center h-32">
+            <div class="text-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6B8A7A] mx-auto mb-2"></div>
+              <p class="text-gray-600 text-sm">Cargando seguimiento...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleAddWeight = (e) => {
     e.preventDefault();
@@ -235,7 +258,7 @@ export default function WeightTracker() {
         <h3 class="text-xl font-bold text-stone-800 mb-4">
           Tu Progreso Visual
         </h3>
-        <div class="h-96">
+        <div class="h-96 w-full">
           <ProgressChart weightLog={sortedWeightLog} goal={goal} />
         </div>
       </div>

@@ -1,10 +1,16 @@
 // src/components/ProgressChart.jsx
-import { useRef, useEffect, useMemo } from "preact/hooks";
+import { useRef, useEffect, useMemo, useState } from "preact/hooks";
 import Chart from "chart.js/auto";
 
 export default function ProgressChart({ weightLog, goal }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
+  const [isClient, setIsClient] = useState(false);
+
+  // Verificar que estamos en el cliente
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Preparar datos del peso real con fechas únicas
   const realData = useMemo(() => {
@@ -101,7 +107,8 @@ export default function ProgressChart({ weightLog, goal }) {
   }, [goal, weightLog]);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    // Solo renderizar el gráfico si estamos en el cliente y el canvas está disponible
+    if (!isClient || !canvasRef.current) return;
 
     if (chartRef.current) {
       chartRef.current.destroy();
@@ -247,7 +254,19 @@ export default function ProgressChart({ weightLog, goal }) {
     return () => {
       if (chartRef.current) chartRef.current.destroy();
     };
-  }, [weightLog, goal, goalLineData, realData]);
+  }, [weightLog, goal, goalLineData, realData, isClient]);
+
+  // Mostrar loader mientras se hidrata
+  if (!isClient) {
+    return (
+      <div class="h-96 w-full flex items-center justify-center bg-gray-50 rounded-lg">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6B8A7A] mx-auto mb-2"></div>
+          <p class="text-gray-600 text-sm">Cargando gráfico...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div class="h-96 w-full">

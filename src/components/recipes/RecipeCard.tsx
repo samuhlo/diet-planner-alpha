@@ -44,7 +44,7 @@ export default function RecipeCard({
         <div class="flex justify-between">
           {/* Tipo de comida destacado */}
           <div
-            class={`inline-block text-xs mb-3 px-4 py-1 rounded-full font-semibold text-base ${getTipoColor(
+            class={`inline-block  mb-3 px-4 py-1 rounded-full font-semibold text-base ${getTipoColor(
               receta.tipo
             )}`}
             style={{ letterSpacing: "0.01em" }}
