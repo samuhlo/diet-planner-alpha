@@ -6,7 +6,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "extract-ingredients": "tsx scripts/extractIngredients.ts",
+    "update-mercadona-prices": "tsx scripts/updateIngredientsWithMercadonaPrices.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^4.1.0",
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "@astrojs/tailwind": "^6.0.0",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "tsx": "^4.20.3"
   }
 }
