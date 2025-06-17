@@ -44,15 +44,9 @@ export default function ItemSelector<T extends BaseItem>({
   >(currentPlan?.items || [{ itemId: "", quantity: 1 }]);
   const [openDropdowns, setOpenDropdowns] = useState<Set<number>>(new Set());
   const [searchTerms, setSearchTerms] = useState<Record<number, string>>({});
-  const [tooltip, setTooltip] = useState<{
-    text: string;
-    x: number;
-    y: number;
-  } | null>(null);
 
   const isUserEditingRef = useRef(false);
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
-  const tooltipTimeoutRef = useRef<number | null>(null);
 
   // Sincronizar estado local con props cuando cambien (solo si no está editando el usuario)
   useEffect(() => {
@@ -86,38 +80,6 @@ export default function ItemSelector<T extends BaseItem>({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdowns]);
-
-  // Tooltip handlers
-  const showTooltip = (text: string, event: MouseEvent) => {
-    if (tooltipTimeoutRef.current) {
-      clearTimeout(tooltipTimeoutRef.current);
-    }
-
-    tooltipTimeoutRef.current = window.setTimeout(() => {
-      setTooltip({
-        text,
-        x: event.clientX + 10,
-        y: event.clientY - 30,
-      });
-    }, 100); // Aparece después de 100ms en lugar del delay nativo del navegador
-  };
-
-  const hideTooltip = () => {
-    if (tooltipTimeoutRef.current) {
-      clearTimeout(tooltipTimeoutRef.current);
-      tooltipTimeoutRef.current = null;
-    }
-    setTooltip(null);
-  };
-
-  // Cleanup tooltip on unmount
-  useEffect(() => {
-    return () => {
-      if (tooltipTimeoutRef.current) {
-        clearTimeout(tooltipTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Manejar cambios en el checkbox principal
   const handleEnabledChange = (checked: boolean) => {
@@ -328,11 +290,8 @@ export default function ItemSelector<T extends BaseItem>({
                       {selectedItem ? (
                         <div class="flex justify-between items-center w-full pr-6 min-w-0">
                           <span
-                            class="truncate flex-1 text-left min-w-0 cursor-help"
-                            onMouseEnter={(e) =>
-                              showTooltip(getItemDisplayName(selectedItem), e)
-                            }
-                            onMouseLeave={hideTooltip}
+                            class="truncate flex-1 text-left min-w-0"
+                            title={getItemDisplayName(selectedItem)}
                           >
                             {getItemDisplayName(selectedItem)}
                           </span>
@@ -342,11 +301,8 @@ export default function ItemSelector<T extends BaseItem>({
                         </div>
                       ) : (
                         <span
-                          class="text-gray-500 w-full pr-6 truncate cursor-help"
-                          onMouseEnter={(e) =>
-                            showTooltip(`Seleccionar ${title.toLowerCase()}`, e)
-                          }
-                          onMouseLeave={hideTooltip}
+                          class="text-gray-500 w-full pr-6 truncate"
+                          title={`Seleccionar ${title.toLowerCase()}`}
                         >
                           Seleccionar {title.toLowerCase()}
                         </span>
@@ -400,11 +356,8 @@ export default function ItemSelector<T extends BaseItem>({
                               >
                                 <div class="flex justify-between items-center w-full min-w-0">
                                   <span
-                                    class="truncate flex-1 text-left min-w-0 cursor-help"
-                                    onMouseEnter={(e) =>
-                                      showTooltip(getItemDisplayName(i), e)
-                                    }
-                                    onMouseLeave={hideTooltip}
+                                    class="truncate flex-1 text-left min-w-0"
+                                    title={getItemDisplayName(i)}
                                   >
                                     {getItemDisplayName(i)}
                                   </span>
