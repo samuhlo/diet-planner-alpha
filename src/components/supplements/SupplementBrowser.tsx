@@ -9,9 +9,6 @@ import {
   filterSupplements,
   sortSupplementsByCalories,
   sortSupplementsByProtein,
-  getSupplementsWithCalories,
-  getSupplementsWithoutCalories,
-  getSupplementsWithProtein,
 } from "../../utils/supplementUtils";
 
 interface SupplementBrowserProps {
@@ -194,7 +191,7 @@ export default function SupplementBrowser({
         </div>
 
         {/* Filtros rápidos */}
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Filtro por categoría */}
           <div>
             <label
@@ -242,7 +239,7 @@ export default function SupplementBrowser({
           </div>
 
           {/* Ordenamiento */}
-          <div class="md:col-span-2">
+          <div>
             <label
               for="supplement-sort-filter"
               class="block text-sm font-medium text-gray-700 mb-1"
