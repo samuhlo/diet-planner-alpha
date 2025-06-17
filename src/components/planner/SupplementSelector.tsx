@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "preact/hooks";
 import type { Supplement, SupplementPlan } from "../../types";
 import { allSupplements } from "../../data/supplements";
 import { NutritionService } from "../../services/nutritionService";
+import ItemSelector from "../common/ItemSelector";
 
 interface SupplementSelectorProps {
   dayId: string;
@@ -14,277 +14,51 @@ export default function SupplementSelector({
   currentSupplementPlan,
   onSupplementPlanChange,
 }: SupplementSelectorProps) {
-  const [enabled, setEnabled] = useState(
-    currentSupplementPlan?.enabled || false
-  );
-  const [supplementCount, setSupplementCount] = useState(
-    currentSupplementPlan?.supplements?.length || 1
-  );
-  const [selectedSupplements, setSelectedSupplements] = useState<
-    Array<{ supplementId: string; quantity: number }>
-  >(
-    currentSupplementPlan?.supplements &&
-      currentSupplementPlan.supplements.length > 0
-      ? currentSupplementPlan.supplements
-      : [{ supplementId: "", quantity: 1 }]
-  );
-
-  const isUserEditingRef = useRef(false);
-  const lastUserActionRef = useRef<SupplementPlan | null>(null);
-
-  // Sincronizar estado local con props cuando cambien (solo si no está editando el usuario)
-  useEffect(() => {
-    if (!isUserEditingRef.current) {
-      const newEnabled = currentSupplementPlan?.enabled || false;
-      const newSupplementCount =
-        currentSupplementPlan?.supplements?.length || 1;
-      const newSelectedSupplements =
-        currentSupplementPlan?.supplements &&
-        currentSupplementPlan.supplements.length > 0
-          ? currentSupplementPlan.supplements
-          : [{ supplementId: "", quantity: 1 }];
-
-      setEnabled(newEnabled);
-      setSupplementCount(newSupplementCount);
-      setSelectedSupplements(newSelectedSupplements);
-    }
-  }, [currentSupplementPlan]);
-
-  // Manejar cambios en el checkbox principal
-  const handleEnabledChange = (checked: boolean) => {
-    isUserEditingRef.current = true;
-    setEnabled(checked);
-    if (!checked) {
-      setSelectedSupplements([{ supplementId: "", quantity: 1 }]);
-      setSupplementCount(1);
-    }
-
-    // Notificar cambio inmediatamente
-    const supplementPlan: SupplementPlan = {
-      enabled: checked,
-      supplements: checked
-        ? selectedSupplements.filter((s) => s.supplementId)
-        : [],
-    };
-    lastUserActionRef.current = supplementPlan;
-    onSupplementPlanChange(supplementPlan);
-
-    // Resetear la bandera después de que el store se actualice
-    setTimeout(() => {
-      isUserEditingRef.current = false;
-    }, 200);
-  };
-
-  // Manejar cambios en la cantidad de suplementos
-  const handleSupplementCountChange = (count: number) => {
-    isUserEditingRef.current = true;
-    setSupplementCount(count);
-    let newSupplements;
-
-    if (count > selectedSupplements.length) {
-      // Añadir nuevos slots
-      newSupplements = [...selectedSupplements];
-      for (let i = selectedSupplements.length; i < count; i++) {
-        newSupplements.push({ supplementId: "", quantity: 1 });
+  // Convertir SupplementPlan a ItemPlan
+  const currentItemPlan = currentSupplementPlan
+    ? {
+        enabled: currentSupplementPlan.enabled,
+        items: currentSupplementPlan.supplements.map((s) => ({
+          itemId: s.supplementId,
+          quantity: s.quantity,
+        })),
       }
-    } else {
-      // Remover slots extra
-      newSupplements = selectedSupplements.slice(0, count);
-    }
+    : undefined;
 
-    setSelectedSupplements(newSupplements);
-
-    // Notificar cambio inmediatamente
+  const handleItemPlanChange = (itemPlan: any) => {
+    // Convertir ItemPlan de vuelta a SupplementPlan
     const supplementPlan: SupplementPlan = {
-      enabled,
-      supplements: enabled ? newSupplements.filter((s) => s.supplementId) : [],
+      enabled: itemPlan.enabled,
+      supplements: itemPlan.items.map((item: any) => ({
+        supplementId: item.itemId,
+        quantity: item.quantity,
+      })),
     };
-    lastUserActionRef.current = supplementPlan;
     onSupplementPlanChange(supplementPlan);
-
-    // Resetear la bandera después de que el store se actualice
-    setTimeout(() => {
-      isUserEditingRef.current = false;
-    }, 200);
   };
 
-  // Manejar cambios en un suplemento específico
-  const handleSupplementChange = (index: number, supplementId: string) => {
-    isUserEditingRef.current = true;
-    const newSupplements = [...selectedSupplements];
-    newSupplements[index] = { ...newSupplements[index], supplementId };
-    setSelectedSupplements(newSupplements);
-
-    // Notificar cambio inmediatamente
-    const supplementPlan: SupplementPlan = {
-      enabled,
-      supplements: enabled ? newSupplements.filter((s) => s.supplementId) : [],
-    };
-    lastUserActionRef.current = supplementPlan;
-    onSupplementPlanChange(supplementPlan);
-
-    // Resetear la bandera después de que el store se actualice
-    setTimeout(() => {
-      isUserEditingRef.current = false;
-    }, 200);
+  // Wrapper para adaptar los tipos de la función de cálculo nutricional
+  const calculateSupplementNutrition = (
+    items: Array<{ item: Supplement; quantity: number }>
+  ) => {
+    const supplementsWithData = items.map(({ item, quantity }) => ({
+      supplement: item,
+      quantity,
+    }));
+    return NutritionService.calculateSupplementsNutrition(supplementsWithData);
   };
-
-  // Manejar cambios en la cantidad de un suplemento
-  const handleQuantityChange = (index: number, quantity: number) => {
-    isUserEditingRef.current = true;
-    const newSupplements = [...selectedSupplements];
-    newSupplements[index] = { ...newSupplements[index], quantity };
-    setSelectedSupplements(newSupplements);
-
-    // Notificar cambio inmediatamente
-    const supplementPlan: SupplementPlan = {
-      enabled,
-      supplements: enabled ? newSupplements.filter((s) => s.supplementId) : [],
-    };
-    lastUserActionRef.current = supplementPlan;
-    onSupplementPlanChange(supplementPlan);
-
-    // Resetear la bandera después de que el store se actualice
-    setTimeout(() => {
-      isUserEditingRef.current = false;
-    }, 200);
-  };
-
-  // Calcular totales nutricionales
-  const calculateTotals = () => {
-    if (!enabled) return { calories: 0, protein: 0, carbs: 0, fats: 0 };
-
-    const supplementsWithData = selectedSupplements
-      .filter((s) => s.supplementId)
-      .map((s) => {
-        const supplement = allSupplements.find(
-          (sup) => sup.id === s.supplementId
-        );
-        return supplement ? { supplement, quantity: s.quantity } : null;
-      })
-      .filter(Boolean);
-
-    return NutritionService.calculateSupplementsNutrition(
-      supplementsWithData as Array<{ supplement: Supplement; quantity: number }>
-    );
-  };
-
-  const totals = calculateTotals();
 
   return (
-    <div class="bg-gray-50 p-4 rounded-lg border">
-      {/* Header con checkbox */}
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id={`supplements-${dayId}`}
-            checked={enabled}
-            onChange={(e) => handleEnabledChange(e.currentTarget.checked)}
-            class="h-4 w-4 text-green-600 rounded border-gray-300"
-          />
-          <label
-            for={`supplements-${dayId}`}
-            class="text-sm font-medium text-gray-700"
-          >
-            Suplementos
-          </label>
-        </div>
-
-        {enabled && (
-          <div class="flex items-center space-x-2">
-            <label
-              for={`supplement-count-${dayId}`}
-              class="text-xs text-gray-600"
-            >
-              Cantidad:
-            </label>
-            <select
-              id={`supplement-count-${dayId}`}
-              value={supplementCount}
-              onChange={(e) =>
-                handleSupplementCountChange(Number(e.currentTarget.value))
-              }
-              class="text-xs border border-gray-300 rounded px-2 py-1"
-            >
-              {[1, 2, 3, 4, 5].map((num) => (
-                <option key={num} value={num}>
-                  {num}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
-
-      {/* Contenido de suplementos */}
-      {enabled && (
-        <div class="space-y-3">
-          {Array.from({ length: supplementCount }, (_, index) => (
-            <div key={index} class="flex items-center space-x-2">
-              <select
-                value={selectedSupplements[index]?.supplementId || ""}
-                onChange={(e) =>
-                  handleSupplementChange(index, e.currentTarget.value)
-                }
-                class="flex-1 text-sm border border-gray-300 rounded px-2 py-1 w-full"
-              >
-                <option value="">Seleccionar suplemento...</option>
-                {allSupplements.map((supplement) => (
-                  <option key={supplement.id} value={supplement.id}>
-                    {supplement.name} ({supplement.serving || "1 porción"})
-                  </option>
-                ))}
-              </select>
-
-              <input
-                type="number"
-                min="1"
-                max="5"
-                value={selectedSupplements[index]?.quantity || 1}
-                onChange={(e) =>
-                  handleQuantityChange(index, Number(e.currentTarget.value))
-                }
-                class="w-16 text-sm border border-gray-300 rounded px-2 py-1 text-center"
-                placeholder="1"
-              />
-            </div>
-          ))}
-
-          {/* Resumen nutricional */}
-          {totals.calories > 0 && (
-            <div class="mt-4 p-3 bg-white rounded border">
-              <h4 class="text-sm font-medium text-gray-700 mb-2">
-                Resumen Suplementos:
-              </h4>
-              <div class="grid grid-cols-4 gap-2 text-xs">
-                <div class="text-center">
-                  <div class="font-medium text-gray-900">{totals.calories}</div>
-                  <div class="text-gray-500">kcal</div>
-                </div>
-                <div class="text-center">
-                  <div class="font-medium text-gray-900">
-                    {totals.protein.toFixed(1)}
-                  </div>
-                  <div class="text-gray-500">Proteína</div>
-                </div>
-                <div class="text-center">
-                  <div class="font-medium text-gray-900">
-                    {totals.carbs.toFixed(1)}
-                  </div>
-                  <div class="text-gray-500">Carbos</div>
-                </div>
-                <div class="text-center">
-                  <div class="font-medium text-gray-900">
-                    {totals.fats.toFixed(1)}
-                  </div>
-                  <div class="text-gray-500">Grasas</div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+    <ItemSelector
+      dayId={dayId}
+      title="Suplementos"
+      allItems={allSupplements}
+      currentPlan={currentItemPlan}
+      onPlanChange={handleItemPlanChange}
+      calculateNutrition={calculateSupplementNutrition}
+      maxItems={4}
+      getItemDisplayName={(supplement) => supplement.name}
+      getItemCalories={(supplement) => supplement.calories}
+    />
   );
 }

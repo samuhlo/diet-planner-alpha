@@ -10,7 +10,7 @@ import { openModal } from "../../stores/modalStore";
 import NutritionalSummary from "../common/NutritionalSummary";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 import type { Recipe, Ingredient, WeeklySummaryData } from "../../types";
-import { DAYS_OF_WEEK, MEAL_TYPES } from "../../constants/appConstants";
+import { DAYS_OF_WEEK, MAIN_MEAL_TYPES } from "../../config/appConstants";
 import ErrorBoundary from "../common/ErrorBoundary";
 
 interface PlannerManagerProps {
@@ -70,7 +70,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
 
     Object.values(plan).forEach((dailyPlan) => {
       // Procesar comidas principales
-      MEAL_TYPES.forEach((mealType) => {
+      MAIN_MEAL_TYPES.forEach((mealType) => {
         const mealInfo = dailyPlan[mealType];
         if (mealInfo?.recipeName) {
           const mealData = memoizedAllMeals.find(
@@ -142,7 +142,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
       let hasContent = false;
 
       // Procesar comidas principales
-      MEAL_TYPES.forEach((mealType) => {
+      MAIN_MEAL_TYPES.forEach((mealType) => {
         const mealInfo = dailyPlan[mealType];
         if (mealInfo?.recipeName) {
           dayMeals[mealType.toLowerCase()] = mealInfo.recipeName;

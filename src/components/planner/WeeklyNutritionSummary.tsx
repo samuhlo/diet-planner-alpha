@@ -7,7 +7,7 @@ import { allSupplements } from "../../data/supplements";
 import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 import type { DailyPlan, Snack } from "../../types";
-import { DAYS_OF_WEEK, MEAL_TYPES } from "../../constants/appConstants";
+import { DAYS_OF_WEEK, MAIN_MEAL_TYPES } from "../../config/appConstants";
 
 interface WeeklyNutritionSummaryProps {
   allSnacks: Snack[];
@@ -31,6 +31,9 @@ export default function WeeklyNutritionSummary({
     let totalFats = 0;
     let daysWithData = 0;
 
+    // Obtener postres desde las recetas
+    const allDesserts = allMeals.filter((m) => m.tipo === "Postre");
+
     const dailyBreakdown = DAYS_OF_WEEK.map((day) => {
       const dayId = day.toLowerCase();
       const dailyPlan: DailyPlan = plan[dayId] || {};
@@ -41,7 +44,7 @@ export default function WeeklyNutritionSummary({
       let hasData = false;
 
       // Calcular comidas principales
-      MEAL_TYPES.forEach((mealType) => {
+      MAIN_MEAL_TYPES.forEach((mealType) => {
         const mealInfo = dailyPlan[mealType];
         if (mealInfo?.recipeName) {
           const mealData = allMeals.find(
@@ -106,6 +109,30 @@ export default function WeeklyNutritionSummary({
         hasData = true;
       }
 
+      // Calcular postres
+      const dessertInfo = dailyPlan.desserts;
+      if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
+        const dessertsWithData = dessertInfo.desserts
+          .filter((d) => d.dessertId)
+          .map((d) => {
+            const dessert = allDesserts.find(
+              (dess) =>
+                dess.nombre.toLowerCase().replace(/\s+/g, "-") === d.dessertId
+            );
+            return dessert ? { dessert, quantity: d.quantity } : null;
+          })
+          .filter(Boolean) as Array<{ dessert: any; quantity: number }>;
+
+        // Calcular nutrición de postres (similar a recetas normales)
+        dessertsWithData.forEach(({ dessert, quantity }) => {
+          dayCalories += dessert.calorias * quantity;
+          dayProtein += dessert.p * quantity;
+          dayCarbs += dessert.c * quantity;
+          dayFats += dessert.f * quantity;
+        });
+        hasData = true;
+      }
+
       if (hasData) {
         totalCalories += dayCalories;
         totalProtein += dayProtein;
@@ -151,7 +178,7 @@ export default function WeeklyNutritionSummary({
       dailyBreakdown,
       daysWithData,
     };
-  }, [plan]);
+  }, [plan, allSnacks]);
 
   // Calcular porcentajes y estados
   const caloriePercentage =

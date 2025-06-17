@@ -5,10 +5,12 @@ import {
   updatePlanEntry,
   updateSnackPlan,
   updateSupplementPlan,
+  updateDessertPlan,
 } from "../../stores/planStore";
 import { NutritionService } from "../../services/nutritionService";
 import SnackSelector from "./SnackSelector";
 import SupplementSelector from "./SupplementSelector";
+import DessertSelector from "./DessertSelector";
 import RecipeSelector from "./RecipeSelector";
 import DailyNutritionSummary from "./DailyNutritionSummary";
 import WeeklyNutritionSummary from "./WeeklyNutritionSummary";
@@ -18,10 +20,11 @@ import type {
   Snack,
   SnackPlan,
   SupplementPlan,
+  DessertPlan,
   DailyPlan,
 } from "../../types";
 import { getSnacksFromRecipes } from "../../utils/recipeUtils";
-import { DAYS_OF_WEEK, MEAL_TYPES } from "../../constants/appConstants";
+import { DAYS_OF_WEEK, MAIN_MEAL_TYPES } from "../../config/appConstants";
 
 interface InteractivePlannerProps {
   allMeals: Recipe[];
@@ -52,6 +55,12 @@ export default function InteractivePlanner({
   // Generar snacks desde las recetas
   const allSnacks = useMemo(() => getSnacksFromRecipes(allMeals), [allMeals]);
 
+  // Obtener postres desde las recetas
+  const allDesserts = useMemo(
+    () => allMeals.filter((m) => m.tipo === "Postre"),
+    [allMeals]
+  );
+
   const handlePlanChange = useCallback(
     (
       dayId: string,
@@ -78,6 +87,13 @@ export default function InteractivePlanner({
     []
   );
 
+  const handleDessertPlanChange = useCallback(
+    (dayId: string, dessertPlan: DessertPlan) => {
+      updateDessertPlan(dayId, dessertPlan);
+    },
+    []
+  );
+
   const toggleDayExpansion = useCallback((dayId: string) => {
     setExpandedDays((prev) => {
       const newSet = new Set(prev);
@@ -100,7 +116,7 @@ export default function InteractivePlanner({
     const items = [];
 
     // Comidas principales
-    MEAL_TYPES.forEach((mealType) => {
+    MAIN_MEAL_TYPES.forEach((mealType) => {
       if (dailyPlan[mealType]?.recipeName) {
         items.push(`${mealType}: ${dailyPlan[mealType].recipeName}`);
       }
@@ -121,6 +137,15 @@ export default function InteractivePlanner({
     if (dailyPlan.snacks?.snacks && dailyPlan.snacks.snacks.length > 0) {
       const snackCount = dailyPlan.snacks.snacks.length;
       items.push(`${snackCount} snack${snackCount > 1 ? "s" : ""}`);
+    }
+
+    // Postres
+    if (
+      dailyPlan.desserts?.desserts &&
+      dailyPlan.desserts.desserts.length > 0
+    ) {
+      const dessertCount = dailyPlan.desserts.desserts.length;
+      items.push(`${dessertCount} postre${dessertCount > 1 ? "s" : ""}`);
     }
 
     return items.length > 0 ? items.join(", ") : "Sin selecciones";
@@ -171,7 +196,7 @@ export default function InteractivePlanner({
             <div class="p-6 ">
               {/* Comidas principales */}
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                {MEAL_TYPES.map((mealType) => (
+                {MAIN_MEAL_TYPES.map((mealType) => (
                   <div key={mealType} class="meal-slot lg:col-span-1">
                     <div class="flex justify-between items-center mb-1">
                       <span class="block text-sm font-medium text-stone-700 capitalize">
@@ -220,8 +245,8 @@ export default function InteractivePlanner({
                 ))}
               </div>
 
-              {/* Suplementos y Snacks */}
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Suplementos, Snacks y Postres */}
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Suplementos */}
                 <SupplementSelector
                   dayId={dayId}
@@ -238,6 +263,16 @@ export default function InteractivePlanner({
                   currentSnackPlan={dailyPlan.snacks}
                   onSnackPlanChange={(snackPlan) =>
                     handleSnackPlanChange(dayId, snackPlan)
+                  }
+                />
+
+                {/* Postres */}
+                <DessertSelector
+                  dayId={dayId}
+                  allDesserts={allDesserts}
+                  currentDessertPlan={dailyPlan.desserts}
+                  onDessertPlanChange={(dessertPlan) =>
+                    handleDessertPlanChange(dayId, dessertPlan)
                   }
                 />
               </div>
@@ -258,9 +293,11 @@ export default function InteractivePlanner({
     handlePlanChange,
     handleSnackPlanChange,
     handleSupplementPlanChange,
+    handleDessertPlanChange,
     toggleDayExpansion,
     allMeals,
     allSnacks,
+    allDesserts,
   ]);
 
   return (

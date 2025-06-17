@@ -5,6 +5,7 @@ import type {
   DailyPlan,
   SnackPlan,
   SupplementPlan,
+  DessertPlan,
 } from "../types";
 
 // Función para cargar el plan desde localStorage
@@ -57,6 +58,7 @@ export function updatePlanEntry(
     | boolean
     | Array<{ snackId: string; quantity: number }>
     | Array<{ supplementId: string; quantity: number }>
+    | Array<{ dessertId: string; quantity: number }>
 ) {
   const currentDayPlan = $plan.get()[dayId] || {};
   const currentSection = currentDayPlan[section] || {};
@@ -99,6 +101,20 @@ export function updateSupplementPlan(
   const newDayPlan = {
     ...currentDayPlan,
     supplement: supplementPlan,
+  };
+
+  $plan.setKey(dayId, newDayPlan);
+}
+
+/**
+ * Actualiza el plan de postres completo para un día
+ */
+export function updateDessertPlan(dayId: string, dessertPlan: DessertPlan) {
+  const currentDayPlan = $plan.get()[dayId] || {};
+
+  const newDayPlan = {
+    ...currentDayPlan,
+    desserts: dessertPlan,
   };
 
   $plan.setKey(dayId, newDayPlan);

@@ -9,8 +9,17 @@ export const DAYS_OF_WEEK = [
   "Domingo",
 ] as const;
 
-// Tipos de comida
-export const MEAL_TYPES = ["Desayuno", "Almuerzo", "Cena", "Postre"] as const;
+// Tipos de comida principales
+export const MAIN_MEAL_TYPES = ["Desayuno", "Almuerzo", "Cena"] as const;
+
+// Tipos de comida complementarios
+export const COMPLEMENTARY_MEAL_TYPES = ["Snack", "Postre"] as const;
+
+// Todos los tipos de comida (para compatibilidad)
+export const MEAL_TYPES = [
+  ...MAIN_MEAL_TYPES,
+  ...COMPLEMENTARY_MEAL_TYPES,
+] as const;
 
 // Opciones de género
 export const GENDER_OPTIONS = [

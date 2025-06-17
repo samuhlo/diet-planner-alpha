@@ -1,4 +1,10 @@
-import { useState, useMemo, useCallback } from "preact/hooks";
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from "preact/hooks";
 import type { Recipe } from "../../types";
 import { filterRecipes, sortRecipesByCalories } from "../../utils/recipeUtils";
 
@@ -18,15 +24,15 @@ export default function RecipeSelector({
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [sortBy, setSortBy] = useState<"name" | "calories" | "protein">("name");
-
-  // Filtrar recetas por tipo de comida
-  const mealsByType = useMemo(() => {
-    return allMeals.filter((meal) => meal.tipo === mealType);
-  }, [allMeals, mealType]);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Filtrar y ordenar recetas según búsqueda y criterios
   const filteredRecipes = useMemo(() => {
-    let filtered = mealsByType;
+    console.log("Filtrando recetas con término:", searchTerm); // Debug
+
+    // Filtrar por tipo de comida primero
+    let filtered = allMeals.filter((meal) => meal.tipo === mealType);
 
     // Aplicar filtro de búsqueda
     if (searchTerm.trim()) {
@@ -35,9 +41,12 @@ export default function RecipeSelector({
         (recipe) =>
           recipe.nombre.toLowerCase().includes(searchLower) ||
           recipe.tags.some((tag) => tag.toLowerCase().includes(searchLower)) ||
-          recipe.source?.name.toLowerCase().includes(searchLower)
+          (recipe.source?.name &&
+            recipe.source.name.toLowerCase().includes(searchLower))
       );
     }
+
+    console.log("Recetas filtradas:", filtered.length); // Debug
 
     // Aplicar ordenamiento
     switch (sortBy) {
@@ -49,7 +58,7 @@ export default function RecipeSelector({
       default:
         return [...filtered].sort((a, b) => a.nombre.localeCompare(b.nombre));
     }
-  }, [mealsByType, searchTerm, sortBy]);
+  }, [allMeals, mealType, searchTerm, sortBy]);
 
   // Obtener la receta seleccionada
   const selectedRecipeData = useMemo(() => {
@@ -61,7 +70,6 @@ export default function RecipeSelector({
     (recipeName: string) => {
       onRecipeSelect(recipeName);
       setShowDropdown(false);
-      setSearchTerm("");
     },
     [onRecipeSelect]
   );
@@ -70,45 +78,81 @@ export default function RecipeSelector({
   const handleClearSelection = useCallback(() => {
     onRecipeSelect("");
     setSearchTerm("");
+    setShowDropdown(false);
   }, [onRecipeSelect]);
+
+  // Manejar cambio en el input
+  const handleInputChange = useCallback((e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const newValue = target.value;
+    console.log("Input cambiado a:", newValue); // Debug
+    setSearchTerm(newValue);
+    setShowDropdown(true);
+  }, []);
+
+  // Manejar foco en el input
+  const handleInputFocus = useCallback(() => {
+    setShowDropdown(true);
+  }, []);
+
+  // Manejar clics fuera del dropdown
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    const target = e.target as Node;
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(target) &&
+      inputRef.current &&
+      !inputRef.current.contains(target)
+    ) {
+      setShowDropdown(false);
+    }
+  }, []);
+
+  // Agregar/remover event listener para clics fuera
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [handleClickOutside]);
 
   return (
     <div class="relative">
-      {/* Campo de entrada */}
-      <div class="relative">
-        <input
-          type="text"
-          placeholder={`Buscar ${mealType.toLowerCase()}...`}
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.currentTarget.value);
-            setShowDropdown(true);
-          }}
-          onFocus={() => setShowDropdown(true)}
-          class="w-full text-sm border border-gray-300 rounded-md p-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-        />
+      {/* Campo de entrada - Solo mostrar si no hay receta seleccionada */}
+      {!selectedRecipeData && (
+        <div class="relative">
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={`Buscar ${mealType.toLowerCase()}...`}
+            value={searchTerm}
+            onInput={handleInputChange}
+            onFocus={handleInputFocus}
+            class="w-full text-sm border border-gray-300 rounded-md p-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          />
 
-        {/* Icono de búsqueda */}
-        <div class="absolute inset-y-0 right-0 flex items-center pr-2">
-          <svg
-            class="h-4 w-4 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+          {/* Icono de búsqueda */}
+          <div class="absolute inset-y-0 right-0 flex items-center pr-2">
+            <svg
+              class="h-4 w-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Receta seleccionada */}
       {selectedRecipeData && (
-        <div class="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+        <div class="p-2 bg-green-50 border border-green-200 rounded-md">
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <h4 class="font-medium text-green-800">
@@ -154,9 +198,12 @@ export default function RecipeSelector({
         </div>
       )}
 
-      {/* Dropdown de búsqueda */}
-      {showDropdown && (
-        <div class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-80 overflow-y-auto">
+      {/* Dropdown de búsqueda - Solo mostrar si no hay receta seleccionada */}
+      {showDropdown && !selectedRecipeData && (
+        <div
+          ref={dropdownRef}
+          class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-80 overflow-y-auto"
+        >
           {/* Controles de ordenamiento */}
           <div class="p-2 border-b border-gray-200 bg-gray-50">
             <div class="flex items-center justify-between">
@@ -218,19 +265,13 @@ export default function RecipeSelector({
               ))
             ) : (
               <div class="px-3 py-4 text-center text-gray-500">
-                No se encontraron recetas que coincidan con "{searchTerm}"
+                {searchTerm.trim()
+                  ? `No se encontraron recetas que coincidan con "${searchTerm}"`
+                  : "Escribe para buscar recetas..."}
               </div>
             )}
           </div>
         </div>
-      )}
-
-      {/* Overlay para cerrar dropdown */}
-      {showDropdown && (
-        <div
-          class="fixed inset-0 z-40"
-          onClick={() => setShowDropdown(false)}
-        />
       )}
     </div>
   );

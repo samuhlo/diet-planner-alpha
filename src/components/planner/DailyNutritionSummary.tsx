@@ -7,7 +7,7 @@ import { allSupplements } from "../../data/supplements";
 import { getSnacksFromRecipes } from "../../utils/recipeUtils";
 import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
-import { MEAL_TYPES } from "../../constants/appConstants";
+import { MAIN_MEAL_TYPES } from "../../config/appConstants";
 
 interface DailyNutritionSummaryProps {
   dayId: string;
@@ -37,8 +37,11 @@ export default function DailyNutritionSummary({
     // Obtener snacks desde las recetas
     const allSnacks = getSnacksFromRecipes(allMeals);
 
+    // Obtener postres desde las recetas
+    const allDesserts = allMeals.filter((m) => m.tipo === "Postre");
+
     // Calcular comidas principales
-    MEAL_TYPES.forEach((mealType) => {
+    MAIN_MEAL_TYPES.forEach((mealType) => {
       const mealInfo = dailyPlan[mealType];
       if (mealInfo?.recipeName) {
         const mealData = allMeals.find((m) => m.nombre === mealInfo.recipeName);
@@ -96,6 +99,29 @@ export default function DailyNutritionSummary({
       totalProtein += snackNutrition.protein;
       totalCarbs += snackNutrition.carbs;
       totalFats += snackNutrition.fats;
+    }
+
+    // Calcular postres
+    const dessertInfo = dailyPlan.desserts;
+    if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
+      const dessertsWithData = dessertInfo.desserts
+        .filter((d) => d.dessertId)
+        .map((d) => {
+          const dessert = allDesserts.find(
+            (dess) =>
+              dess.nombre.toLowerCase().replace(/\s+/g, "-") === d.dessertId
+          );
+          return dessert ? { dessert, quantity: d.quantity } : null;
+        })
+        .filter(Boolean) as Array<{ dessert: any; quantity: number }>;
+
+      // Calcular nutrición de postres (similar a recetas normales)
+      dessertsWithData.forEach(({ dessert, quantity }) => {
+        totalCalories += dessert.calorias * quantity;
+        totalProtein += dessert.p * quantity;
+        totalCarbs += dessert.c * quantity;
+        totalFats += dessert.f * quantity;
+      });
     }
 
     return {

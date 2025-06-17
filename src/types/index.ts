@@ -45,13 +45,21 @@ export interface SnackPlan {
   }>;
 }
 
+export interface DessertPlan {
+  enabled: boolean;
+  desserts: Array<{
+    dessertId: string;
+    quantity: number;
+  }>;
+}
+
 export interface DailyPlan {
   Desayuno?: MealPlan;
   Almuerzo?: MealPlan;
   Cena?: MealPlan;
-  Postre?: MealPlan;
   supplement?: SupplementPlan;
   snacks?: SnackPlan;
+  desserts?: DessertPlan;
 }
 
 export interface WeeklyPlan {
