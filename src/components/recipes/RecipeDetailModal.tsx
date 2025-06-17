@@ -1,4 +1,5 @@
 import type { Recipe } from "../../types";
+import { formatIngredient } from "../../utils/ingredientFormatter";
 
 interface RecipeDetailModalProps {
   recipe: Recipe | null;
@@ -36,6 +37,12 @@ export default function RecipeDetailModal({
       default:
         return "bg-green-100 text-green-800";
     }
+  };
+
+  // Función para capitalizar la primera letra
+  const capitalizeFirstLetter = (text: string): string => {
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
   };
 
   // Función para formatear la preparación en pasos
@@ -157,18 +164,23 @@ export default function RecipeDetailModal({
                 </h3>
                 <div class="bg-gray-50 rounded-xl p-4">
                   <ul class="space-y-2">
-                    {recipe.ingredientes.map((ingrediente, index) => (
-                      <li
-                        key={index}
-                        class="flex items-center space-x-3 p-2 bg-white rounded-lg shadow-sm"
-                      >
-                        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                        <span class="font-medium text-gray-900">
-                          {ingrediente.q} {ingrediente.u}
-                        </span>
-                        <span class="text-gray-700">{ingrediente.n}</span>
-                      </li>
-                    ))}
+                    {recipe.ingredientes.map((ingrediente, index) => {
+                      const formatted = formatIngredient(ingrediente);
+                      return (
+                        <li
+                          key={index}
+                          class="flex items-center space-x-3 p-2 bg-white rounded-lg shadow-sm"
+                        >
+                          <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                          <span class="text-gray-700 font-medium">
+                            {capitalizeFirstLetter(ingrediente.n)}
+                          </span>
+                          <span class="font-medium text-gray-900">
+                            {formatted.quantity} {formatted.unit}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </div>

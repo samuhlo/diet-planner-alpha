@@ -1,5 +1,6 @@
 import type { VNode } from "preact";
 import type { Ingredient } from "../../types";
+import { formatIngredient } from "../../utils/ingredientFormatter";
 
 interface ShoppingListContentProps {
   data: Ingredient[];
@@ -22,11 +23,14 @@ export default function ShoppingListContent({
         Lista de ingredientes para comidas principales y snacks elaborados:
       </p>
       <ul class="list-disc list-inside space-y-2">
-        {ingredients.map((ing, index) => (
-          <li key={`${ing.n}-${index}`} class="text-stone-700">
-            {Number(ing.q.toPrecision(3))} {ing.u} de {ing.n}
-          </li>
-        ))}
+        {ingredients.map((ing, index) => {
+          const formatted = formatIngredient(ing);
+          return (
+            <li key={`${ing.n}-${index}`} class="text-stone-700">
+              {formatted.displayText}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
