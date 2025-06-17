@@ -4,13 +4,18 @@ import { $plan } from "../../stores/planStore";
 import { $userData, $userGoal } from "../../stores/userProfileStore";
 import { allMeals } from "../../data/recipes";
 import { allSupplements } from "../../data/supplements";
-import { allSnacks } from "../../data/snacks";
 import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
-import type { DailyPlan } from "../../types";
+import type { DailyPlan, Snack } from "../../types";
 import { DAYS_OF_WEEK, MEAL_TYPES } from "../../constants/appConstants";
 
-export default function WeeklyNutritionSummary() {
+interface WeeklyNutritionSummaryProps {
+  allSnacks: Snack[];
+}
+
+export default function WeeklyNutritionSummary({
+  allSnacks,
+}: WeeklyNutritionSummaryProps) {
   const plan = useStore($plan);
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);

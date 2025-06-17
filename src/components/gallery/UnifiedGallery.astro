@@ -1,89 +1,22 @@
 ---
 // src/components/gallery/UnifiedGallery.astro
-import { allSnacks } from "../../data/snacks.ts";
+import { allMeals } from "../../data/recipes.ts";
 import { allSupplements } from "../../data/supplements.ts";
-import SnackBrowser from "../snacks/SnackBrowser.tsx";
+import { getSnacksFromRecipes } from "../../utils/recipeUtils.ts";
+
 import SupplementBrowser from "../supplements/SupplementBrowser.tsx";
+
+const allSnacks = getSnacksFromRecipes(allMeals);
 ---
 
 <section id="galeria" class="content-section hidden">
   <div class="text-center mb-8 max-w-3xl mx-auto">
-    <h2 class="text-3xl font-bold text-[#3a5a40]">
-      Galería de Snacks y Suplementos
-    </h2>
+    <h2 class="text-3xl font-bold text-[#6B8A7A]">Galería de Suplementos</h2>
     <p class="mt-2 text-stone-600">
-      Explora todos los snacks y suplementos disponibles. Encuentra las opciones
+      Explora todos los suplementos disponibles. Encuentra las opciones
       perfectas para complementar tu dieta.
     </p>
   </div>
 
-  <!-- Pestañas para alternar entre snacks y suplementos -->
-  <div class="flex justify-center mb-8">
-    <div class="flex bg-gray-100 rounded-lg p-1">
-      <button id="tab-snacks" class="tab-button active" data-tab="snacks">
-        🍎 Snacks
-      </button>
-      <button id="tab-supplements" class="tab-button" data-tab="supplements">
-        💊 Suplementos
-      </button>
-    </div>
-  </div>
-
-  <!-- Contenido de las pestañas -->
-  <div id="tab-content-snacks" class="tab-content active">
-    <SnackBrowser client:load allSnacks={allSnacks} />
-  </div>
-
-  <div id="tab-content-supplements" class="tab-content">
-    <SupplementBrowser client:load allSupplements={allSupplements} />
-  </div>
+  <SupplementBrowser client:load allSupplements={allSupplements} />
 </section>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const tabButtons = document.querySelectorAll(".tab-button");
-    const tabContents = document.querySelectorAll(".tab-content");
-
-    tabButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        // Remover clase active de todos los botones y contenidos
-        tabButtons.forEach((btn) => btn.classList.remove("active"));
-        tabContents.forEach((content) => content.classList.remove("active"));
-
-        // Agregar clase active al botón clickeado
-        button.classList.add("active");
-
-        // Mostrar el contenido correspondiente
-        const targetTab = button.getAttribute("data-tab");
-        const targetContent = document.getElementById(
-          `tab-content-${targetTab}`
-        );
-        if (targetContent) {
-          targetContent.classList.add("active");
-        }
-      });
-    });
-  });
-</script>
-
-<style>
-  .tab-button {
-    @apply px-6 py-3 rounded-md font-medium transition-all duration-200;
-  }
-
-  .tab-button.active {
-    @apply bg-white text-[#3a5a40] shadow-sm;
-  }
-
-  .tab-button:not(.active) {
-    @apply text-gray-600 hover:text-gray-800;
-  }
-
-  .tab-content {
-    @apply hidden;
-  }
-
-  .tab-content.active {
-    @apply block;
-  }
-</style>

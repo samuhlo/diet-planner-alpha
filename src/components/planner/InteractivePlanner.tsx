@@ -20,7 +20,7 @@ import type {
   SupplementPlan,
   DailyPlan,
 } from "../../types";
-import { allSnacks } from "../../data/snacks";
+import { getSnacksFromRecipes } from "../../utils/recipeUtils";
 import { DAYS_OF_WEEK, MEAL_TYPES } from "../../constants/appConstants";
 
 interface InteractivePlannerProps {
@@ -38,6 +38,7 @@ export default function InteractivePlanner({
 }: InteractivePlannerProps) {
   const plan = useStore($plan);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
+  const [selectedDay, setSelectedDay] = useState<string>("monday");
 
   const mealsByType = useMemo(
     () => ({
@@ -47,6 +48,9 @@ export default function InteractivePlanner({
     }),
     [allMeals]
   );
+
+  // Generar snacks desde las recetas
+  const allSnacks = useMemo(() => getSnacksFromRecipes(allMeals), [allMeals]);
 
   const handlePlanChange = useCallback(
     (
@@ -230,6 +234,7 @@ export default function InteractivePlanner({
                 {/* Snacks */}
                 <SnackSelector
                   dayId={dayId}
+                  allSnacks={allSnacks}
                   currentSnackPlan={dailyPlan.snacks}
                   onSnackPlanChange={(snackPlan) =>
                     handleSnackPlanChange(dayId, snackPlan)
@@ -255,6 +260,7 @@ export default function InteractivePlanner({
     handleSupplementPlanChange,
     toggleDayExpansion,
     allMeals,
+    allSnacks,
   ]);
 
   return (
@@ -262,7 +268,7 @@ export default function InteractivePlanner({
       <div class="space-y-4">{renderedDays}</div>
       {/* Resumen Semanal */}
       <div class="mt-8">
-        <WeeklyNutritionSummary />
+        <WeeklyNutritionSummary allSnacks={allSnacks} />
       </div>
     </div>
   );

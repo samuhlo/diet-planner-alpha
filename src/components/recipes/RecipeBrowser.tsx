@@ -5,13 +5,11 @@ import RecipeDetailModal from "./RecipeDetailModal.tsx";
 import type { Recipe } from "../../types";
 import {
   searchRecipes,
-  getRecipesByTag,
-  getRecipesByType,
-  getRecipesBySource,
   getUniqueSources,
   filterRecipes,
   sortRecipesByCalories,
-} from "../../utils";
+  getRecipesBySource,
+} from "../../utils/recipeUtils.ts";
 
 interface RecipeBrowserProps {
   allMeals: Recipe[];
@@ -61,8 +59,12 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
       recipes = filterRecipes(allMeals, {
         tags: selectedTags.length > 0 ? selectedTags : undefined,
         type: selectedType || undefined,
-        sourceId: selectedSource || undefined,
       });
+
+      // Aplicar filtro de fuente por separado
+      if (selectedSource) {
+        recipes = getRecipesBySource(recipes, selectedSource);
+      }
     }
 
     // Aplicar búsqueda

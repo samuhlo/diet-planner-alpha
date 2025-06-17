@@ -1,11 +1,35 @@
-import type { Recipe } from "../types";
+import type { Recipe, Snack } from "../types";
+
+/**
+ * Obtiene todas las recetas de tipo Snack y las convierte al formato Snack
+ */
+export const getSnacksFromRecipes = (recipes: Recipe[]): Snack[] => {
+  return recipes
+    .filter((recipe) => recipe.tipo === "Snack")
+    .map((recipe) => ({
+      id: recipe.nombre.toLowerCase().replace(/\s+/g, "-"),
+      nombre: recipe.nombre,
+      tipo: recipe.preparacion ? "elaborado" : "simple",
+      calorias: recipe.calorias,
+      p: recipe.p,
+      c: recipe.c,
+      f: recipe.f,
+      ingredientes: recipe.ingredientes,
+      preparacion: recipe.preparacion,
+      tags: recipe.tags,
+      porcion: "1 porción", // Valor por defecto ya que las recetas no tienen porcion
+    }));
+};
 
 /**
  * Obtiene todas las recetas de un tipo específico
  */
-export function getRecipesByType(recipes: Recipe[], tipo: string): Recipe[] {
-  return recipes.filter((recipe) => recipe.tipo === tipo);
-}
+export const getRecipesByType = (
+  recipes: Recipe[],
+  type: Recipe["tipo"]
+): Recipe[] => {
+  return recipes.filter((recipe) => recipe.tipo === type);
+};
 
 /**
  * Obtiene todas las recetas que contengan un tag específico
@@ -80,7 +104,8 @@ export const filterRecipes = (
     tags?: string[];
     maxCalories?: number;
     minProtein?: number;
-    sourceId?: string;
+    maxCarbs?: number;
+    maxFat?: number;
   }
 ): Recipe[] => {
   return recipes.filter((recipe) => {
@@ -90,8 +115,8 @@ export const filterRecipes = (
     if (filters.maxCalories && recipe.calorias > filters.maxCalories)
       return false;
     if (filters.minProtein && recipe.p < filters.minProtein) return false;
-    if (filters.sourceId && recipe.source?.id !== filters.sourceId)
-      return false;
+    if (filters.maxCarbs && recipe.c > filters.maxCarbs) return false;
+    if (filters.maxFat && recipe.f > filters.maxFat) return false;
     return true;
   });
 };

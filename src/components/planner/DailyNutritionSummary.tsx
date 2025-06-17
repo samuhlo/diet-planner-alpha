@@ -4,7 +4,7 @@ import { $plan } from "../../stores/planStore";
 import { $userData, $userGoal } from "../../stores/userProfileStore";
 import { allMeals } from "../../data/recipes";
 import { allSupplements } from "../../data/supplements";
-import { allSnacks } from "../../data/snacks";
+import { getSnacksFromRecipes } from "../../utils/recipeUtils";
 import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 import { MEAL_TYPES } from "../../constants/appConstants";
@@ -33,6 +33,9 @@ export default function DailyNutritionSummary({
     let totalProtein = 0;
     let totalCarbs = 0;
     let totalFats = 0;
+
+    // Obtener snacks desde las recetas
+    const allSnacks = getSnacksFromRecipes(allMeals);
 
     // Calcular comidas principales
     MEAL_TYPES.forEach((mealType) => {
@@ -101,7 +104,7 @@ export default function DailyNutritionSummary({
       carbs: totalCarbs,
       fats: totalFats,
     };
-  }, [dailyPlan]);
+  }, [dailyPlan, allMeals]);
 
   // Calcular porcentajes y estados
   const caloriePercentage = (dailyNutrition.calories / calorieGoal) * 100;

@@ -3,9 +3,8 @@ import { useStore } from "@nanostores/preact";
 import { useState, useMemo, useEffect } from "preact/hooks";
 import { $plan, clearWeeklyPlan } from "../../stores/planStore";
 import { $userData, $userGoal } from "../../stores/userProfileStore";
-import { allMeals } from "../../data/recipes";
 import { allSupplements } from "../../data/supplements";
-import { allSnacks } from "../../data/snacks";
+import { getSnacksFromRecipes } from "../../utils/recipeUtils";
 import InteractivePlanner from "./InteractivePlanner";
 import { openModal } from "../../stores/modalStore";
 import NutritionalSummary from "../common/NutritionalSummary";
@@ -37,7 +36,10 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
   // Memoizar los datos para evitar recálculos innecesarios
   const memoizedAllMeals = useMemo(() => allMeals, [allMeals]);
   const memoizedAllSupplements = useMemo(() => allSupplements, []);
-  const memoizedAllSnacks = useMemo(() => allSnacks, []);
+  const memoizedAllSnacks = useMemo(
+    () => getSnacksFromRecipes(allMeals),
+    [allMeals]
+  );
 
   // Limpiar memoria cuando el componente se desmonte
   useEffect(() => {

@@ -3,14 +3,11 @@
 // Recetas
 export { allMeals } from "./recipes";
 
-// Fuentes de recetas
-export { recipeSources, getSourceById, getAllSources } from "./recipeSources";
-
-// Snacks
-export { allSnacks } from "./snacks";
-
 // Suplementos
 export { allSupplements } from "./supplements";
+
+// Fuentes de recetas
+export { recipeSources } from "./recipeSources";
 
 // Consejos
 export { allTips } from "./tips";

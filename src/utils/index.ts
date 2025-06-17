@@ -3,28 +3,10 @@
 // Utilidades de recetas
 export {
   getRecipesByType,
-  getRecipesByTag,
   searchRecipes,
-  getRecipesBySource,
-  getUniqueSources,
-  calculateTotalCalories,
-  sortRecipesByCalories,
   filterRecipes,
+  getSnacksFromRecipes,
 } from "./recipeUtils";
-
-// Utilidades de snacks
-export {
-  getSnacksByType,
-  getSnacksByTag,
-  searchSnacks,
-  getSimpleSnacks,
-  getElaboratedSnacks,
-  calculateTotalSnackCalories,
-  sortSnacksByCalories,
-  filterSnacks,
-  getSnacksByNutritionalCategory,
-  getSnacksByTimeOfDay,
-} from "./snackUtils";
 
 // Utilidades de suplementos
 export {
@@ -34,7 +16,6 @@ export {
   getSupplementsWithoutCalories,
   getSupplementsWithProtein,
   calculateTotalSupplementCalories,
-  calculateTotalSupplementProtein,
   sortSupplementsByCalories,
   sortSupplementsByProtein,
   filterSupplements,
@@ -46,14 +27,6 @@ export {
 export {
   getTipsByTag,
   searchTips,
-  getTipsByCategory,
   getRandomTips,
-  getTipsByRelevance,
-  getTipsByTimeOfDay,
-  getTipsByGoal,
-  getUniqueTipTags,
-  getTipsByKeywords,
+  getTipsByCategory,
 } from "./tipUtils";
-
-// Otras utilidades (si las hay)
-// export { ... } from "./otherUtils";
