@@ -10,6 +10,7 @@ export const recipeSources: Record<string, RecipeSource> = {
     name: "La Cocina Squat Fit",
     authors: "Maria Casas & Hamlet Sosa",
     type: "book",
+    url: "https://squatfit.es/",
     year: 2023,
   },
   personal: {
@@ -22,7 +23,7 @@ export const recipeSources: Record<string, RecipeSource> = {
     name: "Comida Rápida, Barata y Saludable",
     authors: "Boticaria García",
     type: "website",
-    url: "https://www.consumo.gob.es/",
+    url: "https://www.dsca.gob.es/es/servicios/publicaciones-programa-editorial/programa-editorial/recetario-comida-rapida-barata-saludable",
     year: 2024,
   },
   internet: {

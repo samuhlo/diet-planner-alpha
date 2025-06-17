@@ -51,4 +51,58 @@ export const allTips: Tip[] = [
     content: `<p>Es la herramienta más directa y efectiva. Aunque los ingredientes sean saludables, la cantidad importa. Sé estricto con las cantidades de proteínas y carbohidratos, y recuerda que las verduras no amiláceas pueden consumirse con más libertad. Usar platos de tamaño moderado ayuda visualmente.</p>`,
     tags: ["Control Calórico", "Cocina Práctica"],
   },
+  {
+    id: "hidratacion-constante",
+    title: "Hidratación: Tu Botella, Tu Aliada",
+    content: `<p>Lleva siempre contigo una <strong>botella de agua reutilizable</strong>. Tener agua a la vista y al alcance de la mano te recordará beber constantemente a lo largo del día, manteniendo tu cuerpo y mente hidratados.</p>`,
+    tags: ["Hidratación", "Hábitos Saludables"],
+  },
+  {
+    id: "plato-harvard",
+    title: 'Visualiza tu Plato Ideal con el "Plato de Harvard"',
+    content: `<p>Al preparar tus comidas principales, divide tu plato mentalmente: <strong>la mitad para verduras y hortalizas</strong>, un cuarto para proteínas de calidad (pescado, legumbres, pollo) y el otro cuarto para granos integrales (arroz integral, quinoa, pan integral).</p>`,
+    tags: ["Nutrición", "Planificación", "Control de Porciones"],
+  },
+  {
+    id: "mindful-eating-inicio",
+    title: "Mindful Eating: El Primer Bocado Consciente",
+    content: `<p>Antes de empezar a comer, tómate un segundo. Observa los colores y olores de tu comida. Mastica el primer bocado lentamente, saboreándolo de verdad. Este simple acto <strong>conecta tu mente con tu cuerpo</strong> y mejora la digestión.</p>`,
+    tags: ["Mindful Eating", "Hábitos Saludables"],
+  },
+  {
+    id: "etiquetas-azucar",
+    title: "Lee Etiquetas: Cuidado con el Azúcar Oculto",
+    content: `<p>Al leer una etiqueta nutricional, no te fijes solo en las calorías. Revisa la línea de <strong>"azúcares" o "azúcares añadidos"</strong>. Te sorprenderá la cantidad de azúcar que se esconde en salsas, cereales y productos procesados.</p>`,
+    tags: ["Compra", "Nutrición", "Control Calórico"],
+  },
+  {
+    id: "mito-carbohidratos",
+    title: "Mito Nutricional: Los Carbohidratos No Son el Enemigo",
+    content: `<p>Tu cuerpo necesita carbohidratos para obtener energía. La clave está en elegirlos bien: prioriza las <strong>fuentes integrales y ricas en fibra</strong> como las legumbres, la avena o las patatas, en lugar de harinas y azúcares refinados.</p>`,
+    tags: ["Mitos", "Nutrición", "Energía"],
+  },
+  {
+    id: "suplementos-con-cabeza",
+    title: "Suplementación: Siempre Bajo Consejo Profesional",
+    content: `<p>Los suplementos no sustituyen una dieta equilibrada. Antes de tomar vitaminas, minerales o cualquier otro suplemento, <strong>consulta siempre a tu médico o a un dietista-nutricionista</strong> para evitar riesgos y asegurarte de que realmente lo necesitas.</p>`,
+    tags: ["Suplementación", "Salud", "Seguridad"],
+  },
+  {
+    id: "dieta-mediterranea",
+    title: "Inspírate en la Dieta Mediterránea",
+    content: `<p>Añade más <strong>pescado azul</strong> (sardinas, caballa), legumbres y frutos secos a tu semana. Usa el <strong>aceite de oliva virgen extra</strong> como grasa principal y basa tus platos en verduras y productos de temporada. Es un patrón de alimentación delicioso y cardiosaludable.</p>`,
+    tags: ["Dieta Mediterránea", "Salud Cardiovascular", "Cocina Práctica"],
+  },
+  {
+    id: "sin-distracciones",
+    title: "Mindful Eating: Come Sin Pantallas",
+    content: `<p>Intenta comer sin la distracción del móvil, la televisión o el ordenador. Prestar atención plena a tu comida te ayuda a <strong>reconocer mejor las señales de saciedad</strong>, disfrutar más de los sabores y evitar comer en exceso de forma automática.</p>`,
+    tags: ["Mindful Eating", "Control de Porciones", "Hábitos Saludables"],
+  },
+  {
+    id: "productos-locales-galicia",
+    title: "Apuesta por lo Local: Sabores de Galicia",
+    content: `<p>Aprovecha la riqueza de los <strong>productos gallegos de temporada</strong>. Visita el mercado local para encontrar las verduras, frutas y pescados más frescos. Comer local no solo apoya la economía, sino que garantiza la máxima calidad y sabor en tu plato.</p>`,
+    tags: ["Compra", "Sostenibilidad", "Galicia"],
+  },
 ];
