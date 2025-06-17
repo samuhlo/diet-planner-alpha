@@ -4,7 +4,6 @@ import SupplementCard from "./SupplementCard.tsx";
 import type { Supplement } from "../../types";
 import {
   searchSupplements,
-  getSupplementsByTag,
   getSupplementsByCategory,
   getSupplementsByGoal,
   filterSupplements,
@@ -13,7 +12,7 @@ import {
   getSupplementsWithCalories,
   getSupplementsWithoutCalories,
   getSupplementsWithProtein,
-} from "../../utils";
+} from "../../utils/supplementUtils";
 
 interface SupplementBrowserProps {
   allSupplements: Supplement[];
@@ -26,8 +25,6 @@ export default function SupplementBrowser({
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedGoal, setSelectedGoal] = useState<string>("");
-  const [selectedCalories, setSelectedCalories] = useState<string>("");
-  const [selectedProtein, setSelectedProtein] = useState<string>("");
   const [sortBy, setSortBy] = useState<"name" | "calories" | "protein">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
@@ -67,13 +64,7 @@ export default function SupplementBrowser({
     let supplements = allSupplements;
 
     // Aplicar filtros básicos
-    if (
-      selectedTags.length > 0 ||
-      selectedCategory ||
-      selectedGoal ||
-      selectedCalories ||
-      selectedProtein
-    ) {
+    if (selectedTags.length > 0 || selectedCategory || selectedGoal) {
       supplements = filterSupplements(supplements, {
         tags: selectedTags.length > 0 ? selectedTags : undefined,
       });
@@ -89,16 +80,6 @@ export default function SupplementBrowser({
 
     if (selectedGoal) {
       supplements = getSupplementsByGoal(supplements, selectedGoal as any);
-    }
-
-    if (selectedCalories === "with-calories") {
-      supplements = getSupplementsWithCalories(supplements);
-    } else if (selectedCalories === "without-calories") {
-      supplements = getSupplementsWithoutCalories(supplements);
-    }
-
-    if (selectedProtein === "with-protein") {
-      supplements = getSupplementsWithProtein(supplements);
     }
 
     // Aplicar búsqueda
@@ -126,8 +107,7 @@ export default function SupplementBrowser({
     selectedTags,
     selectedCategory,
     selectedGoal,
-    selectedCalories,
-    selectedProtein,
+
     searchTerm,
     sortBy,
     sortOrder,
@@ -144,19 +124,13 @@ export default function SupplementBrowser({
     setSelectedTags([]);
     setSelectedCategory("");
     setSelectedGoal("");
-    setSelectedCalories("");
-    setSelectedProtein("");
+
     setSortBy("name");
     setSortOrder("asc");
   };
 
   const hasActiveFilters =
-    selectedTags.length > 0 ||
-    selectedCategory ||
-    selectedGoal ||
-    selectedCalories ||
-    selectedProtein ||
-    searchTerm;
+    selectedTags.length > 0 || selectedCategory || selectedGoal || searchTerm;
 
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
@@ -262,52 +236,6 @@ export default function SupplementBrowser({
               {allGoals.map((goal) => (
                 <option key={goal} value={goal}>
                   {getGoalLabel(goal)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Filtro por calorías */}
-          <div>
-            <label
-              for="supplement-calories-filter"
-              class="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Calorías
-            </label>
-            <select
-              id="supplement-calories-filter"
-              value={selectedCalories}
-              onChange={(e) => setSelectedCalories(e.currentTarget.value)}
-              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"
-            >
-              <option value="">Cualquier valor</option>
-              {allCalories.map((calories) => (
-                <option key={calories} value={calories}>
-                  {getCaloriesLabel(calories)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Filtro por proteína */}
-          <div>
-            <label
-              for="supplement-protein-filter"
-              class="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Proteína
-            </label>
-            <select
-              id="supplement-protein-filter"
-              value={selectedProtein}
-              onChange={(e) => setSelectedProtein(e.currentTarget.value)}
-              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"
-            >
-              <option value="">Cualquier valor</option>
-              {allProtein.map((protein) => (
-                <option key={protein} value={protein}>
-                  {getProteinLabel(protein)}
                 </option>
               ))}
             </select>
