@@ -37,22 +37,21 @@ export default function RecipeCard({
 
   return (
     <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-      <div class="p-4 flex-grow">
-        <h4 class="text-lg font-bold text-stone-800 mb-1 line-clamp-2">
+      <div class="p-4 flex flex-col gap-1 justify-around">
+        <h4 class="text-lg font-bold text-stone-800 mb-1 line-clamp-2 h-[60px] ">
           {receta.nombre}
         </h4>
-        <div class="flex justify-between">
+        <div class="flex flex-col gap-1">
           {/* Tipo de comida destacado */}
           <div
-            class={`inline-block  mb-3 px-4 py-1 rounded-full font-semibold text-base ${getTipoColor(
+            class={`inline-block  mb-3 px-4 py-1 rounded-full font-semibold text-base w-fit ${getTipoColor(
               receta.tipo
             )}`}
-            style={{ letterSpacing: "0.01em" }}
           >
             {receta.tipo}
           </div>
           {/* Tags */}
-          <div class="mb-3 flex flex-wrap gap-1">
+          <div class="mb-1 flex flex-wrap gap-1">
             {receta.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}

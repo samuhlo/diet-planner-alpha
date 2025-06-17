@@ -17,6 +17,14 @@ export const recipeSources: Record<string, RecipeSource> = {
     name: "Recetas Personales",
     type: "personal",
   },
+  gobierno: {
+    id: "gobierno",
+    name: "Comida Rápida, Barata y Saludable",
+    authors: "Boticaria García",
+    type: "website",
+    url: "https://www.consumo.gob.es/",
+    year: 2024,
+  },
   internet: {
     id: "internet",
     name: "Recetas de Internet",

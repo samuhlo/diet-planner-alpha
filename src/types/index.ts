@@ -49,6 +49,7 @@ export interface DailyPlan {
   Desayuno?: MealPlan;
   Almuerzo?: MealPlan;
   Cena?: MealPlan;
+  Postre?: MealPlan;
   supplement?: SupplementPlan;
   snacks?: SnackPlan;
 }
@@ -76,7 +77,7 @@ export interface Ingredient {
 
 export interface Recipe {
   nombre: string;
-  tipo: "Desayuno" | "Almuerzo" | "Cena" | "Snack";
+  tipo: "Desayuno" | "Almuerzo" | "Cena" | "Snack" | "Postre";
   tags: string[];
   calorias: number;
   p: number; // Proteínas
