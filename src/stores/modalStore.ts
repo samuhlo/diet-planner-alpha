@@ -17,9 +17,10 @@ const initialState: ModalState = {
 export const $modal = map<ModalState>(initialState);
 
 // Función para abrir el modal con tipos específicos
+// Para 'recipeDetail', pasar un solo objeto Recipe como data
 export const openModal = (
   type: ModalType,
-  data?: Recipe[] | Ingredient[] | WeeklySummaryData[] | null
+  data?: Recipe | Recipe[] | Ingredient[] | WeeklySummaryData[] | null
 ) => {
   $modal.set({ isOpen: true, type, data: data || null });
 };

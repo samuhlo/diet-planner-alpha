@@ -136,3 +136,37 @@ export function getAllUniqueTypes(recipes: Recipe[]): string[] {
   const allTypes = recipes.map((recipe) => recipe.tipo);
   return [...new Set(allTypes)].sort();
 }
+
+/**
+ * Obtiene el color de la etiqueta de calorías
+ */
+export const getCalorieColor = (calories: number) => {
+  if (calories < 300) return "text-green-600";
+  if (calories < 500) return "text-yellow-600";
+  return "text-red-600";
+};
+
+/**
+ * Obtiene el color de la etiqueta de proteínas
+ */
+export const getProteinColor = (protein: number) => {
+  if (protein >= 30) return "text-green-600";
+  if (protein >= 20) return "text-yellow-600";
+  return "text-red-600";
+};
+
+/**
+ * Obtiene el color de la etiqueta de tipo
+ */
+export const getTipoColor = (tipo: string) => {
+  switch (tipo) {
+    case "Desayuno":
+      return "bg-orange-100 text-orange-800 border-orange-200";
+    case "Almuerzo":
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    case "Cena":
+      return "bg-purple-100 text-purple-800 border-purple-200";
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-200";
+  }
+};

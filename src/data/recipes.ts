@@ -15,7 +15,7 @@ export const allMeals: Recipe[] = [
     ingredientes: [
       { n: "huevo", q: 3, u: "unidad" },
       { n: "atún al natural", q: 1, u: "lata" },
-      { n: "espinaca fresca", q: 1, u: "puñado" },
+      { n: "espinacas", q: 1, u: "puñado" },
     ],
     source: recipeSources.personal,
   },
@@ -72,7 +72,7 @@ export const allMeals: Recipe[] = [
     f: 20,
     ingredientes: [
       { n: "huevo", q: 2, u: "unidad" },
-      { n: "espinaca", q: 70, u: "g" },
+      { n: "espinacas", q: 70, u: "g" },
       { n: "champiñones", q: 50, u: "g" },
       { n: "queso feta", q: 20, u: "g" },
       { n: "cebolla", q: 0.25, u: "unidad" },
@@ -186,7 +186,7 @@ export const allMeals: Recipe[] = [
       { n: "cebolla", q: 0.5, u: "unidad" },
       { n: "zanahoria", q: 1, u: "unidad" },
       { n: "leche de coco", q: 100, u: "ml" },
-      { n: "curry en polvo", q: 1, u: "cucharadita" },
+      { n: "curry", q: 1, u: "cucharadita" },
     ],
     preparacion:
       "1. Sofreír cebolla y zanahoria. 2. Añadir lentejas, curry y agua/caldo. Cocer 15 min. 3. Añadir leche de coco y triturar.",
@@ -447,7 +447,7 @@ export const allMeals: Recipe[] = [
       { n: "claras de huevo", q: 80, u: "ml" },
       { n: "pan de molde rustico", q: 90, u: "g" },
       { n: "sal", q: 0, u: "al gusto" },
-      { n: "pimienta", q: 0, u: "al gusto" },
+      { n: "pimienta negra", q: 0, u: "al gusto" },
       { n: "orégano", q: 0, u: "al gusto" },
     ],
     preparacion:
@@ -934,7 +934,7 @@ export const allMeals: Recipe[] = [
       { n: "zumo de limón", q: 10, u: "ml" },
       { n: "tahini", q: 1, u: "cucharada" },
       { n: "AVOE", q: 40, u: "ml" },
-      { n: "comino tostado y molido", q: 5, u: "g" },
+      { n: "comino", q: 5, u: "g" },
       { n: "pimentón", q: 5, u: "g" },
       { n: "sal", q: 0, u: "al gusto" },
     ],
@@ -951,9 +951,9 @@ export const allMeals: Recipe[] = [
     c: 41.1,
     f: 14.2,
     ingredientes: [
-      { n: "patatas baby", q: 400, u: "g" },
+      { n: "patatas cocidas sin piel", q: 400, u: "g" },
       { n: "yogur griego", q: 2, u: "unidades" },
-      { n: "hojas de hierbabuena", q: 0, u: "al gusto" },
+      { n: "hierbabuena fresca", q: 0, u: "al gusto" },
       { n: "diente de ajo", q: 0.5, u: "unidad" },
       { n: "zumo de limón", q: 0, u: "al gusto" },
       { n: "curry", q: 1, u: "cucharadita" },
@@ -962,7 +962,7 @@ export const allMeals: Recipe[] = [
       { n: "sal", q: 0, u: "al gusto" },
     ],
     preparacion:
-      "1. Cuece las patatas en el microondas. 2. Para la primera salsa, mezcla un yogur con hierbabuena picada, medio ajo, AVOE, zumo de limón y sal. 3. Para la segunda salsa, mezcla el otro yogur con curry, pimienta y AVOE. 4. Sirve las patatas con las salsas.",
+      "1. Calienta las patatas en el microondas. 2. Para la primera salsa, mezcla un yogur con hierbabuena picada, medio ajo, AVOE, zumo de limón y sal. 3. Para la segunda salsa, mezcla el otro yogur con curry, pimienta y AVOE. 4. Sirve las patatas con las salsas.",
     source: recipeSources.gobierno,
   },
   {
@@ -974,7 +974,7 @@ export const allMeals: Recipe[] = [
     c: 10.7,
     f: 12.2,
     ingredientes: [
-      { n: "pepino holandés", q: 1, u: "unidad" },
+      { n: "pepino", q: 1, u: "unidad" },
       { n: "pimiento amarillo", q: 0.5, u: "unidad" },
       { n: "yogur griego", q: 1, u: "unidad" },
       { n: "cebolla morada", q: 0.5, u: "unidad" },
@@ -1006,7 +1006,7 @@ export const allMeals: Recipe[] = [
       { n: "albahaca fresca", q: 0, u: "al gusto" },
       { n: "AVOE", q: 0, u: "al gusto" },
       { n: "vinagre", q: 0, u: "al gusto" },
-      { n: "pimienta", q: 0, u: "al gusto" },
+      { n: "pimienta negra", q: 0, u: "al gusto" },
       { n: "sal", q: 0, u: "al gusto" },
     ],
     preparacion:
@@ -1029,7 +1029,7 @@ export const allMeals: Recipe[] = [
       { n: "rúcula", q: 100, u: "g" },
       { n: "AVOE", q: 0, u: "al gusto" },
       { n: "vinagre", q: 0, u: "al gusto" },
-      { n: "pimienta", q: 0, u: "al gusto" },
+      { n: "pimienta negra", q: 0, u: "al gusto" },
       { n: "sal", q: 0, u: "al gusto" },
     ],
     preparacion:
@@ -1092,7 +1092,7 @@ export const allMeals: Recipe[] = [
       { n: "aguacate", q: 1, u: "unidad" },
       { n: "requesón", q: 1, u: "unidad" },
       { n: "tomates cherry", q: 80, u: "g" },
-      { n: "rebanadas de pan integral", q: 2, u: "unidades" },
+      { n: "pan integral", q: 2, u: "unidades" },
       { n: "AVOE", q: 0, u: "al gusto" },
       { n: "sal", q: 0, u: "al gusto" },
     ],
@@ -1116,7 +1116,7 @@ export const allMeals: Recipe[] = [
       { n: "zumo de limón", q: 80, u: "ml" },
       { n: "diente de ajo", q: 1, u: "unidad" },
       { n: "AVOE", q: 0, u: "al gusto" },
-      { n: "pimienta", q: 0, u: "al gusto" },
+      { n: "pimienta negra", q: 0, u: "al gusto" },
       { n: "sal", q: 0, u: "al gusto" },
     ],
     preparacion:
@@ -1156,7 +1156,7 @@ export const allMeals: Recipe[] = [
     ingredientes: [
       { n: "queso rulo de cabra", q: 100, u: "g" },
       { n: "brotes de lechuga", q: 150, u: "g" },
-      { n: "cuscús integral", q: 50, u: "g" },
+      { n: "cuscús", q: 50, u: "g" },
       { n: "setas", q: 200, u: "g" },
       { n: "frutos rojos", q: 200, u: "g" },
       { n: "cebollino", q: 0, u: "al gusto" },
@@ -1182,7 +1182,7 @@ export const allMeals: Recipe[] = [
       { n: "arroz integral", q: 1, u: "tarrina" },
       { n: "lata de maíz", q: 1, u: "unidad" },
       { n: "pimiento rojo", q: 0.5, u: "unidad" },
-      { n: "cebolletas", q: 0, u: "al gusto" },
+      { n: "cebolleta", q: 0, u: "al gusto" },
       { n: "zumo de limón", q: 20, u: "ml" },
       { n: "AVOE", q: 20, u: "ml" },
       { n: "cilantro fresco", q: 0, u: "al gusto" },
@@ -1205,7 +1205,7 @@ export const allMeals: Recipe[] = [
       { n: "arroz basmati precocido", q: 1, u: "vasito" },
       { n: "pepino", q: 1, u: "unidad" },
       { n: "cebolleta", q: 0.5, u: "unidad" },
-      { n: "jengibre rallado", q: 0, u: "al gusto" },
+      { n: "jengibre", q: 0, u: "al gusto" },
       { n: "salsa de soja", q: 1, u: "cucharada" },
       { n: "vinagre", q: 1, u: "cucharada" },
       { n: "semillas de sésamo", q: 0, u: "al gusto" },
@@ -1214,7 +1214,7 @@ export const allMeals: Recipe[] = [
       { n: "sal", q: 0, u: "al gusto" },
     ],
     preparacion:
-      "1. Cocina el arroz en el microondas. 2. Pon el salmón en un plato untado con AVOE, sazona con sal y eneldo, cúbrelo y cocínalo en el microondas por 5 minutos. 3. Corta el pepino en tiras y la cebolla. 4. Prepara una ensalada con el pepino y la cebolla escurridos. 5. Mezcla la soja, el vinagre, el sésamo y el jengibre para el aliño. 6. Sirve el salmón con la ensalada aliñada.",
+      "1. Cocina el arroz en el microondas. 2. Pon el salmón en un plato untado con AVOE, sazona con sal y eneldo, cúbrelo y cocínalo en el microondas por 5 minutos. 3. Corta el pepino en tiras y la cebolla. 4. Prepara una ensalada con el pepino y la cebolla escurridos. 5. Mezcla la soja, el vinagre, el sésamo y el jengibre rallado para el aliño. 6. Sirve el salmón con la ensalada aliñada.",
     source: recipeSources.gobierno,
   },
   {
@@ -1326,7 +1326,7 @@ export const allMeals: Recipe[] = [
     f: 17.4,
     ingredientes: [
       { n: "tortillas de trigo integral", q: 2, u: "unidades" },
-      { n: "hojas de espinacas", q: 150, u: "g" },
+      { n: "espinacas", q: 150, u: "g" },
       { n: "queso fresco", q: 60, u: "g" },
       { n: "cebolla morada", q: 0.5, u: "unidad" },
       { n: "zanahoria", q: 1, u: "unidad" },
@@ -1358,7 +1358,7 @@ export const allMeals: Recipe[] = [
       { n: "queso parmesano", q: 30, u: "g" },
       { n: "ajo", q: 0.5, u: "unidad" },
       { n: "AVOE", q: 0, u: "al gusto" },
-      { n: "pimienta", q: 0, u: "al gusto" },
+      { n: "pimienta negra", q: 0, u: "al gusto" },
       { n: "sal", q: 0, u: "al gusto" },
     ],
     preparacion:
@@ -1438,12 +1438,12 @@ export const allMeals: Recipe[] = [
     f: 23.5,
     ingredientes: [
       { n: "huevo", q: 3, u: "unidades" },
-      { n: "espinacas crudas", q: 150, u: "g" },
+      { n: "espinacas", q: 150, u: "g" },
       { n: "tomates secos", q: 5, u: "unidades" },
       { n: "pan de pita", q: 2, u: "unidades" },
       { n: "queso de cabra", q: 1, u: "unidad" },
       { n: "AVOE", q: 0, u: "al gusto" },
-      { n: "pimienta", q: 0, u: "al gusto" },
+      { n: "pimienta negra", q: 0, u: "al gusto" },
       { n: "sal", q: 0, u: "al gusto" },
     ],
     preparacion:
@@ -1504,7 +1504,7 @@ export const allMeals: Recipe[] = [
       { n: "bote de garbanzos cocidos", q: 1, u: "unidad" },
       { n: "bote de pisto en conserva", q: 1, u: "unidad" },
       { n: "ras el hanout", q: 1, u: "cucharada" },
-      { n: "hojas de cilantro o hierbabuena", q: 0, u: "al gusto" },
+      { n: "cilantro fresco", q: 0, u: "al gusto" },
     ],
     preparacion:
       "1. Pon los garbanzos escurridos en una cazuela cubiertos de agua. 2. Añade el pisto y cuece unos minutos desde que empiece a hervir. 3. Incorpora una cucharada de ras el hanout y deja que vuelva a hervir. 4. Sirve caliente espolvoreado con cilantro o hierbabuena.",
@@ -1585,8 +1585,8 @@ export const allMeals: Recipe[] = [
     c: 30.4,
     f: 12.9,
     ingredientes: [
-      { n: "caldo vegetal", q: 1, u: "litro" },
-      { n: "fideos de arroz integrales", q: 50, u: "g" },
+      { n: "caldo de verduras", q: 1, u: "litro" },
+      { n: "fideos de arroz", q: 50, u: "g" },
       { n: "huevo", q: 2, u: "unidades" },
       { n: "zanahoria rallada", q: 80, u: "g" },
       { n: "brotes de soja", q: 40, u: "g" },
@@ -1645,7 +1645,7 @@ export const allMeals: Recipe[] = [
       { n: "plátano", q: 0.5, u: "unidad" },
       { n: "avena molida", q: 60, u: "g" },
       { n: "leche", q: 1, u: "unidad" },
-      { n: "canela o nuez moscada", q: 0, u: "al gusto" },
+      { n: "canela ", q: 0, u: "al gusto" },
       { n: "hielo picado", q: 0, u: "al gusto" },
     ],
     preparacion:

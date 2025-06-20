@@ -125,7 +125,12 @@ export interface Supplement {
 }
 
 // Tipos de modales
-export type ModalType = "shopping" | "analysis" | "summary" | null;
+export type ModalType =
+  | "shopping"
+  | "analysis"
+  | "summary"
+  | "recipeDetail"
+  | null;
 
 export interface WeeklySummaryData {
   day: string;
@@ -135,7 +140,7 @@ export interface WeeklySummaryData {
 export interface ModalState {
   isOpen: boolean;
   type: ModalType;
-  data: Recipe[] | Ingredient[] | Snack[] | WeeklySummaryData[] | null;
+  data: Recipe | Recipe[] | Ingredient[] | Snack[] | WeeklySummaryData[] | null;
 }
 
 // Tipos de consejos

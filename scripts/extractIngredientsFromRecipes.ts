@@ -15,10 +15,9 @@ interface ExtractedIngredient {
   unidadBase: string;
   precioPorUnidadBase: number;
   infoCompra: {
-    precio: number;
+    precioTotal: number;
     formato: string;
-    cantidad: number;
-    unidadCantidad: string;
+    cantidadTotalEnUnidadBase: number;
   };
   equivalencias: Record<string, number>;
 }
@@ -386,12 +385,11 @@ function extraerIngredientesUnicos(): ExtractedIngredient[] {
       nombre: nombreOriginal,
       categoria,
       unidadBase,
-      precioPorUnidadBase: 0, // Se calculará después con precios de Mercadona
+      precioPorUnidadBase: 0, // Se calculará después con el script calculatePricesFromInfoCompra.ts
       infoCompra: {
-        precio: 0,
+        precioTotal: 0,
         formato: "",
-        cantidad: 0,
-        unidadCantidad: "",
+        cantidadTotalEnUnidadBase: 0,
       },
       equivalencias,
     };
@@ -449,10 +447,11 @@ export const extractedIngredients: ExtractedIngredient[] = [
     unidadBase: "${ingrediente.unidadBase}",
     precioPorUnidadBase: ${ingrediente.precioPorUnidadBase},
     infoCompra: {
-      precio: ${ingrediente.infoCompra.precio},
+      precioTotal: ${ingrediente.infoCompra.precioTotal},
       formato: "${ingrediente.infoCompra.formato}",
-      cantidad: ${ingrediente.infoCompra.cantidad},
-      unidadCantidad: "${ingrediente.infoCompra.unidadCantidad}"
+      cantidadTotalEnUnidadBase: ${
+        ingrediente.infoCompra.cantidadTotalEnUnidadBase
+      }
     },
     equivalencias: {
 ${Object.entries(ingrediente.equivalencias)

@@ -5,6 +5,7 @@ import { $modal, closeModal } from "../../stores/modalStore.ts";
 import ShoppingListContent from "./ShoppingListContent.tsx";
 import SummaryContent from "./SummaryContent.tsx";
 import type { Ingredient, WeeklySummaryData } from "../../types";
+import RecipeDetailModal from "./RecipeDetailModal.tsx";
 
 interface ModalComponent<T> {
   Component: (props: { data: T }) => VNode;
@@ -74,12 +75,11 @@ export default function AppModal(): VNode | null {
 
   if (!isOpen || !type || !data) return null;
 
-  const modalComponent =
-    MODAL_COMPONENTS[type as keyof typeof MODAL_COMPONENTS];
-  if (!modalComponent) return null;
-
-  const { Component, title } = modalComponent;
-  // Solo mostramos el botón de copiar si el modal es de tipo 'shopping' o 'summary'
+  let title = "";
+  if (type === "shopping") title = "Lista de la Compra";
+  else if (type === "summary") title = "Resumen del Plan";
+  else if (type === "recipeDetail")
+    title = (data as any)?.nombre || "Detalle de Receta";
   const showCopyButton = type === "shopping" || type === "summary";
 
   return (
@@ -117,6 +117,13 @@ export default function AppModal(): VNode | null {
           )}
           {type === "summary" && (
             <SummaryContent data={data as WeeklySummaryData[]} />
+          )}
+          {type === "recipeDetail" && (
+            <RecipeDetailModal
+              recipe={data as any}
+              isOpen={isOpen}
+              onClose={handleClose}
+            />
           )}
         </div>
       </div>

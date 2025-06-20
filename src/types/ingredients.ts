@@ -5,12 +5,11 @@ export interface ExtractedIngredient {
   nombre: string;
   categoria: string;
   unidadBase: string;
-  precioPorUnidadBase: number;
+  precioPorUnidadBase: number; // Calculado automáticamente: precioTotal / cantidadTotalEnUnidadBase
   infoCompra: {
-    precio: number;
+    precioTotal: number;
     formato: string;
-    cantidad: number;
-    unidadCantidad: string;
+    cantidadTotalEnUnidadBase: number;
   };
   equivalencias: Record<string, number>;
 }

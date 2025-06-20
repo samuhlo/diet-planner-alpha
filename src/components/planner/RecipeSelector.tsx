@@ -7,6 +7,7 @@ import {
 } from "preact/hooks";
 import type { Recipe } from "../../types";
 import { filterRecipes, sortRecipesByCalories } from "../../utils/recipeUtils";
+import { openModal } from "../../stores/modalStore";
 
 interface RecipeSelectorProps {
   mealType: string;
@@ -152,7 +153,11 @@ export default function RecipeSelector({
 
       {/* Receta seleccionada */}
       {selectedRecipeData && (
-        <div class="p-2 bg-green-50 border border-green-200 rounded-md">
+        <div
+          class="p-2 bg-green-50 border border-green-200 rounded-md cursor-pointer hover:bg-green-100 transition"
+          onClick={() => openModal("recipeDetail", selectedRecipeData)}
+          title="Ver detalles de la receta"
+        >
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <h4 class="font-medium text-green-800">
@@ -176,7 +181,10 @@ export default function RecipeSelector({
               </div>
             </div>
             <button
-              onClick={handleClearSelection}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClearSelection();
+              }}
               class="ml-2 text-green-600 hover:text-green-800"
               title="Limpiar selección"
             >

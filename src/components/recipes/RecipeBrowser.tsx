@@ -1,7 +1,7 @@
 import type { VNode } from "preact";
 import { useState, useMemo } from "preact/hooks";
 import RecipeCard from "./RecipeCard.tsx";
-import RecipeDetailModal from "./RecipeDetailModal.tsx";
+import RecipeDetailModal from "../modals/RecipeDetailModal.tsx";
 import type { Recipe } from "../../types";
 import {
   searchRecipes,
