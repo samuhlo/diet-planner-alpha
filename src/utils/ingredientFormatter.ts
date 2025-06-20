@@ -1,4 +1,6 @@
 import type { Ingredient } from "../types";
+import { getExtractedIngredientByName } from "../data/ingredients";
+import type { Recipe } from "../types";
 
 export interface FormattedIngredient {
   quantity: string;
@@ -58,4 +60,61 @@ export function formatIngredient(ingrediente: Ingredient): FormattedIngredient {
  */
 export function isOptionalIngredient(ingrediente: Ingredient): boolean {
   return ingrediente.q === 0 && ingrediente.u === "al gusto";
+}
+
+/**
+ * Calcula el precio aproximado de un ingrediente según la cantidad y unidad.
+ * Devuelve null si no se puede calcular.
+ */
+export function calculateIngredientPrice(
+  ingrediente: Ingredient
+): number | null {
+  const extracted = getExtractedIngredientByName(ingrediente.n);
+  if (
+    !extracted ||
+    !extracted.infoCompra ||
+    !extracted.infoCompra.precioTotal ||
+    !extracted.infoCompra.cantidadTotalEnUnidadBase
+  ) {
+    return null;
+  }
+  // Buscar equivalencia de la unidad usada a la unidad base
+  const eq = extracted.equivalencias[ingrediente.u];
+  if (!eq) return null;
+  // Cantidad en unidad base
+  const cantidadEnUnidadBase = ingrediente.q * eq;
+  // Precio proporcional
+  const precio =
+    (cantidadEnUnidadBase / extracted.infoCompra.cantidadTotalEnUnidadBase) *
+    extracted.infoCompra.precioTotal;
+  return precio;
+}
+
+/**
+ * Calcula el precio total de una receta y el desglose por ingrediente.
+ * Devuelve { total, breakdown } donde breakdown es un array de precios por ingrediente (null si no se puede calcular).
+ */
+export function calculateRecipePrice(recipe: Recipe): {
+  total: number;
+  breakdown: (number | null)[];
+} {
+  let total = 0;
+  const breakdown = recipe.ingredientes.map((ing) => {
+    const price = calculateIngredientPrice(ing);
+    if (price != null) total += price;
+    return price;
+  });
+  return { total, breakdown };
+}
+
+/**
+ * Formatea un precio en euros con un decimal y símbolo €
+ */
+export function formatEuro(price: number): string {
+  return (
+    price.toLocaleString("es-ES", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }) + " €"
+  );
 }

@@ -2826,9 +2826,9 @@ export const extractedIngredients: ExtractedIngredient[] = [
     unidadBase: "g",
     precioPorUnidadBase: 0,
     infoCompra: {
-      precioTotal: 0,
-      formato: "",
-      cantidadTotalEnUnidadBase: 0,
+      precioTotal: 1.6,
+      formato: "Bolsa congelada 1kg",
+      cantidadTotalEnUnidadBase: 1000,
     },
     equivalencias: {
       g: 1,
@@ -2904,9 +2904,9 @@ export const extractedIngredients: ExtractedIngredient[] = [
     unidadBase: "g",
     precioPorUnidadBase: 0,
     infoCompra: {
-      precioTotal: 0,
-      formato: "",
-      cantidadTotalEnUnidadBase: 0,
+      precioTotal: 4.79,
+      formato: "Malla de 4kg",
+      cantidadTotalEnUnidadBase: 4000,
     },
     equivalencias: {
       g: 1,

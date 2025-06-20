@@ -8,6 +8,10 @@ import { getSnacksFromRecipes } from "../../utils/recipeUtils";
 import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 import { MAIN_MEAL_TYPES } from "../../config/appConstants";
+import {
+  calculateRecipePrice,
+  formatEuro,
+} from "../../utils/ingredientFormatter";
 
 interface DailyNutritionSummaryProps {
   dayId: string;
@@ -132,6 +136,21 @@ export default function DailyNutritionSummary({
     };
   }, [dailyPlan, allMeals]);
 
+  // Calcular precio total de las recetas del día
+  const dailyPrice = useMemo(() => {
+    let total = 0;
+    MAIN_MEAL_TYPES.forEach((mealType) => {
+      const mealInfo = dailyPlan[mealType];
+      if (mealInfo?.recipeName) {
+        const mealData = allMeals.find((m) => m.nombre === mealInfo.recipeName);
+        if (mealData) {
+          total += calculateRecipePrice(mealData).total;
+        }
+      }
+    });
+    return total;
+  }, [dailyPlan, allMeals]);
+
   // Calcular porcentajes y estados
   const caloriePercentage = (dailyNutrition.calories / calorieGoal) * 100;
   const proteinPercentage = (dailyNutrition.protein / proteinGoal) * 100;
@@ -201,7 +220,7 @@ export default function DailyNutritionSummary({
           <div class="text-lg font-bold text-gray-900">
             {dailyNutrition.carbs.toFixed(1)}
           </div>
-          <div class="text-xs text-gray-500">carbos</div>
+          <div class="text-xs text-gray-500">carbohidratos</div>
           <div class={`text-xs mt-1 ${carbStatus.color}`}>
             {carbStatus.status}
           </div>
@@ -327,6 +346,10 @@ export default function DailyNutritionSummary({
           </div>
         </div>
       )}
+      {/* Precio del día */}
+      <div class="text-right text-green-700 font-semibold text-lg mb-2 mt-2">
+        Precio total del día: {formatEuro(dailyPrice)}
+      </div>
     </div>
   );
 }

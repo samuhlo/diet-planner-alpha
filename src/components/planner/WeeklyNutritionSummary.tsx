@@ -8,6 +8,10 @@ import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 import type { DailyPlan, Snack } from "../../types";
 import { DAYS_OF_WEEK, MAIN_MEAL_TYPES } from "../../config/appConstants";
+import {
+  calculateRecipePrice,
+  formatEuro,
+} from "../../utils/ingredientFormatter";
 
 interface WeeklyNutritionSummaryProps {
   allSnacks: Snack[];
@@ -179,6 +183,27 @@ export default function WeeklyNutritionSummary({
       daysWithData,
     };
   }, [plan, allSnacks]);
+
+  // Calcular precio total semanal
+  const weeklyPrice = useMemo(() => {
+    let total = 0;
+    DAYS_OF_WEEK.forEach((day) => {
+      const dayId = day.toLowerCase();
+      const dailyPlan: DailyPlan = plan[dayId] || {};
+      MAIN_MEAL_TYPES.forEach((mealType) => {
+        const mealInfo = dailyPlan[mealType];
+        if (mealInfo?.recipeName) {
+          const mealData = allMeals.find(
+            (m) => m.nombre === mealInfo.recipeName
+          );
+          if (mealData) {
+            total += calculateRecipePrice(mealData).total;
+          }
+        }
+      });
+    });
+    return total;
+  }, [plan, allMeals]);
 
   // Calcular porcentajes y estados
   const caloriePercentage =
@@ -457,30 +482,30 @@ export default function WeeklyNutritionSummary({
             <h4 class="text-lg font-semibold mb-3 text-gray-800">
               Totales Semanales
             </h4>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-4 gap-2 mb-3">
               <div class="text-center">
-                <div class="text-xl font-bold text-gray-900">
+                <div class="text-lg font-bold text-gray-900">
                   {Math.round(weeklyNutrition.total.calories)}
                 </div>
-                <div class="text-sm text-gray-500">kcal total</div>
+                <div class="text-xs text-gray-500">kcal</div>
               </div>
               <div class="text-center">
-                <div class="text-xl font-bold text-gray-900">
+                <div class="text-lg font-bold text-gray-900">
                   {weeklyNutrition.total.protein.toFixed(1)}
                 </div>
-                <div class="text-sm text-gray-500">proteína total</div>
+                <div class="text-xs text-gray-500">proteína</div>
               </div>
               <div class="text-center">
-                <div class="text-xl font-bold text-gray-900">
+                <div class="text-lg font-bold text-gray-900">
                   {weeklyNutrition.total.carbs.toFixed(1)}
                 </div>
-                <div class="text-sm text-gray-500">carbos total</div>
+                <div class="text-xs text-gray-500">carbohidratos</div>
               </div>
               <div class="text-center">
-                <div class="text-xl font-bold text-gray-900">
+                <div class="text-lg font-bold text-gray-900">
                   {weeklyNutrition.total.fats.toFixed(1)}
                 </div>
-                <div class="text-sm text-gray-500">grasas total</div>
+                <div class="text-xs text-gray-500">grasas</div>
               </div>
             </div>
           </div>
@@ -566,6 +591,10 @@ export default function WeeklyNutritionSummary({
           )}
         </div>
       )}
+      {/* Precio semanal */}
+      <div class="text-right text-green-800 font-bold text-lg mb-2 mt-3">
+        Precio total del plan semanal: {formatEuro(weeklyPrice)}
+      </div>
     </div>
   );
 }

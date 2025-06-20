@@ -1,5 +1,9 @@
 import type { Recipe } from "../../types";
-import { formatIngredient } from "../../utils/ingredientFormatter";
+import {
+  formatIngredient,
+  calculateRecipePrice,
+  formatEuro,
+} from "../../utils/ingredientFormatter";
 import { getCalorieColor, getProteinColor } from "../../utils/recipeUtils";
 
 interface RecipeDetailModalProps {
@@ -40,6 +44,10 @@ export default function RecipeDetailModal({
     const steps = preparation.split(/(?=\d+\.)/);
     return steps.filter((step) => step.trim().length > 0);
   };
+
+  // Calcular precios
+  const { total: totalPrice, breakdown: priceBreakdown } =
+    calculateRecipePrice(recipe);
 
   return (
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -155,6 +163,7 @@ export default function RecipeDetailModal({
                   <ul class="space-y-2">
                     {recipe.ingredientes.map((ingrediente, index) => {
                       const formatted = formatIngredient(ingrediente);
+                      const price = priceBreakdown[index];
                       return (
                         <li
                           key={index}
@@ -167,10 +176,19 @@ export default function RecipeDetailModal({
                           <span class="font-medium text-gray-900">
                             {formatted.quantity} {formatted.unit}
                           </span>
+                          {price != null && (
+                            <span class="ml-auto text-green-700 font-semibold text-sm">
+                              {formatEuro(price)}
+                            </span>
+                          )}
                         </li>
                       );
                     })}
                   </ul>
+                  {/* Total de la receta */}
+                  <div class="mt-4 text-right text-base font-bold text-green-800">
+                    Total receta aprox. → {formatEuro(totalPrice)}
+                  </div>
                 </div>
               </div>
             )}

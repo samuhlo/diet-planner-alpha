@@ -40,15 +40,30 @@ export default function AppModal(): VNode | null {
     let textToCopy = "";
 
     switch (type) {
-      case "shopping":
+      case "shopping": {
+        // Intentar obtener la lista personalizada de localStorage
+        let list: Ingredient[] = [];
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("customShoppingList");
+          if (stored) {
+            try {
+              list = JSON.parse(stored);
+            } catch {
+              list = [];
+            }
+          }
+        }
+        if (!list.length) {
+          list = data as Ingredient[];
+        }
         textToCopy = "Lista de la Compra:\n";
-        (data as Ingredient[]).forEach((ing) => {
+        list.forEach((ing) => {
           textToCopy += `• ${Number(ing.q.toPrecision(3))} ${ing.u} de ${
             ing.n
           }\n`;
         });
         break;
-
+      }
       case "summary":
         textToCopy = "Resumen del Plan Semanal:\n\n";
         (data as WeeklySummaryData[]).forEach((dayData) => {
@@ -63,7 +78,6 @@ export default function AppModal(): VNode | null {
           textToCopy += "\n";
         });
         break;
-
       // Se pueden añadir más casos para otros modales si fuera necesario
     }
 
