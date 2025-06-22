@@ -124,28 +124,37 @@ export default function InteractivePlanner({
 
     // Suplementos
     if (
-      dailyPlan.supplement?.supplements &&
+      dailyPlan.supplement?.enabled &&
       dailyPlan.supplement.supplements.length > 0
     ) {
-      const supplementCount = dailyPlan.supplement.supplements.length;
-      items.push(
-        `${supplementCount} suplemento${supplementCount > 1 ? "s" : ""}`
-      );
+      const supplementCount = dailyPlan.supplement.supplements.filter(
+        (s) => s.supplementId
+      ).length;
+      if (supplementCount > 0) {
+        items.push(
+          `${supplementCount} suplemento${supplementCount > 1 ? "s" : ""}`
+        );
+      }
     }
 
     // Snacks
-    if (dailyPlan.snacks?.snacks && dailyPlan.snacks.snacks.length > 0) {
-      const snackCount = dailyPlan.snacks.snacks.length;
-      items.push(`${snackCount} snack${snackCount > 1 ? "s" : ""}`);
+    if (dailyPlan.snacks?.enabled && dailyPlan.snacks.snacks.length > 0) {
+      const snackCount = dailyPlan.snacks.snacks.filter(
+        (s) => s.snackId
+      ).length;
+      if (snackCount > 0) {
+        items.push(`${snackCount} snack${snackCount > 1 ? "s" : ""}`);
+      }
     }
 
     // Postres
-    if (
-      dailyPlan.desserts?.desserts &&
-      dailyPlan.desserts.desserts.length > 0
-    ) {
-      const dessertCount = dailyPlan.desserts.desserts.length;
-      items.push(`${dessertCount} postre${dessertCount > 1 ? "s" : ""}`);
+    if (dailyPlan.desserts?.enabled && dailyPlan.desserts.desserts.length > 0) {
+      const dessertCount = dailyPlan.desserts.desserts.filter(
+        (d) => d.dessertId
+      ).length;
+      if (dessertCount > 0) {
+        items.push(`${dessertCount} postre${dessertCount > 1 ? "s" : ""}`);
+      }
     }
 
     return items.length > 0 ? items.join(", ") : "Sin selecciones";
@@ -240,6 +249,7 @@ export default function InteractivePlanner({
                         )
                       }
                       allMeals={allMeals}
+                      diners={dailyPlan[mealType]?.diners || 1}
                     />
                   </div>
                 ))}
@@ -250,9 +260,10 @@ export default function InteractivePlanner({
                 {/* Suplementos */}
                 <SupplementSelector
                   dayId={dayId}
+                  allSupplements={allSupplements}
                   currentSupplementPlan={dailyPlan.supplement}
-                  onSupplementPlanChange={(supplementPlan) =>
-                    handleSupplementPlanChange(dayId, supplementPlan)
+                  onSupplementPlanChange={(plan) =>
+                    handleSupplementPlanChange(dayId, plan)
                   }
                 />
 
@@ -298,6 +309,7 @@ export default function InteractivePlanner({
     allMeals,
     allSnacks,
     allDesserts,
+    allSupplements,
   ]);
 
   return (

@@ -12,8 +12,9 @@ import { openModal } from "../../stores/modalStore";
 interface RecipeSelectorProps {
   mealType: string;
   selectedRecipe?: string;
-  onRecipeSelect: (recipeName: string) => void;
+  onRecipeSelect: (recipeName: string, diners: number) => void;
   allMeals: Recipe[];
+  diners: number;
 }
 
 export default function RecipeSelector({
@@ -21,10 +22,14 @@ export default function RecipeSelector({
   selectedRecipe,
   onRecipeSelect,
   allMeals,
+  diners,
 }: RecipeSelectorProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [sortBy, setSortBy] = useState<"name" | "calories" | "protein">("name");
+  const [sortConfig, setSortConfig] = useState<{
+    key: "nombre" | "calorias" | "p";
+    direction: "ascending" | "descending";
+  }>({ key: "nombre", direction: "ascending" });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -49,17 +54,21 @@ export default function RecipeSelector({
 
     console.log("Recetas filtradas:", filtered.length); // Debug
 
-    // Aplicar ordenamiento
-    switch (sortBy) {
-      case "calories":
-        return sortRecipesByCalories(filtered, true);
-      case "protein":
-        return [...filtered].sort((a, b) => (b.p || 0) - (a.p || 0));
-      case "name":
-      default:
-        return [...filtered].sort((a, b) => a.nombre.localeCompare(b.nombre));
+    if (sortConfig) {
+      filtered.sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof Recipe] ?? 0;
+        const bValue = b[sortConfig.key as keyof Recipe] ?? 0;
+
+        if (aValue < bValue)
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        if (aValue > bValue)
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        return 0;
+      });
     }
-  }, [allMeals, mealType, searchTerm, sortBy]);
+
+    return filtered;
+  }, [allMeals, mealType, searchTerm, sortConfig]);
 
   // Obtener la receta seleccionada
   const selectedRecipeData = useMemo(() => {
@@ -69,18 +78,36 @@ export default function RecipeSelector({
   // Manejar selección de receta
   const handleRecipeSelect = useCallback(
     (recipeName: string) => {
-      onRecipeSelect(recipeName);
+      onRecipeSelect(recipeName, 1); // Por defecto 1 comensal
       setShowDropdown(false);
     },
     [onRecipeSelect]
   );
 
+  const handleDinersChange = (newDiners: number) => {
+    if (selectedRecipe && newDiners > 0 && newDiners <= 10) {
+      onRecipeSelect(selectedRecipe, newDiners);
+    }
+  };
+
+  const requestSort = (key: "nombre" | "calorias" | "p") => {
+    let direction: "ascending" | "descending" = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
   // Manejar limpieza de selección
-  const handleClearSelection = useCallback(() => {
-    onRecipeSelect("");
-    setSearchTerm("");
-    setShowDropdown(false);
-  }, [onRecipeSelect]);
+  const handleClearSelection = useCallback(
+    (e: Event) => {
+      e.stopPropagation();
+      onRecipeSelect("", 1);
+      setSearchTerm("");
+      setShowDropdown(false);
+    },
+    [onRecipeSelect]
+  );
 
   // Manejar cambio en el input
   const handleInputChange = useCallback((e: Event) => {
@@ -165,28 +192,21 @@ export default function RecipeSelector({
               </h4>
               <div class="flex gap-2 text-xs text-green-600 mt-1">
                 <span>{selectedRecipeData.calorias} kcal</span>
-                {selectedRecipeData.p && <span>{selectedRecipeData.p}g P</span>}
-                {selectedRecipeData.c && <span>{selectedRecipeData.c}g C</span>}
-                {selectedRecipeData.f && <span>{selectedRecipeData.f}g F</span>}
-              </div>
-              <div class="flex gap-1 mt-1">
-                {selectedRecipeData.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    class="px-1.5 py-0.5 bg-green-100 text-green-700 text-xs rounded"
-                  >
-                    {tag}
-                  </span>
-                ))}
+                {selectedRecipeData.p && (
+                  <span>{selectedRecipeData.p.toFixed(0)}g P</span>
+                )}
+                {selectedRecipeData.c && (
+                  <span>{selectedRecipeData.c.toFixed(0)}g C</span>
+                )}
+                {selectedRecipeData.f && (
+                  <span>{selectedRecipeData.f.toFixed(0)}g F</span>
+                )}
               </div>
             </div>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClearSelection();
-              }}
+              onClick={handleClearSelection}
               class="ml-2 text-green-600 hover:text-green-800"
-              title="Limpiar selección"
+              title="Quitar receta"
             >
               <svg
                 class="h-4 w-4"
@@ -218,20 +238,37 @@ export default function RecipeSelector({
               <span class="text-xs text-gray-600">Ordenar por:</span>
               <div class="flex gap-1">
                 {[
-                  { key: "name", label: "Nombre" },
-                  { key: "calories", label: "Calorías" },
-                  { key: "protein", label: "Proteína" },
+                  { key: "nombre", label: "Nombre" },
+                  { key: "calorias", label: "Calorías" },
+                  { key: "p", label: "Proteína" },
                 ].map((option) => (
                   <button
                     key={option.key}
-                    onClick={() => setSortBy(option.key as any)}
-                    class={`px-2 py-1 text-xs rounded ${
-                      sortBy === option.key
+                    onClick={() => requestSort(option.key as any)}
+                    class={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
+                      sortConfig.key === option.key
                         ? "bg-green-500 text-white"
                         : "bg-white text-gray-600 hover:bg-gray-100"
                     }`}
                   >
                     {option.label}
+                    {sortConfig.key === option.key && (
+                      <svg
+                        class={`h-3 w-3 transition-transform ${
+                          sortConfig.direction === "descending"
+                            ? "rotate-180"
+                            : ""
+                        }`}
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    )}
                   </button>
                 ))}
               </div>
@@ -267,7 +304,6 @@ export default function RecipeSelector({
                         ))}
                       </div>
                     </div>
-                    <div class="ml-2 text-xs text-gray-500">{recipe.tipo}</div>
                   </div>
                 </button>
               ))

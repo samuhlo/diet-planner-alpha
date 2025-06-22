@@ -1,15 +1,12 @@
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from "preact/hooks";
 import type { Recipe, DessertPlan } from "../../types";
-import { NutritionService } from "../../services/nutritionService";
-import ItemSelector from "../common/ItemSelector";
-
-interface DessertItem {
-  id: string;
-  nombre: string;
-  calorias: number;
-  p: number;
-  c: number;
-  f: number;
-}
+import { openModal } from "../../stores/modalStore";
 
 interface DessertSelectorProps {
   dayId: string;
@@ -18,81 +15,332 @@ interface DessertSelectorProps {
   onDessertPlanChange: (dessertPlan: DessertPlan) => void;
 }
 
+// Componente para un único selector de postre
+function SingleDessertSelector({
+  allDesserts,
+  selectedDessertId,
+  onSelect,
+  onClear,
+}: {
+  allDesserts: Recipe[];
+  selectedDessertId?: string;
+  onSelect: (dessertId: string) => void;
+  onClear: () => void;
+}) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [sortConfig, setSortConfig] = useState<{
+    key: "nombre" | "calorias" | "p";
+    direction: "ascending" | "descending";
+  }>({ key: "nombre", direction: "ascending" });
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const sortedAndFilteredDesserts = useMemo(() => {
+    let allDessertsCopy = [...allDesserts];
+
+    if (sortConfig) {
+      allDessertsCopy.sort((a, b) => {
+        const aValue = a[sortConfig.key] ?? 0;
+        const bValue = b[sortConfig.key] ?? 0;
+
+        if (aValue < bValue)
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        if (aValue > bValue)
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    if (!searchTerm.trim()) return allDessertsCopy;
+
+    const searchLower = searchTerm.toLowerCase();
+    return allDessertsCopy.filter(
+      (d) =>
+        d.nombre.toLowerCase().includes(searchLower) ||
+        d.tags.some((t) => t.toLowerCase().includes(searchLower))
+    );
+  }, [allDesserts, searchTerm, sortConfig]);
+
+  const selectedDessertData = useMemo(() => {
+    return allDesserts.find(
+      (d) => d.nombre.toLowerCase().replace(/\s+/g, "-") === selectedDessertId
+    );
+  }, [allDesserts, selectedDessertId]);
+
+  const handleSelect = (dessertId: string) => {
+    onSelect(dessertId);
+    setShowDropdown(false);
+  };
+
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(e.target as Node) &&
+      inputRef.current &&
+      !inputRef.current.contains(e.target as Node)
+    ) {
+      setShowDropdown(false);
+    }
+  }, []);
+
+  const requestSort = (key: "nombre" | "calorias" | "p") => {
+    let direction: "ascending" | "descending" = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [handleClickOutside]);
+
+  if (selectedDessertData) {
+    return (
+      <div
+        class="p-2 bg-green-50 border border-green-200 rounded-md cursor-pointer hover:bg-green-100 transition"
+        onClick={() => openModal("recipeDetail", selectedDessertData)}
+        title="Ver detalles"
+      >
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <h4 class="font-medium text-green-800">
+              {selectedDessertData.nombre}
+            </h4>
+            <div class="flex flex-wrap gap-x-2 gap-y-1 text-xs text-green-600 mt-1">
+              <span>{selectedDessertData.calorias} kcal</span>
+              {selectedDessertData.p && (
+                <span>{selectedDessertData.p.toFixed(0)}g P</span>
+              )}
+              {selectedDessertData.c && (
+                <span>{selectedDessertData.c.toFixed(0)}g C</span>
+              )}
+              {selectedDessertData.f && (
+                <span>{selectedDessertData.f.toFixed(0)}g F</span>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClear();
+            }}
+            class="ml-2 text-green-600 hover:text-green-800"
+            title="Quitar"
+          >
+            <svg
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div class="relative">
+      <div class="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="Buscar postre..."
+          value={searchTerm}
+          onInput={(e) => setSearchTerm(e.currentTarget.value)}
+          onFocus={() => setShowDropdown(true)}
+          class="w-full text-sm border border-gray-300 rounded-md p-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2">
+          <svg
+            class="h-4 w-4 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
+      </div>
+      {showDropdown && (
+        <div
+          ref={dropdownRef}
+          class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-80 overflow-y-auto"
+        >
+          <div class="p-2 border-b border-gray-200 bg-gray-50">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-600">Ordenar por:</span>
+              <div class="flex gap-1">
+                {[
+                  { key: "nombre", label: "Nombre" },
+                  { key: "calorias", label: "Calorías" },
+                  { key: "p", label: "Proteína" },
+                ].map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() =>
+                      requestSort(option.key as "nombre" | "calorias" | "p")
+                    }
+                    class={`px-2 py-1 text-xs rounded flex items-center gap-1 ${
+                      sortConfig.key === option.key
+                        ? "bg-green-500 text-white"
+                        : "bg-white text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {option.label}
+                    {sortConfig.key === option.key && (
+                      <svg
+                        class={`h-3 w-3 transition-transform ${
+                          sortConfig.direction === "descending"
+                            ? "rotate-180"
+                            : ""
+                        }`}
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {sortedAndFilteredDesserts.length > 0 ? (
+            sortedAndFilteredDesserts.map((d) => (
+              <button
+                key={d.nombre}
+                onClick={() =>
+                  handleSelect(d.nombre.toLowerCase().replace(/\s+/g, "-"))
+                }
+                class="w-full text-left px-3 py-2 hover:bg-gray-100"
+              >
+                <div class="flex justify-between items-center">
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-800">{d.nombre}</p>
+                    <div class="flex gap-2 text-xs text-gray-500">
+                      <span>{d.calorias} kcal</span>
+                      <span>{d.p?.toFixed(0)} P</span>
+                      <span>{d.c?.toFixed(0)} C</span>
+                      <span>{d.f?.toFixed(0)} F</span>
+                    </div>
+                    <div class="text-xs text-gray-500 flex gap-2 mt-1">
+                      {d.tags.slice(0, 2).map((tag) => (
+                        <span class="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))
+          ) : (
+            <p class="px-3 py-4 text-center text-gray-500">
+              No hay resultados.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Componente principal que gestiona múltiples postres
 export default function DessertSelector({
   dayId,
   allDesserts,
   currentDessertPlan,
   onDessertPlanChange,
 }: DessertSelectorProps) {
-  // Convertir recetas a formato DessertItem
-  const dessertItems: DessertItem[] = allDesserts.map((recipe) => ({
-    id: recipe.nombre.toLowerCase().replace(/\s+/g, "-"),
-    nombre: recipe.nombre,
-    calorias: recipe.calorias,
-    p: recipe.p,
-    c: recipe.c,
-    f: recipe.f,
-  }));
+  const isEnabled = currentDessertPlan?.enabled ?? false;
+  const desserts = currentDessertPlan?.desserts || [];
 
-  // Convertir DessertPlan a ItemPlan
-  const currentItemPlan = currentDessertPlan
-    ? {
-        enabled: currentDessertPlan.enabled,
-        items: currentDessertPlan.desserts.map((d) => ({
-          itemId: d.dessertId,
-          quantity: d.quantity,
-        })),
-      }
-    : undefined;
-
-  const handleItemPlanChange = (itemPlan: any) => {
-    // Convertir ItemPlan de vuelta a DessertPlan
-    const dessertPlan: DessertPlan = {
-      enabled: itemPlan.enabled,
-      desserts: itemPlan.items.map((item: any) => ({
-        dessertId: item.itemId,
-        quantity: item.quantity,
-      })),
+  const handleToggleEnable = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const newPlan = {
+      enabled: target.checked,
+      desserts:
+        target.checked && desserts.length === 0
+          ? [{ dessertId: "", quantity: 1 }]
+          : desserts,
     };
-    onDessertPlanChange(dessertPlan);
+    onDessertPlanChange(newPlan as DessertPlan);
   };
 
-  // Wrapper para adaptar los tipos de la función de cálculo nutricional
-  const calculateDessertNutrition = (
-    items: Array<{ item: DessertItem; quantity: number }>
-  ) => {
-    // Para postres, usamos la misma lógica que las recetas normales
-    let totalCalories = 0;
-    let totalProtein = 0;
-    let totalCarbs = 0;
-    let totalFats = 0;
+  const handleDessertChange = (index: number, dessertId: string) => {
+    const newDesserts = [...desserts];
+    newDesserts[index] = { dessertId, quantity: 1 };
+    onDessertPlanChange({ enabled: isEnabled, desserts: newDesserts });
+  };
 
-    items.forEach(({ item, quantity }) => {
-      totalCalories += item.calorias * quantity;
-      totalProtein += item.p * quantity;
-      totalCarbs += item.c * quantity;
-      totalFats += item.f * quantity;
-    });
+  const handleAddDessert = () => {
+    if (desserts.length < 3) {
+      const newDesserts = [...desserts, { dessertId: "", quantity: 1 }];
+      onDessertPlanChange({ enabled: isEnabled, desserts: newDesserts });
+    }
+  };
 
-    return {
-      calories: totalCalories,
-      protein: totalProtein,
-      carbs: totalCarbs,
-      fats: totalFats,
-    };
+  const handleRemoveDessert = (index: number) => {
+    const newDesserts = desserts.filter((_, i) => i !== index);
+    onDessertPlanChange({ enabled: isEnabled, desserts: newDesserts });
   };
 
   return (
-    <ItemSelector
-      dayId={dayId}
-      title="Postres"
-      allItems={dessertItems}
-      currentPlan={currentItemPlan}
-      onPlanChange={handleItemPlanChange}
-      calculateNutrition={calculateDessertNutrition}
-      maxItems={3}
-      getItemDisplayName={(dessert) => dessert.nombre}
-      getItemCalories={(dessert) => dessert.calorias}
-    />
+    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between mb-2">
+        <label class="font-semibold text-gray-700 flex items-center">
+          <input
+            type="checkbox"
+            checked={isEnabled}
+            onChange={handleToggleEnable}
+            class="mr-2 h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+          />
+          Postre
+        </label>
+      </div>
+
+      {isEnabled && (
+        <div class="space-y-2">
+          {desserts.map((d, index) => (
+            <SingleDessertSelector
+              key={index}
+              allDesserts={allDesserts}
+              selectedDessertId={d.dessertId}
+              onSelect={(dessertId) => handleDessertChange(index, dessertId)}
+              onClear={() => handleRemoveDessert(index)}
+            />
+          ))}
+          {desserts.length < 3 && (
+            <button
+              onClick={handleAddDessert}
+              class="w-full p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700 font-semibold"
+            >
+              + Añadir Postre
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

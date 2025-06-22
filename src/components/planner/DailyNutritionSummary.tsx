@@ -12,6 +12,7 @@ import {
   calculateRecipePrice,
   formatEuro,
 } from "../../utils/ingredientFormatter";
+import type { Recipe } from "../../types";
 
 interface DailyNutritionSummaryProps {
   dayId: string;
@@ -139,15 +140,53 @@ export default function DailyNutritionSummary({
   // Calcular precio total de las recetas del día
   const dailyPrice = useMemo(() => {
     let total = 0;
+
+    // Comidas principales
     MAIN_MEAL_TYPES.forEach((mealType) => {
       const mealInfo = dailyPlan[mealType];
       if (mealInfo?.recipeName) {
         const mealData = allMeals.find((m) => m.nombre === mealInfo.recipeName);
         if (mealData) {
-          total += calculateRecipePrice(mealData).total;
+          total +=
+            calculateRecipePrice(mealData).total * (mealInfo.diners || 1);
         }
       }
     });
+
+    const allSnacks = getSnacksFromRecipes(allMeals);
+    const allDesserts = allMeals.filter((m) => m.tipo === "Postre");
+
+    // Snacks
+    const snackInfo = dailyPlan.snacks;
+    if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
+      snackInfo.snacks.forEach((s) => {
+        if (s.snackId) {
+          const snackData = allSnacks.find((sn) => sn.id === s.snackId);
+          if (snackData?.ingredientes) {
+            total +=
+              calculateRecipePrice(snackData as unknown as Recipe).total *
+              s.quantity;
+          }
+        }
+      });
+    }
+
+    // Postres
+    const dessertInfo = dailyPlan.desserts;
+    if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
+      dessertInfo.desserts.forEach((d) => {
+        if (d.dessertId) {
+          const dessertData = allDesserts.find(
+            (dess) =>
+              dess.nombre.toLowerCase().replace(/\s+/g, "-") === d.dessertId
+          );
+          if (dessertData) {
+            total += calculateRecipePrice(dessertData).total * d.quantity;
+          }
+        }
+      });
+    }
+
     return total;
   }, [dailyPlan, allMeals]);
 

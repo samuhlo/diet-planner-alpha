@@ -6,7 +6,7 @@ import { allMeals } from "../../data/recipes";
 import { allSupplements } from "../../data/supplements";
 import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
-import type { DailyPlan, Snack } from "../../types";
+import type { DailyPlan, Snack, Recipe } from "../../types";
 import { DAYS_OF_WEEK, MAIN_MEAL_TYPES } from "../../config/appConstants";
 import {
   calculateRecipePrice,
@@ -187,9 +187,13 @@ export default function WeeklyNutritionSummary({
   // Calcular precio total semanal
   const weeklyPrice = useMemo(() => {
     let total = 0;
+    const allDesserts = allMeals.filter((m) => m.tipo === "Postre");
+
     DAYS_OF_WEEK.forEach((day) => {
       const dayId = day.toLowerCase();
       const dailyPlan: DailyPlan = plan[dayId] || {};
+
+      // Comidas principales
       MAIN_MEAL_TYPES.forEach((mealType) => {
         const mealInfo = dailyPlan[mealType];
         if (mealInfo?.recipeName) {
@@ -197,13 +201,46 @@ export default function WeeklyNutritionSummary({
             (m) => m.nombre === mealInfo.recipeName
           );
           if (mealData) {
-            total += calculateRecipePrice(mealData).total;
+            total +=
+              calculateRecipePrice(mealData).total * (mealInfo.diners || 1);
           }
         }
       });
+
+      // Snacks
+      const snackInfo = dailyPlan.snacks;
+      if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
+        snackInfo.snacks.forEach((s) => {
+          if (s.snackId) {
+            const snackData = allSnacks.find((sn) => sn.id === s.snackId);
+            if (snackData?.ingredientes) {
+              total +=
+                calculateRecipePrice(snackData as unknown as Recipe).total *
+                s.quantity;
+            }
+          }
+        });
+      }
+
+      // Postres
+      const dessertInfo = dailyPlan.desserts;
+      if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
+        dessertInfo.desserts.forEach((d) => {
+          if (d.dessertId) {
+            const dessertData = allDesserts.find(
+              (dess) =>
+                dess.nombre.toLowerCase().replace(/\s+/g, "-") === d.dessertId
+            );
+            if (dessertData) {
+              total += calculateRecipePrice(dessertData).total * d.quantity;
+            }
+          }
+        });
+      }
     });
+
     return total;
-  }, [plan, allMeals]);
+  }, [plan, allMeals, allSnacks]);
 
   // Calcular porcentajes y estados
   const caloriePercentage =
