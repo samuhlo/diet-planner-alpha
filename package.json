@@ -6,9 +6,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "extract-ingredients": "tsx scripts/extractIngredientsFromRecipes.ts",
-    "calculate-prices": "tsx scripts/calculatePricesFromInfoCompra.ts"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/preact": "^4.1.0",
