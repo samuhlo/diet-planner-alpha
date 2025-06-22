@@ -1,28 +1,89 @@
 ---
 // src/pages/index.astro
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/ui/Header.jsx';
-import Navigation from '../components/ui/Navigation.astro';
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/ui/Header.tsx";
+import Navigation from "../components/ui/Navigation.astro";
 
 // Importamos todos los componentes de sección
-import WeeklyPlanner from '../components/planner/WeeklyPlanner.astro';
-import RecipeGallery from '../components/recipes/RecipeGallery.astro';
-import Tips from '../components/tips/Tips.astro';
-import UserData from '../components/UserData.astro';
-import GoalProgress from '../components/progress/GoalProgress.astro';
+import WeeklyPlanner from "../components/planner/WeeklyPlanner.astro";
+import RecipeGallery from "../components/gallery/RecipeGallery.astro";
+import UnifiedGallery from "../components/gallery/UnifiedGallery.astro";
+import TipsGallery from "../components/gallery/TipsGallery.astro";
+import UserData from "../components/UserData.astro";
+import GoalProgress from "../components/progress/GoalProgress.astro";
 ---
-<Layout title="Plan de Dieta Interactivo">
-    
-    <Header client:load />
-    <Navigation />
 
-    <main>
-        <!-- Colocamos todos nuestros componentes de sección -->
-        <WeeklyPlanner />
-        <RecipeGallery />
-        <Tips />
-        <UserData />
-        <GoalProgress/>
-    </main>
-    
+<Layout title="Plan de Dieta Interactivo">
+  <Header client:load />
+  <Navigation />
+
+  <!-- Loader inicial -->
+  <div
+    id="initial-loader"
+    class="flex items-center justify-center min-h-screen bg-gray-50"
+  >
+    <div class="text-center">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6B8A7A] mx-auto mb-4"
+      >
+      </div>
+      <p class="text-gray-600 text-lg">Cargando planificador...</p>
+    </div>
+  </div>
+
+  <main id="main-content" class="hidden">
+    <!-- Colocamos todos nuestros componentes de sección -->
+    <section id="planificador" class="content-section">
+      <WeeklyPlanner />
+    </section>
+
+    <section id="recetario" class="content-section hidden">
+      <RecipeGallery />
+    </section>
+
+    <section id="galeria" class="content-section hidden">
+      <UnifiedGallery />
+    </section>
+
+    <section id="consejos" class="content-section hidden">
+      <TipsGallery />
+    </section>
+
+    <section id="datos" class="content-section hidden">
+      <UserData />
+    </section>
+
+    <section id="progreso" class="content-section hidden">
+      <GoalProgress />
+    </section>
+  </main>
 </Layout>
+
+<script>
+  // Script para manejar el loader inicial
+  document.addEventListener("DOMContentLoaded", () => {
+    const loader = document.getElementById("initial-loader");
+    const mainContent = document.getElementById("main-content");
+
+    // Función para ocultar el loader y mostrar el contenido
+    function hideLoader() {
+      if (loader && mainContent) {
+        loader.style.display = "none";
+        mainContent.classList.remove("hidden");
+      }
+    }
+
+    // Escuchar el evento de navegación lista
+    document.addEventListener("navigationReady", () => {
+      // Ocultar el loader cuando la navegación esté lista
+      hideLoader();
+    });
+
+    // Fallback: ocultar el loader después de un tiempo máximo
+    setTimeout(() => {
+      if (loader && loader.style.display !== "none") {
+        hideLoader();
+      }
+    }, 2000);
+  });
+</script>

@@ -1,0 +1,22 @@
+---
+// src/components/gallery/UnifiedGallery.astro
+import { allMeals } from "../../data/recipes.ts";
+import { allSupplements } from "../../data/supplements.ts";
+import { getSnacksFromRecipes } from "../../utils/recipeUtils.ts";
+
+import SupplementBrowser from "../supplements/SupplementBrowser.tsx";
+
+const allSnacks = getSnacksFromRecipes(allMeals);
+---
+
+<section id="galeria" class="content-section hidden">
+  <div class="text-center mb-8 max-w-3xl mx-auto">
+    <h2 class="text-3xl font-bold text-[#6B8A7A]">Galería de Suplementos</h2>
+    <p class="mt-2 text-stone-600">
+      Explora todos los suplementos disponibles. Encuentra las opciones
+      perfectas para complementar tu dieta.
+    </p>
+  </div>
+
+  <SupplementBrowser client:load allSupplements={allSupplements} />
+</section>

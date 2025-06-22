@@ -16,12 +16,37 @@ const formDefaults = {
 
 export default function UserDataForm() {
   const globalUserData = useStore($userData);
-  const [formData, setFormData] = useState(globalUserData || formDefaults);
+  const [formData, setFormData] = useState(formDefaults);
   const [isSaved, setIsSaved] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
+  // Cargar datos del localStorage al montar el componente
   useEffect(() => {
-    setFormData(globalUserData || formDefaults);
-  }, [globalUserData]);
+    const loadUserDataFromStorage = () => {
+      try {
+        const storedData = localStorage.getItem("userData");
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          setFormData(parsedData);
+        } else {
+          setFormData(formDefaults);
+        }
+      } catch (error) {
+        console.error("Error loading user data from localStorage:", error);
+        setFormData(formDefaults);
+      }
+      setIsLoaded(true);
+    };
+
+    loadUserDataFromStorage();
+  }, []);
+
+  // Sincronizar con el store cuando cambie
+  useEffect(() => {
+    if (isLoaded && globalUserData) {
+      setFormData(globalUserData);
+    }
+  }, [globalUserData, isLoaded]);
 
   const handleChange = (e) => {
     setIsSaved(false);
@@ -48,6 +73,20 @@ export default function UserDataForm() {
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
   };
+
+  // Mostrar loading mientras se cargan los datos
+  if (!isLoaded) {
+    return (
+      <div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
+        <h3 class="text-xl font-bold text-stone-800 mb-4">
+          Mis Datos Personales
+        </h3>
+        <div class="flex items-center justify-center py-8">
+          <div class="text-gray-500">Cargando datos...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form
@@ -135,7 +174,7 @@ export default function UserDataForm() {
               type="checkbox"
               id="doesStrengthTraining"
               name="doesStrengthTraining"
-              checked={formData.doesStrengthTraining}
+              checked={formData.doesStrengthTraining || false}
               onChange={handleChange}
               class="h-4 w-4 text-green-600 rounded border-gray-300"
             />

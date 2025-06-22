@@ -1,10 +1,24 @@
 ---
-import UserDataForm from './UserDataForm.jsx';
+import UserDataForm from "./UserDataForm.jsx";
+import GoalForm from "./progress/GoalForm.jsx";
+import ObjectiveAnalysis from "./progress/ObjectiveAnalysis.jsx";
 ---
+
 <section id="datos" class="content-section hidden">
-    <div class="text-center mb-8 max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold text-[#3a5a40]">Mis Datos Personales</h2>
-        <p class="mt-2 text-stone-600">Mantén tus datos actualizados para que el análisis de calorías y necesidades sea lo más preciso posible.</p>
+  <div class="text-center mb-8 max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-[#3a5a40]">Mis Datos y Objetivos</h2>
+    <p class="mt-2 text-stone-600">
+      Configura tus datos personales y establece tus objetivos para obtener un
+      análisis nutricional preciso.
+    </p>
+  </div>
+  <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8">
+    <div class="space-y-6">
+      <UserDataForm client:visible />
     </div>
-    <UserDataForm client:visible />
+    <div class="flex flex-col gap-4">
+      <GoalForm client:visible />
+      <ObjectiveAnalysis client:visible />
+    </div>
+  </div>
 </section>
