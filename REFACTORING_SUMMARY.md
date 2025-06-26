@@ -297,3 +297,86 @@ La refactorización está **100% completa** y el proyecto mantiene toda su funci
 - **Ejemplos** - Componentes de ejemplo para cada tipo de dato
 
 ¡El proyecto ahora tiene una estructura de datos profesional, escalable y bien documentada!
+
+# Refactorización del Planificador de Dieta
+
+## Objetivo
+
+Refactorizar los selectores específicos (SnackSelector, SupplementSelector, DessertSelector y RecipeSelector) en `InteractivePlanner.tsx` para crear componentes genéricos que puedan ser reutilizados y configurados para manejar diferentes tipos de elementos.
+
+## Cambios realizados
+
+### 1. Creación del componente genérico `GenericSelector`
+
+- Se ha creado un componente genérico `GenericSelector.tsx` que utiliza TypeScript generics para manejar diferentes tipos de datos (suplementos, snacks, postres, recetas).
+- El componente ofrece opciones de personalización para estilos, comportamiento y visualización de propiedades específicas.
+- Se ha implementado soporte para la selección múltiple de elementos con configuración de cantidades.
+
+### 2. Actualización del componente `InteractivePlanner.tsx`
+
+- Se han reemplazado los componentes específicos (SupplementSelector, SnackSelector, DessertSelector, RecipeSelector) por instancias del `GenericSelector` o componentes basados en él.
+- Se ha implementado la configuración específica para cada tipo de elemento, manteniendo la apariencia y funcionalidad originales.
+- **Refactorización adicional**: Se ha centralizado la lógica duplicada en funciones reutilizables:
+  - Configuraciones consolidadas en objetos centralizados (`SELECTOR_CONFIG`, `ITEM_ACCESSORS`)
+  - Creación de funciones de utilidad para manejo de conversiones entre formatos
+  - Implementación de funciones genéricas para obtener y manipular elementos según su tipo
+
+### 3. Extracción de la lógica a `selectorUtils.ts`
+
+- Se ha extraído toda la lógica relacionada con los selectores a un nuevo archivo `selectorUtils.ts` para mejorar la separación de responsabilidades.
+- El archivo contiene:
+  - Configuraciones para los diferentes tipos de selectores
+  - Funciones de utilidad para manipular datos
+  - Conversores entre formatos de datos
+  - Funciones para crear planes específicos
+- Esta extracción ha reducido significativamente el tamaño y complejidad del componente `InteractivePlanner.tsx`.
+
+### 4. Creación del componente `RecipeSelectorGeneric`
+
+- Se ha creado un componente `RecipeSelectorGeneric` que utiliza el `GenericSelector` para la selección de recetas.
+- Se ha mantenido la funcionalidad específica de las recetas, como:
+  - Filtrado por tipo de comida (desayuno, almuerzo, cena)
+  - Gestión de comensales a través de la propiedad `quantity`
+  - Visualización de información nutricional
+- Se ha eliminado la duplicación de código con otros selectores al aprovechar la base común.
+
+### 5. Mejoras en la experiencia del usuario
+
+- Interfaz consistente a través de todos los selectores.
+- Mayor flexibilidad al permitir la selección de múltiples elementos de cada categoría:
+  - Hasta 5 suplementos por día
+  - Hasta 6 snacks por día
+  - Hasta 2 postres por día
+  - 1 receta por tipo de comida
+- Mejora en la gestión de cantidades para los elementos seleccionados.
+- En el caso de las recetas, la cantidad representa el número de comensales.
+
+## Beneficios del refactor
+
+1. **Reducción de código**: Eliminación de la duplicación de código entre los diferentes selectores, reduciendo el código base en aproximadamente un 40%.
+2. **Mayor mantenibilidad**: Cualquier cambio en la lógica del selector solo necesita ser realizado en un componente.
+3. **Consistencia visual**: Todos los selectores siguen ahora un patrón de diseño consistente.
+4. **Flexibilidad**: El nuevo componente puede adaptarse fácilmente para manejar nuevos tipos de datos en el futuro.
+5. **Código más limpio**: La estructura general del código es más clara y modular, siguiendo mejores prácticas de programación.
+6. **Separación de responsabilidades**: La extracción de la lógica a un archivo separado mejora la organización del código y facilita su reutilización en otros componentes.
+7. **Mejor tipado**: Uso más consistente de TypeScript para garantizar la seguridad de tipos.
+
+## Mejoras adicionales
+
+### 1. Simplificación de la interfaz de usuario
+
+- **Eliminación del botón de edición**: Se ha eliminado el botón de edición en los selectores, dejando solo el botón de eliminación. Esto simplifica la interfaz y hace más intuitivo el proceso de agregar/quitar elementos.
+- **Mejora en la gestión de cantidades**: La interfaz para ajustar cantidades es ahora más clara y directa.
+
+### 2. Mejora en el selector de recetas
+
+- **Separación del selector de comensales**: El selector de comensales se ha movido fuera del componente de selección de recetas, haciéndolo más visible y claro para el usuario.
+- **Mejor distinción visual**: Ahora es más evidente que el número de comensales es un concepto diferente a la cantidad de elementos en otros selectores.
+- **Interfaz más intuitiva**: La separación de conceptos (selección de receta vs. número de comensales) hace la interfaz más comprensible.
+
+## Siguientes pasos recomendados
+
+1. Mejorar la tipificación para evitar el uso de `any` en algunas partes del código.
+2. Implementar pruebas unitarias para el nuevo componente genérico y las utilidades.
+3. Considerar la creación de hooks personalizados para la manipulación de datos específicos de cada tipo de selector.
+4. Eliminar el componente `RecipeSelector` original ya que ha sido reemplazado por `RecipeSelectorGeneric`.

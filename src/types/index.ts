@@ -1,5 +1,10 @@
 // src/types/index.ts
 
+// Tipos base
+export interface BaseItem {
+  id: string;
+}
+
 // Tipos de usuario
 export interface UserData {
   weight: number;
@@ -21,6 +26,12 @@ export interface UserGoal {
 export interface WeightEntry {
   weight: number;
   date: string;
+}
+
+// Tipos para selectores
+export interface SelectedItem {
+  id: string;
+  quantity: number;
 }
 
 // Tipos de planificación
@@ -83,7 +94,16 @@ export interface Ingredient {
   u: string; // unidad
 }
 
+export interface NutritionalInfo {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
 export interface Recipe {
+  id: string;
+  name: string;
   nombre: string;
   tipo: "Desayuno" | "Almuerzo" | "Cena" | "Snack" | "Postre";
   tags: string[];
@@ -94,6 +114,8 @@ export interface Recipe {
   ingredientes: Ingredient[];
   preparacion?: string;
   source?: RecipeSource;
+  description?: string;
+  nutritionalInfo?: NutritionalInfo;
 }
 
 // Tipos de snacks

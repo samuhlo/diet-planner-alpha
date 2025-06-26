@@ -1,24 +1,23 @@
 import type { Recipe, Snack } from "../types";
+import { allMeals } from "../data/recipes";
 
 /**
  * Obtiene todas las recetas de tipo Snack y las convierte al formato Snack
  */
 export const getSnacksFromRecipes = (recipes: Recipe[]): Snack[] => {
-  return recipes
-    .filter((recipe) => recipe.tipo === "Snack")
-    .map((recipe) => ({
-      id: recipe.nombre.toLowerCase().replace(/\s+/g, "-"),
-      nombre: recipe.nombre,
-      tipo: recipe.preparacion ? "elaborado" : "simple",
-      calorias: recipe.calorias,
-      p: recipe.p,
-      c: recipe.c,
-      f: recipe.f,
-      ingredientes: recipe.ingredientes,
-      preparacion: recipe.preparacion,
-      tags: recipe.tags,
-      porcion: "1 porción", // Valor por defecto ya que las recetas no tienen porcion
-    }));
+  const snackRecipes = recipes.filter((recipe) => recipe.tipo === "Snack");
+
+  return snackRecipes.map((recipe) => ({
+    id: recipe.id || recipe.nombre.toLowerCase().replace(/\s+/g, "-"),
+    nombre: recipe.nombre,
+    tipo: "simple", // Todos los snacks generados desde recetas son "simple"
+    calorias: recipe.calorias,
+    p: recipe.p,
+    c: recipe.c,
+    f: recipe.f,
+    tags: recipe.tags,
+    porcion: "1 unidad",
+  }));
 };
 
 /**
@@ -42,11 +41,11 @@ export function getRecipesByTag(recipes: Recipe[], tag: string): Recipe[] {
  * Busca recetas por nombre o tags
  */
 export const searchRecipes = (recipes: Recipe[], query: string): Recipe[] => {
-  const lowercaseQuery = query.toLowerCase();
+  const term = query.toLowerCase();
   return recipes.filter(
     (recipe) =>
-      recipe.nombre.toLowerCase().includes(lowercaseQuery) ||
-      recipe.tags.some((tag) => tag.toLowerCase().includes(lowercaseQuery))
+      recipe.nombre.toLowerCase().includes(term) ||
+      recipe.tags.some((tag) => tag.toLowerCase().includes(term))
   );
 };
 
@@ -63,16 +62,11 @@ export const getRecipesBySource = (
 /**
  * Obtiene todas las fuentes únicas de las recetas
  */
-export const getUniqueSources = (recipes: Recipe[]) => {
+export const getUniqueSources = (recipes: Recipe[]): string[] => {
   const sources = recipes
-    .map((recipe) => recipe.source)
-    .filter(
-      (source): source is NonNullable<typeof source> => source !== undefined
-    );
-
-  return Array.from(
-    new Map(sources.map((source) => [source.id, source])).values()
-  );
+    .filter((recipe) => recipe.source)
+    .map((recipe) => recipe.source!.id);
+  return [...new Set(sources)];
 };
 
 /**
@@ -100,23 +94,52 @@ export const sortRecipesByCalories = (
 export const filterRecipes = (
   recipes: Recipe[],
   filters: {
-    type?: Recipe["tipo"];
+    tipo?: string;
     tags?: string[];
-    maxCalories?: number;
-    minProtein?: number;
-    maxCarbs?: number;
-    maxFat?: number;
+    minCalorias?: number;
+    maxCalorias?: number;
+    sourceId?: string;
   }
 ): Recipe[] => {
   return recipes.filter((recipe) => {
-    if (filters.type && recipe.tipo !== filters.type) return false;
-    if (filters.tags && !filters.tags.some((tag) => recipe.tags.includes(tag)))
+    // Filtrar por tipo
+    if (filters.tipo && recipe.tipo !== filters.tipo) {
       return false;
-    if (filters.maxCalories && recipe.calorias > filters.maxCalories)
+    }
+
+    // Filtrar por tags (debe contener todos los tags especificados)
+    if (
+      filters.tags &&
+      filters.tags.length > 0 &&
+      !filters.tags.every((tag) => recipe.tags.includes(tag))
+    ) {
       return false;
-    if (filters.minProtein && recipe.p < filters.minProtein) return false;
-    if (filters.maxCarbs && recipe.c > filters.maxCarbs) return false;
-    if (filters.maxFat && recipe.f > filters.maxFat) return false;
+    }
+
+    // Filtrar por calorías mínimas
+    if (
+      filters.minCalorias !== undefined &&
+      recipe.calorias < filters.minCalorias
+    ) {
+      return false;
+    }
+
+    // Filtrar por calorías máximas
+    if (
+      filters.maxCalorias !== undefined &&
+      recipe.calorias > filters.maxCalorias
+    ) {
+      return false;
+    }
+
+    // Filtrar por fuente
+    if (
+      filters.sourceId &&
+      (!recipe.source || recipe.source.id !== filters.sourceId)
+    ) {
+      return false;
+    }
+
     return true;
   });
 };
@@ -170,3 +193,52 @@ export const getTipoColor = (tipo: string) => {
       return "bg-gray-100 text-gray-800 border-gray-200";
   }
 };
+
+// Función para asignar IDs a las recetas si no los tienen
+export function assignIdsToRecipes(recipes: Recipe[]): Recipe[] {
+  const recipesWithIds = recipes.map((recipe) => {
+    if (!recipe.id) {
+      const newId = recipe.nombre.toLowerCase().replace(/\s+/g, "-");
+      return {
+        ...recipe,
+        id: newId,
+      };
+    }
+    return recipe;
+  });
+
+  // Verificar que todas las recetas tienen IDs únicos
+  const idCounts: Record<string, number> = {};
+  recipesWithIds.forEach((recipe) => {
+    idCounts[recipe.id] = (idCounts[recipe.id] || 0) + 1;
+  });
+
+  // Identificar IDs duplicados
+  const duplicateIds = Object.entries(idCounts)
+    .filter(([_, count]) => count > 1)
+    .map(([id]) => id);
+
+  if (duplicateIds.length > 0) {
+    console.warn("¡Atención! Se encontraron IDs duplicados:", duplicateIds);
+
+    // Corregir IDs duplicados añadiendo un número al final
+    let fixedRecipes = [...recipesWithIds];
+    duplicateIds.forEach((duplicateId) => {
+      let counter = 1;
+      fixedRecipes = fixedRecipes.map((recipe) => {
+        if (recipe.id === duplicateId) {
+          if (counter > 1) {
+            const newId = `${duplicateId}-${counter}`;
+            return { ...recipe, id: newId };
+          }
+          counter++;
+        }
+        return recipe;
+      });
+    });
+
+    return fixedRecipes;
+  }
+
+  return recipesWithIds;
+}

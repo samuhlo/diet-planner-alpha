@@ -7,24 +7,38 @@ import {
   updateSupplementPlan,
   updateDessertPlan,
 } from "../../stores/planStore";
-import { NutritionService } from "../../services/nutritionService";
-import SnackSelector from "./SnackSelector";
-import SupplementSelector from "./SupplementSelector";
-import DessertSelector from "./DessertSelector";
-import RecipeSelector from "./RecipeSelector";
+import RecipeSelectorGeneric from "./RecipeSelectorGeneric";
 import DailyNutritionSummary from "./DailyNutritionSummary";
 import WeeklyNutritionSummary from "./WeeklyNutritionSummary";
+import GenericSelector from "../common/GenericSelector";
 import type {
   Recipe,
   Supplement,
   Snack,
+  DailyPlan,
   SnackPlan,
   SupplementPlan,
   DessertPlan,
-  DailyPlan,
+  SelectedItem,
+  MealPlan,
 } from "../../types";
-import { getSnacksFromRecipes } from "../../utils/recipeUtils";
+import {
+  getSnacksFromRecipes,
+  assignIdsToRecipes,
+} from "../../utils/recipeUtils";
 import { DAYS_OF_WEEK, MAIN_MEAL_TYPES } from "../../config/appConstants";
+import {
+  SELECTOR_CONFIG,
+  ITEM_ACCESSORS,
+  getSelectedItems,
+  getSelectorEnabled,
+  getPlanItems,
+  createSupplementPlan,
+  createSnackPlan,
+  createDessertPlan,
+  generateDessertsFromRecipes,
+} from "../../utils/selectorUtils";
+import type { SelectorType } from "../../utils/selectorUtils";
 
 interface InteractivePlannerProps {
   allMeals: Recipe[];
@@ -34,14 +48,16 @@ interface InteractivePlannerProps {
 }
 
 export default function InteractivePlanner({
-  allMeals,
+  allMeals: rawMeals,
   allSupplements,
   targetCalories,
   targetProtein,
 }: InteractivePlannerProps) {
   const plan = useStore($plan);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
-  const [selectedDay, setSelectedDay] = useState<string>("monday");
+
+  // Asegurarse de que todas las recetas tienen ID
+  const allMeals = useMemo(() => assignIdsToRecipes(rawMeals), [rawMeals]);
 
   const mealsByType = useMemo(
     () => ({
@@ -57,7 +73,7 @@ export default function InteractivePlanner({
 
   // Obtener postres desde las recetas
   const allDesserts = useMemo(
-    () => allMeals.filter((m) => m.tipo === "Postre"),
+    () => generateDessertsFromRecipes(allMeals),
     [allMeals]
   );
 
@@ -94,6 +110,71 @@ export default function InteractivePlanner({
     []
   );
 
+  /**
+   * Maneja los cambios en cualquiera de los selectores genéricos
+   */
+  const handleSelectorItemsChange = useCallback(
+    (type: SelectorType, dayId: string, items: SelectedItem[]) => {
+      switch (type) {
+        case "supplement":
+          handleSupplementPlanChange(dayId, createSupplementPlan(items));
+          break;
+        case "snack":
+          handleSnackPlanChange(dayId, createSnackPlan(items));
+          break;
+        case "dessert":
+          handleDessertPlanChange(dayId, createDessertPlan(items));
+          break;
+      }
+    },
+    [handleSupplementPlanChange, handleSnackPlanChange, handleDessertPlanChange]
+  );
+
+  /**
+   * Maneja los cambios de habilitación en los selectores
+   */
+  const handleSelectorEnableChange = useCallback(
+    (
+      type: SelectorType,
+      dayId: string,
+      enabled: boolean,
+      currentItems: any[] | undefined
+    ) => {
+      const items = currentItems || [];
+
+      switch (type) {
+        case "supplement":
+          const supplementPlan: SupplementPlan = {
+            enabled,
+            supplements: enabled
+              ? (items as { supplementId: string; quantity: number }[])
+              : [],
+          };
+          handleSupplementPlanChange(dayId, supplementPlan);
+          break;
+        case "snack":
+          const snackPlan: SnackPlan = {
+            enabled,
+            snacks: enabled
+              ? (items as { snackId: string; quantity: number }[])
+              : [],
+          };
+          handleSnackPlanChange(dayId, snackPlan);
+          break;
+        case "dessert":
+          const dessertPlan: DessertPlan = {
+            enabled,
+            desserts: enabled
+              ? (items as { dessertId: string; quantity: number }[])
+              : [],
+          };
+          handleDessertPlanChange(dayId, dessertPlan);
+          break;
+      }
+    },
+    [handleSupplementPlanChange, handleSnackPlanChange, handleDessertPlanChange]
+  );
+
   const toggleDayExpansion = useCallback((dayId: string) => {
     setExpandedDays((prev) => {
       const newSet = new Set(prev);
@@ -117,8 +198,15 @@ export default function InteractivePlanner({
 
     // Comidas principales
     MAIN_MEAL_TYPES.forEach((mealType) => {
-      if (dailyPlan[mealType]?.recipeName) {
-        items.push(`${mealType}: ${dailyPlan[mealType].recipeName}`);
+      const mealPlan = dailyPlan[mealType as keyof DailyPlan] as
+        | MealPlan
+        | undefined;
+      if (mealPlan?.recipeName) {
+        const dinersText =
+          mealPlan.diners && mealPlan.diners > 1
+            ? ` (${mealPlan.diners} comensales)`
+            : "";
+        items.push(`${mealType}${dinersText}: ${mealPlan.recipeName}`);
       }
     });
 
@@ -159,6 +247,81 @@ export default function InteractivePlanner({
 
     return items.length > 0 ? items.join(", ") : "Sin selecciones";
   };
+
+  // Código para manejar la selección de recetas
+  const handleRecipeSelection = useCallback(
+    (dayId: string, mealType: keyof DailyPlan, items: SelectedItem[]) => {
+      if (items.length === 0) {
+        handlePlanChange(dayId, mealType, "recipeName", "");
+      } else {
+        // Obtener la receta seleccionada de allMeals
+        const selectedRecipeId = items[0].id;
+        const selectedRecipe = allMeals.find(
+          (meal) => meal.id === selectedRecipeId
+        );
+
+        if (selectedRecipe) {
+          handlePlanChange(
+            dayId,
+            mealType,
+            "recipeName",
+            selectedRecipe.nombre
+          );
+
+          // Asegurarse de que haya al menos 1 comensal
+          const dailyPlan = plan[dayId] || {};
+          const mealPlan = dailyPlan[mealType] as MealPlan | undefined;
+          if (!mealPlan?.diners) {
+            handlePlanChange(dayId, mealType, "diners", 1);
+          }
+        }
+      }
+    },
+    [allMeals, handlePlanChange, plan]
+  );
+
+  // Convertir recetas a formato compatible con RecipeSelectorGeneric
+  const mapRecipesToItems = useCallback(
+    (recipes: Recipe[], mealType: string, dayId: string): SelectedItem[] => {
+      const dailyPlan = plan[dayId] || {};
+      const mealPlan = dailyPlan[mealType as keyof DailyPlan] as
+        | MealPlan
+        | undefined;
+      const recipeName = mealPlan?.recipeName;
+
+      if (!recipeName) return [];
+
+      // Buscar primero por nombre exacto
+      let recipe = recipes.find((r) => r.nombre === recipeName);
+
+      // Si no se encuentra, buscar ignorando mayúsculas/minúsculas
+      if (!recipe) {
+        recipe = recipes.find(
+          (r) => r.nombre.toLowerCase() === recipeName.toLowerCase()
+        );
+      }
+
+      // Si aún no se encuentra, buscar con coincidencia parcial
+      if (!recipe) {
+        recipe = recipes.find((r) =>
+          r.nombre.toLowerCase().includes(recipeName.toLowerCase())
+        );
+      }
+
+      if (!recipe) {
+        console.warn(`Receta no encontrada: ${recipeName}`);
+        return [];
+      }
+
+      return [
+        {
+          id: recipe.id,
+          quantity: 1,
+        },
+      ];
+    },
+    [plan]
+  );
 
   const renderedDays = useMemo(() => {
     return DAYS_OF_WEEK.map((day) => {
@@ -205,85 +368,153 @@ export default function InteractivePlanner({
             <div class="p-6 ">
               {/* Comidas principales */}
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                {MAIN_MEAL_TYPES.map((mealType) => (
-                  <div key={mealType} class="meal-slot lg:col-span-1">
-                    <div class="flex justify-between items-center mb-1">
-                      <span class="block text-sm font-medium text-stone-700 capitalize">
-                        {mealType}
-                      </span>
-                      <div class="flex items-center space-x-2">
-                        <label
-                          for={`diners-${dayId}-${mealType}`}
-                          class="text-xs text-gray-600"
-                          title="Solo afecta a la cantidad de ingredientes en la lista de la compra"
-                        >
-                          Comensales:
-                        </label>
-                        <input
-                          type="number"
-                          id={`diners-${dayId}-${mealType}`}
-                          min="1"
-                          class="w-12 text-center border-gray-300 rounded-md text-sm p-1"
-                          value={dailyPlan[mealType]?.diners || 1}
-                          onChange={(e) =>
-                            handlePlanChange(
-                              dayId,
-                              mealType,
-                              "diners",
-                              Number(e.currentTarget.value)
-                            )
-                          }
-                          title="Número de personas que comerán esta comida (solo afecta a la lista de la compra)"
-                        />
+                {MAIN_MEAL_TYPES.map((mealType) => {
+                  const mealTypeKey = mealType as keyof DailyPlan;
+                  const mealPlan = dailyPlan[mealTypeKey] as
+                    | MealPlan
+                    | undefined;
+                  const servingsCount = mealPlan?.diners || 1;
+                  const mealTypeMapping: Record<string, string> = {
+                    Desayuno: "breakfast",
+                    Almuerzo: "lunch",
+                    Cena: "dinner",
+                  };
+                  const mappedMealType =
+                    mealTypeMapping[mealType] || "breakfast";
+                  const selectedItems = mapRecipesToItems(
+                    mealsByType[mealType] || [],
+                    mealType,
+                    dayId
+                  );
+                  const hasSelectedRecipe = selectedItems.length > 0;
+
+                  return (
+                    <div key={mealType} class="meal-slot lg:col-span-1">
+                      <div class="flex justify-between items-center mb-2">
+                        <span class="block text-lg font-bold text-stone-700 capitalize">
+                          {mealType}
+                        </span>
+
+                        {/* Selector de comensales por comida */}
+                        {hasSelectedRecipe && (
+                          <div class="flex items-center">
+                            <span class="text-sm text-gray-600 mr-2">
+                              Comensales:
+                            </span>
+                            <div class="flex items-center">
+                              <button
+                                onClick={() => {
+                                  handlePlanChange(
+                                    dayId,
+                                    mealTypeKey,
+                                    "diners",
+                                    Math.max(1, servingsCount - 1)
+                                  );
+                                }}
+                                class="w-5 h-5 flex items-center justify-center text-xs bg-gray-200 rounded-l-md hover:bg-gray-300"
+                              >
+                                -
+                              </button>
+                              <span class="px-2 py-0.5 bg-gray-100 text-center text-xs">
+                                {servingsCount}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  handlePlanChange(
+                                    dayId,
+                                    mealTypeKey,
+                                    "diners",
+                                    Math.min(10, servingsCount + 1)
+                                  );
+                                }}
+                                class="w-5 h-5 flex items-center justify-center text-xs bg-gray-200 rounded-r-md hover:bg-gray-300"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
+                      <RecipeSelectorGeneric
+                        dayId={dayId}
+                        mealType={mappedMealType}
+                        selectedItems={selectedItems}
+                        onItemsChange={(items) => {
+                          handleRecipeSelection(dayId, mealTypeKey, items);
+                        }}
+                        enableMultiple={false}
+                        maxItems={1}
+                      />
                     </div>
-                    <RecipeSelector
-                      mealType={mealType}
-                      selectedRecipe={dailyPlan[mealType]?.recipeName}
-                      onRecipeSelect={(recipeName) =>
-                        handlePlanChange(
-                          dayId,
-                          mealType,
-                          "recipeName",
-                          recipeName
-                        )
-                      }
-                      allMeals={allMeals}
-                      diners={dailyPlan[mealType]?.diners || 1}
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Suplementos, Snacks y Postres */}
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Suplementos */}
-                <SupplementSelector
+                <GenericSelector
                   dayId={dayId}
-                  allSupplements={allSupplements}
-                  currentSupplementPlan={dailyPlan.supplement}
-                  onSupplementPlanChange={(plan) =>
-                    handleSupplementPlanChange(dayId, plan)
+                  allItems={allSupplements}
+                  selectedItems={getSelectedItems("supplement", dailyPlan)}
+                  onItemsChange={(items) =>
+                    handleSelectorItemsChange("supplement", dayId, items)
+                  }
+                  itemConfig={ITEM_ACCESSORS.supplement}
+                  selectorConfig={SELECTOR_CONFIG.supplement}
+                  enableMultiple={true}
+                  isEnabled={getSelectorEnabled("supplement", dailyPlan)}
+                  onEnableChange={(enabled) =>
+                    handleSelectorEnableChange(
+                      "supplement",
+                      dayId,
+                      enabled,
+                      getPlanItems("supplement", dailyPlan)
+                    )
                   }
                 />
 
                 {/* Snacks */}
-                <SnackSelector
+                <GenericSelector
                   dayId={dayId}
-                  allSnacks={allSnacks}
-                  currentSnackPlan={dailyPlan.snacks}
-                  onSnackPlanChange={(snackPlan) =>
-                    handleSnackPlanChange(dayId, snackPlan)
+                  allItems={allSnacks}
+                  selectedItems={getSelectedItems("snack", dailyPlan)}
+                  onItemsChange={(items) =>
+                    handleSelectorItemsChange("snack", dayId, items)
+                  }
+                  itemConfig={ITEM_ACCESSORS.snack}
+                  selectorConfig={SELECTOR_CONFIG.snack}
+                  enableMultiple={true}
+                  isEnabled={getSelectorEnabled("snack", dailyPlan)}
+                  onEnableChange={(enabled) =>
+                    handleSelectorEnableChange(
+                      "snack",
+                      dayId,
+                      enabled,
+                      getPlanItems("snack", dailyPlan)
+                    )
                   }
                 />
 
                 {/* Postres */}
-                <DessertSelector
+                <GenericSelector
                   dayId={dayId}
-                  allDesserts={allDesserts}
-                  currentDessertPlan={dailyPlan.desserts}
-                  onDessertPlanChange={(dessertPlan) =>
-                    handleDessertPlanChange(dayId, dessertPlan)
+                  allItems={allDesserts}
+                  selectedItems={getSelectedItems("dessert", dailyPlan)}
+                  onItemsChange={(items) =>
+                    handleSelectorItemsChange("dessert", dayId, items)
+                  }
+                  itemConfig={ITEM_ACCESSORS.dessert}
+                  selectorConfig={SELECTOR_CONFIG.dessert}
+                  enableMultiple={true}
+                  isEnabled={getSelectorEnabled("dessert", dailyPlan)}
+                  onEnableChange={(enabled) =>
+                    handleSelectorEnableChange(
+                      "dessert",
+                      dayId,
+                      enabled,
+                      getPlanItems("dessert", dailyPlan)
+                    )
                   }
                 />
               </div>
@@ -310,6 +541,10 @@ export default function InteractivePlanner({
     allSnacks,
     allDesserts,
     allSupplements,
+    handleSelectorItemsChange,
+    handleSelectorEnableChange,
+    mapRecipesToItems,
+    handleRecipeSelection,
   ]);
 
   return (
