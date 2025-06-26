@@ -42,11 +42,11 @@ export const SELECTOR_CONFIG: Record<SelectorType, SelectorConfig> = {
   },
   snack: {
     colorScheme: {
-      selectedBgColor: "bg-green-50",
-      selectedTextColor: "text-green-800",
-      selectedBorderColor: "border-green-200",
-      hoverBgColor: "hover:bg-green-50",
-      activeButtonColor: "bg-green-500",
+      selectedBgColor: "bg-violet-50",
+      selectedTextColor: "text-violet-800",
+      selectedBorderColor: "border-violet-200",
+      hoverBgColor: "hover:bg-violet-50",
+      activeButtonColor: "bg-violet-500",
       activeTextColor: "text-white",
     },
     itemProperties: {
@@ -63,11 +63,11 @@ export const SELECTOR_CONFIG: Record<SelectorType, SelectorConfig> = {
   },
   dessert: {
     colorScheme: {
-      selectedBgColor: "bg-purple-50",
-      selectedTextColor: "text-purple-800",
-      selectedBorderColor: "border-purple-200",
-      hoverBgColor: "hover:bg-purple-50",
-      activeButtonColor: "bg-purple-500",
+      selectedBgColor: "bg-fuchsia-50",
+      selectedTextColor: "text-fuchsia-800",
+      selectedBorderColor: "border-fuchsia-200",
+      hoverBgColor: "hover:bg-fuchsia-50",
+      activeButtonColor: "bg-fuchsia-500",
       activeTextColor: "text-white",
     },
     itemProperties: {

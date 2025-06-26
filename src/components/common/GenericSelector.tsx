@@ -457,7 +457,7 @@ export default function GenericSelector<T extends Record<string, any>>({
                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                   />
                 </svg>
-                Añadir {selectorConfig.title.toLowerCase()}
+                Añadir {selectorConfig.title.toLowerCase().slice(0, -1)}
               </button>
             ) : (
               <div class="relative">

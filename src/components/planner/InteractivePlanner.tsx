@@ -14,7 +14,6 @@ import GenericSelector from "../common/GenericSelector";
 import type {
   Recipe,
   Supplement,
-  Snack,
   DailyPlan,
   SnackPlan,
   SupplementPlan,
@@ -50,8 +49,6 @@ interface InteractivePlannerProps {
 export default function InteractivePlanner({
   allMeals: rawMeals,
   allSupplements,
-  targetCalories,
-  targetProtein,
 }: InteractivePlannerProps) {
   const plan = useStore($plan);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
@@ -119,15 +116,59 @@ export default function InteractivePlanner({
         case "supplement":
           handleSupplementPlanChange(dayId, createSupplementPlan(items));
           break;
-        case "snack":
-          handleSnackPlanChange(dayId, createSnackPlan(items));
+        case "snack": {
+          // Convertir los IDs de las recetas a IDs de snacks
+          const snackItems = items
+            .map((item) => {
+              // Buscar la receta correspondiente
+              const snack = allSnacks.find((s) => s.id === item.id);
+              if (snack) {
+                return {
+                  snackId: snack.id,
+                  quantity: item.quantity,
+                };
+              }
+              return null;
+            })
+            .filter(Boolean);
+
+          handleSnackPlanChange(dayId, {
+            enabled: true,
+            snacks: snackItems as { snackId: string; quantity: number }[],
+          });
           break;
-        case "dessert":
-          handleDessertPlanChange(dayId, createDessertPlan(items));
+        }
+        case "dessert": {
+          // Convertir los IDs de las recetas a IDs de postres
+          const dessertItems = items
+            .map((item) => {
+              // Buscar la receta correspondiente
+              const dessert = allDesserts.find((d) => d.id === item.id);
+              if (dessert) {
+                return {
+                  dessertId: dessert.id,
+                  quantity: item.quantity,
+                };
+              }
+              return null;
+            })
+            .filter(Boolean);
+
+          handleDessertPlanChange(dayId, {
+            enabled: true,
+            desserts: dessertItems as { dessertId: string; quantity: number }[],
+          });
           break;
+        }
       }
     },
-    [handleSupplementPlanChange, handleSnackPlanChange, handleDessertPlanChange]
+    [
+      handleSupplementPlanChange,
+      handleSnackPlanChange,
+      handleDessertPlanChange,
+      allSnacks,
+      allDesserts,
+    ]
   );
 
   /**
@@ -282,14 +323,16 @@ export default function InteractivePlanner({
 
   // Convertir recetas a formato compatible con RecipeSelectorGeneric
   const mapRecipesToItems = useCallback(
-    (recipes: Recipe[], mealType: string, dayId: string): SelectedItem[] => {
-      const dailyPlan = plan[dayId] || {};
-      const mealPlan = dailyPlan[mealType as keyof DailyPlan] as
-        | MealPlan
-        | undefined;
-      const recipeName = mealPlan?.recipeName;
+    (mealType: string, mealPlan: MealPlan | undefined): SelectedItem[] => {
+      if (!mealPlan?.recipeName) return [];
 
-      if (!recipeName) return [];
+      const recipeName = mealPlan.recipeName;
+      const recipes =
+        mealType === "Desayuno"
+          ? mealsByType.Desayuno
+          : mealType === "Almuerzo"
+          ? mealsByType.Almuerzo
+          : mealsByType.Cena;
 
       // Buscar primero por nombre exacto
       let recipe = recipes.find((r) => r.nombre === recipeName);
@@ -309,7 +352,9 @@ export default function InteractivePlanner({
       }
 
       if (!recipe) {
-        console.warn(`Receta no encontrada: ${recipeName}`);
+        console.warn(
+          `Receta no encontrada: ${recipeName} para tipo ${mealType}`
+        );
         return [];
       }
 
@@ -320,7 +365,63 @@ export default function InteractivePlanner({
         },
       ];
     },
-    [plan]
+    [mealsByType]
+  );
+
+  // Obtener los elementos seleccionados para un selector específico
+  const getSelectedItemsForSelector = useCallback(
+    (type: SelectorType, dailyPlan: DailyPlan): SelectedItem[] => {
+      switch (type) {
+        case "supplement":
+          return getSelectedItems("supplement", dailyPlan);
+        case "snack":
+          if (!dailyPlan.snacks?.enabled || !dailyPlan.snacks.snacks.length) {
+            return [];
+          }
+
+          // Convertir los IDs de snacks a IDs de recetas
+          return dailyPlan.snacks.snacks
+            .map((snackItem) => {
+              const snack = allSnacks.find((s) => s.id === snackItem.snackId);
+              if (snack) {
+                return {
+                  id: snack.id,
+                  quantity: snackItem.quantity,
+                };
+              }
+              return null;
+            })
+            .filter(Boolean) as SelectedItem[];
+
+        case "dessert":
+          if (
+            !dailyPlan.desserts?.enabled ||
+            !dailyPlan.desserts.desserts.length
+          ) {
+            return [];
+          }
+
+          // Convertir los IDs de postres a IDs de recetas
+          return dailyPlan.desserts.desserts
+            .map((dessertItem) => {
+              const dessert = allDesserts.find(
+                (d) => d.id === dessertItem.dessertId
+              );
+              if (dessert) {
+                return {
+                  id: dessert.id,
+                  quantity: dessertItem.quantity,
+                };
+              }
+              return null;
+            })
+            .filter(Boolean) as SelectedItem[];
+
+        default:
+          return [];
+      }
+    },
+    [allSnacks, allDesserts]
   );
 
   const renderedDays = useMemo(() => {
@@ -381,11 +482,7 @@ export default function InteractivePlanner({
                   };
                   const mappedMealType =
                     mealTypeMapping[mealType] || "breakfast";
-                  const selectedItems = mapRecipesToItems(
-                    mealsByType[mealType] || [],
-                    mealType,
-                    dayId
-                  );
+                  const selectedItems = mapRecipesToItems(mealType, mealPlan);
                   const hasSelectedRecipe = selectedItems.length > 0;
 
                   return (
@@ -435,6 +532,7 @@ export default function InteractivePlanner({
                           </div>
                         )}
                       </div>
+                      {/* Selector de Recetas */}
                       <RecipeSelectorGeneric
                         dayId={dayId}
                         mealType={mappedMealType}
@@ -456,7 +554,10 @@ export default function InteractivePlanner({
                 <GenericSelector
                   dayId={dayId}
                   allItems={allSupplements}
-                  selectedItems={getSelectedItems("supplement", dailyPlan)}
+                  selectedItems={getSelectedItemsForSelector(
+                    "supplement",
+                    dailyPlan
+                  )}
                   onItemsChange={(items) =>
                     handleSelectorItemsChange("supplement", dayId, items)
                   }
@@ -475,48 +576,66 @@ export default function InteractivePlanner({
                 />
 
                 {/* Snacks */}
-                <GenericSelector
-                  dayId={dayId}
-                  allItems={allSnacks}
-                  selectedItems={getSelectedItems("snack", dailyPlan)}
-                  onItemsChange={(items) =>
-                    handleSelectorItemsChange("snack", dayId, items)
-                  }
-                  itemConfig={ITEM_ACCESSORS.snack}
-                  selectorConfig={SELECTOR_CONFIG.snack}
-                  enableMultiple={true}
-                  isEnabled={getSelectorEnabled("snack", dailyPlan)}
-                  onEnableChange={(enabled) =>
-                    handleSelectorEnableChange(
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="block text-lg font-bold text-stone-700">
+                      Snacks
+                    </span>
+                  </div>
+                  <RecipeSelectorGeneric
+                    dayId={dayId}
+                    mealType="snack"
+                    selectedItems={getSelectedItemsForSelector(
                       "snack",
-                      dayId,
-                      enabled,
-                      getPlanItems("snack", dailyPlan)
-                    )
-                  }
-                />
+                      dailyPlan
+                    )}
+                    onItemsChange={(items) =>
+                      handleSelectorItemsChange("snack", dayId, items)
+                    }
+                    enableMultiple={true}
+                    isEnabled={getSelectorEnabled("snack", dailyPlan)}
+                    onEnableChange={(enabled) =>
+                      handleSelectorEnableChange(
+                        "snack",
+                        dayId,
+                        enabled,
+                        getPlanItems("snack", dailyPlan)
+                      )
+                    }
+                    maxItems={3}
+                  />
+                </div>
 
                 {/* Postres */}
-                <GenericSelector
-                  dayId={dayId}
-                  allItems={allDesserts}
-                  selectedItems={getSelectedItems("dessert", dailyPlan)}
-                  onItemsChange={(items) =>
-                    handleSelectorItemsChange("dessert", dayId, items)
-                  }
-                  itemConfig={ITEM_ACCESSORS.dessert}
-                  selectorConfig={SELECTOR_CONFIG.dessert}
-                  enableMultiple={true}
-                  isEnabled={getSelectorEnabled("dessert", dailyPlan)}
-                  onEnableChange={(enabled) =>
-                    handleSelectorEnableChange(
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="block text-lg font-bold text-stone-700">
+                      Postres
+                    </span>
+                  </div>
+                  <RecipeSelectorGeneric
+                    dayId={dayId}
+                    mealType="dessert"
+                    selectedItems={getSelectedItemsForSelector(
                       "dessert",
-                      dayId,
-                      enabled,
-                      getPlanItems("dessert", dailyPlan)
-                    )
-                  }
-                />
+                      dailyPlan
+                    )}
+                    onItemsChange={(items) =>
+                      handleSelectorItemsChange("dessert", dayId, items)
+                    }
+                    enableMultiple={true}
+                    isEnabled={getSelectorEnabled("dessert", dailyPlan)}
+                    onEnableChange={(enabled) =>
+                      handleSelectorEnableChange(
+                        "dessert",
+                        dayId,
+                        enabled,
+                        getPlanItems("dessert", dailyPlan)
+                      )
+                    }
+                    maxItems={2}
+                  />
+                </div>
               </div>
 
               {/* Resumen Nutricional Integrado */}
@@ -545,6 +664,7 @@ export default function InteractivePlanner({
     handleSelectorEnableChange,
     mapRecipesToItems,
     handleRecipeSelection,
+    getSelectedItemsForSelector,
   ]);
 
   return (

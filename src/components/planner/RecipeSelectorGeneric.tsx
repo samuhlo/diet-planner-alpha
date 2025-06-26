@@ -3,10 +3,123 @@ import GenericSelector from "../common/GenericSelector";
 import type { SelectedItem, SelectorConfig } from "../common/GenericSelector";
 import type { Recipe } from "../../types";
 import { allMeals } from "../../data/recipes";
-import { assignIdsToRecipes } from "../../utils/recipeUtils";
+import {
+  assignIdsToRecipes,
+  getSnacksFromRecipes,
+  getRecipesByType,
+} from "../../utils/recipeUtils";
 
-// Configuración para el selector de recetas
-export const recipeSelectorConfig: SelectorConfig = {
+// Configuración para los diferentes tipos de selectores
+const selectorConfigs: Record<string, SelectorConfig> = {
+  breakfast: {
+    colorScheme: {
+      selectedBgColor: "bg-amber-50",
+      selectedTextColor: "text-amber-800",
+      selectedBorderColor: "border-amber-200",
+      hoverBgColor: "hover:bg-amber-50",
+      activeButtonColor: "bg-amber-500",
+      activeTextColor: "text-white",
+    },
+    itemProperties: {
+      showCalories: true,
+      showProtein: true,
+      showCarbs: true,
+      showFat: true,
+      showTags: true,
+    },
+    modalType: "recipeDetail",
+    placeholderText: "Buscar desayunos...",
+    title: "Desayunos",
+    hideQuantitySelector: true,
+  },
+  lunch: {
+    colorScheme: {
+      selectedBgColor: "bg-orange-50",
+      selectedTextColor: "text-orange-800",
+      selectedBorderColor: "border-orange-200",
+      hoverBgColor: "hover:bg-orange-50",
+      activeButtonColor: "bg-orange-500",
+      activeTextColor: "text-white",
+    },
+    itemProperties: {
+      showCalories: true,
+      showProtein: true,
+      showCarbs: true,
+      showFat: true,
+      showTags: true,
+    },
+    modalType: "recipeDetail",
+    placeholderText: "Buscar almuerzos...",
+    title: "Almuerzos",
+    hideQuantitySelector: true,
+  },
+  dinner: {
+    colorScheme: {
+      selectedBgColor: "bg-red-50",
+      selectedTextColor: "text-red-800",
+      selectedBorderColor: "border-red-200",
+      hoverBgColor: "hover:bg-red-50",
+      activeButtonColor: "bg-red-500",
+      activeTextColor: "text-white",
+    },
+    itemProperties: {
+      showCalories: true,
+      showProtein: true,
+      showCarbs: true,
+      showFat: true,
+      showTags: true,
+    },
+    modalType: "recipeDetail",
+    placeholderText: "Buscar cenas...",
+    title: "Cenas",
+    hideQuantitySelector: true,
+  },
+  snack: {
+    colorScheme: {
+      selectedBgColor: "bg-violet-50",
+      selectedTextColor: "text-violet-800",
+      selectedBorderColor: "border-violet-200",
+      hoverBgColor: "hover:bg-violet-50",
+      activeButtonColor: "bg-violet-500",
+      activeTextColor: "text-white",
+    },
+    itemProperties: {
+      showCalories: true,
+      showProtein: true,
+      showCarbs: true,
+      showFat: true,
+      showTags: true,
+    },
+    modalType: "recipeDetail",
+    placeholderText: "Buscar snacks...",
+    title: "Snacks",
+    hideQuantitySelector: false,
+  },
+  dessert: {
+    colorScheme: {
+      selectedBgColor: "bg-fuchsia-50",
+      selectedTextColor: "text-fuchsia-800",
+      selectedBorderColor: "border-fuchsia-200",
+      hoverBgColor: "hover:bg-fuchsia-50",
+      activeButtonColor: "bg-fuchsia-500",
+      activeTextColor: "text-white",
+    },
+    itemProperties: {
+      showCalories: true,
+      showProtein: true,
+      showCarbs: true,
+      showFat: true,
+      showTags: true,
+    },
+    modalType: "recipeDetail",
+    placeholderText: "Buscar postres...",
+    title: "Postres",
+    hideQuantitySelector: false,
+  },
+};
+
+// Configuración por defecto
+const defaultConfig: SelectorConfig = {
   colorScheme: {
     selectedBgColor: "bg-green-100",
     selectedTextColor: "text-green-800",
@@ -25,7 +138,7 @@ export const recipeSelectorConfig: SelectorConfig = {
   modalType: "recipeDetail",
   placeholderText: "Buscar recetas...",
   title: "Recetas",
-  hideQuantitySelector: true, // Ocultar el selector de cantidad para las recetas
+  hideQuantitySelector: true,
 };
 
 interface RecipeSelectorGenericProps {
@@ -51,17 +164,29 @@ export default function RecipeSelectorGeneric({
 }: RecipeSelectorGenericProps) {
   // Obtener todas las recetas para el tipo de comida y asegurarse de que tengan IDs
   const allRecipes = useMemo(() => {
-    // Convertir el tipo de comida al formato esperado por las recetas
-    let tipoComida: Recipe["tipo"] = "Desayuno";
-    if (mealType === "lunch") tipoComida = "Almuerzo";
-    if (mealType === "dinner") tipoComida = "Cena";
-    if (mealType === "snack") tipoComida = "Snack";
-    if (mealType === "dessert") tipoComida = "Postre";
+    // Mapeamos los tipos de comidas en inglés a español
+    const mealTypeMapping: Record<string, Recipe["tipo"]> = {
+      breakfast: "Desayuno",
+      lunch: "Almuerzo",
+      dinner: "Cena",
+      snack: "Snack",
+      dessert: "Postre",
+    };
 
-    // Filtrar las recetas por tipo y asignar IDs
-    const filteredRecipes = allMeals.filter(
-      (recipe) => recipe.tipo === tipoComida
+    // Determinar el tipo de comida
+    const tipoComida =
+      mealTypeMapping[mealType] || (mealType as Recipe["tipo"]);
+
+    console.log(
+      `Filtrando recetas para tipo: ${tipoComida}, mealType: ${mealType}`
     );
+
+    // Filtrar las recetas por tipo
+    const filteredRecipes = getRecipesByType(allMeals, tipoComida);
+    console.log(
+      `Encontradas ${filteredRecipes.length} recetas para ${tipoComida}`
+    );
+
     return assignIdsToRecipes(filteredRecipes);
   }, [mealType]);
 
@@ -77,9 +202,12 @@ export default function RecipeSelectorGeneric({
     getDescription: (recipe: Recipe) => recipe.description || "",
   };
 
+  // Obtener la configuración específica para este tipo de comida
+  const baseConfig = selectorConfigs[mealType] || defaultConfig;
+
   // Crear una copia de la configuración y establecer maxItems
   const finalSelectorConfig = {
-    ...recipeSelectorConfig,
+    ...baseConfig,
     maxItems: maxItems,
   };
 
