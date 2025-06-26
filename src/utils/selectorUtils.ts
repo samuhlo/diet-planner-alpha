@@ -84,7 +84,7 @@ export const SELECTOR_CONFIG: Record<SelectorType, SelectorConfig> = {
   },
 };
 
-// Configuración para el selector de recetas (usado directamente por RecipeSelectorGeneric)
+// Configuración para el selector de recetas (usado directamente por RecipeSelector)
 export const RECIPE_SELECTOR_CONFIG: SelectorConfig = {
   colorScheme: {
     selectedBgColor: "bg-amber-50",
@@ -141,7 +141,7 @@ export const ITEM_ACCESSORS = {
   },
 };
 
-// Accesores para recetas (usado directamente por RecipeSelectorGeneric)
+// Accesores para recetas (usado directamente por RecipeSelector)
 export const RECIPE_ACCESSORS = {
   getId: (recipe: Recipe) => recipe.id,
   getName: (recipe: Recipe) => recipe.nombre,

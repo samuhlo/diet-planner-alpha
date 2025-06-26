@@ -141,7 +141,7 @@ const defaultConfig: SelectorConfig = {
   hideQuantitySelector: true,
 };
 
-interface RecipeSelectorGenericProps {
+interface RecipeSelectorProps {
   dayId: string;
   mealType: string;
   selectedItems: SelectedItem[];
@@ -152,7 +152,7 @@ interface RecipeSelectorGenericProps {
   maxItems?: number; // Número máximo de elementos que se pueden seleccionar
 }
 
-export default function RecipeSelectorGeneric({
+export default function RecipeSelector({
   dayId,
   mealType,
   selectedItems,
@@ -161,7 +161,7 @@ export default function RecipeSelectorGeneric({
   onEnableChange,
   isEnabled = true,
   maxItems = 5, // Valor por defecto
-}: RecipeSelectorGenericProps) {
+}: RecipeSelectorProps) {
   // Obtener todas las recetas para el tipo de comida y asegurarse de que tengan IDs
   const allRecipes = useMemo(() => {
     // Mapeamos los tipos de comidas en inglés a español

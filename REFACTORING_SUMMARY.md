@@ -331,9 +331,9 @@ Refactorizar los selectores específicos (SnackSelector, SupplementSelector, Des
   - Funciones para crear planes específicos
 - Esta extracción ha reducido significativamente el tamaño y complejidad del componente `InteractivePlanner.tsx`.
 
-### 4. Creación del componente `RecipeSelectorGeneric`
+### 4. Creación del componente `RecipeSelector`
 
-- Se ha creado un componente `RecipeSelectorGeneric` que utiliza el `GenericSelector` para la selección de recetas.
+- Se ha creado un componente `RecipeSelector` que utiliza el `GenericSelector` para la selección de recetas.
 - Se ha mantenido la funcionalidad específica de las recetas, como:
   - Filtrado por tipo de comida (desayuno, almuerzo, cena)
   - Gestión de comensales a través de la propiedad `quantity`
@@ -379,4 +379,4 @@ Refactorizar los selectores específicos (SnackSelector, SupplementSelector, Des
 1. Mejorar la tipificación para evitar el uso de `any` en algunas partes del código.
 2. Implementar pruebas unitarias para el nuevo componente genérico y las utilidades.
 3. Considerar la creación de hooks personalizados para la manipulación de datos específicos de cada tipo de selector.
-4. Eliminar el componente `RecipeSelector` original ya que ha sido reemplazado por `RecipeSelectorGeneric`.
+4. Eliminar el componente `RecipeSelector` original ya que ha sido reemplazado por `RecipeSelector`.

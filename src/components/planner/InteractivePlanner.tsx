@@ -7,7 +7,7 @@ import {
   updateSupplementPlan,
   updateDessertPlan,
 } from "../../stores/planStore";
-import RecipeSelectorGeneric from "./RecipeSelectorGeneric";
+import RecipeSelector from "./RecipeSelector";
 import DailyNutritionSummary from "./DailyNutritionSummary";
 import WeeklyNutritionSummary from "./WeeklyNutritionSummary";
 import GenericSelector from "../common/GenericSelector";
@@ -321,7 +321,7 @@ export default function InteractivePlanner({
     [allMeals, handlePlanChange, plan]
   );
 
-  // Convertir recetas a formato compatible con RecipeSelectorGeneric
+  // Convertir recetas a formato compatible con RecipeSelector
   const mapRecipesToItems = useCallback(
     (mealType: string, mealPlan: MealPlan | undefined): SelectedItem[] => {
       if (!mealPlan?.recipeName) return [];
@@ -533,7 +533,7 @@ export default function InteractivePlanner({
                         )}
                       </div>
                       {/* Selector de Recetas */}
-                      <RecipeSelectorGeneric
+                      <RecipeSelector
                         dayId={dayId}
                         mealType={mappedMealType}
                         selectedItems={selectedItems}
@@ -582,7 +582,7 @@ export default function InteractivePlanner({
                       Snacks
                     </span>
                   </div>
-                  <RecipeSelectorGeneric
+                  <RecipeSelector
                     dayId={dayId}
                     mealType="snack"
                     selectedItems={getSelectedItemsForSelector(
@@ -613,7 +613,7 @@ export default function InteractivePlanner({
                       Postres
                     </span>
                   </div>
-                  <RecipeSelectorGeneric
+                  <RecipeSelector
                     dayId={dayId}
                     mealType="dessert"
                     selectedItems={getSelectedItemsForSelector(
