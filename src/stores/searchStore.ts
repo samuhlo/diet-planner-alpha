@@ -251,9 +251,9 @@ export const $filteredRecipes = computed(
   }
 );
 
-// Valor predeterminado para filteredSupplements
+// Valor predeterminado para filteredSupplements - simplificado
 export const $filteredSupplements = computed(
-  [$searchFilters],
+  [],
   (): SearchResults<Supplement> => {
     return { items: [], totalCount: 0, filteredCount: 0 };
   }
@@ -285,19 +285,10 @@ export const $availableRecipeTags = computed($recipes, (recipes) => {
   return Array.from(tags).sort();
 });
 
-// Valores predeterminados para categorías y tags de suplementos
-export const $availableSupplementCategories = computed([], (): string[] => []);
-
-export const $availableSupplementTags = computed([], (): string[] => []);
-
-// Estadísticas de búsqueda
-export const $searchStats = computed(
-  [$filteredRecipes, $filteredSupplements],
-  (recipes, supplements) => {
-    return {
-      totalResults: recipes.filteredCount + supplements.filteredCount,
-      recipeResults: recipes.filteredCount,
-      supplementResults: supplements.filteredCount,
-    };
-  }
-);
+// Estadísticas de búsqueda - simplificado
+export const $searchStats = computed([$filteredRecipes], (recipes) => {
+  return {
+    totalResults: recipes.filteredCount,
+    recipeResults: recipes.filteredCount,
+  };
+});
