@@ -1,7 +1,6 @@
 import type { VNode } from "preact";
 import { useState, useMemo } from "preact/hooks";
 import RecipeCard from "./RecipeCard.tsx";
-import RecipeDetailModal from "../modals/RecipeDetailModal.tsx";
 import type { Recipe } from "../../types";
 import {
   searchRecipes,
@@ -10,6 +9,7 @@ import {
   sortRecipesByCalories,
   getRecipesBySource,
 } from "../../utils/recipeUtils.ts";
+import { openRecipeDetailModal } from "../../stores/modalStore";
 
 interface RecipeBrowserProps {
   allMeals: Recipe[];
@@ -24,8 +24,6 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
   const [selectedSource, setSelectedSource] = useState<string>("");
   const [sortBy, setSortBy] = useState<"name" | "calories" | "protein">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Obtener datos únicos para filtros
   const allTags = useMemo(() => {
@@ -57,8 +55,8 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
       searchTerm
     ) {
       recipes = filterRecipes(allMeals, {
+        tipo: selectedType || undefined,
         tags: selectedTags.length > 0 ? selectedTags : undefined,
-        type: selectedType || undefined,
       });
 
       // Aplicar filtro de fuente por separado
@@ -115,13 +113,8 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
   };
 
   const handleViewRecipe = (recipe: Recipe) => {
-    setSelectedRecipe(recipe);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedRecipe(null);
+    console.log("Abriendo modal de receta desde RecipeBrowser:", recipe);
+    openRecipeDetailModal(recipe);
   };
 
   const hasActiveFilters =
@@ -196,8 +189,8 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
             >
               <option value="">Todas las fuentes</option>
               {allSources.map((source) => (
-                <option key={source.id} value={source.id}>
-                  {source.name}
+                <option key={source} value={source}>
+                  {source}
                 </option>
               ))}
             </select>
@@ -292,13 +285,6 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
           </div>
         )}
       </div>
-
-      {/* Modal de detalles */}
-      <RecipeDetailModal
-        recipe={selectedRecipe}
-        isOpen={isModalOpen}
-        onClose={closeModal}
-      />
     </div>
   );
 }

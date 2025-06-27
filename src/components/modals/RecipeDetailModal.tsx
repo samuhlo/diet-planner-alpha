@@ -14,8 +14,17 @@ export default function RecipeDetailModal() {
   const modalState = useStore($modal);
   const recipe = getModalData() as Recipe;
 
+  console.log("Modal state en RecipeDetailModal:", modalState);
+  console.log("Receta en RecipeDetailModal:", recipe);
+
   // Si el modal no es del tipo correcto o no hay receta, no renderizar nada
-  if (modalState.type !== "recipeDetail" || !recipe) return null;
+  if (modalState.type !== "recipeDetail" || !recipe) {
+    console.log(
+      "No se renderiza el modal porque:",
+      modalState.type !== "recipeDetail" ? "tipo incorrecto" : "no hay receta"
+    );
+    return null;
+  }
 
   const getMealTypeColor = (tipo: string) => {
     switch (tipo) {

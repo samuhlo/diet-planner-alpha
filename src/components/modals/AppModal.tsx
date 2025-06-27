@@ -14,6 +14,8 @@ const AppModal: React.FC = () => {
   const modalState = useStore($modal);
   const modalRef = useRef<HTMLDivElement>(null);
 
+  console.log("Estado del modal en AppModal:", modalState);
+
   // Efecto para manejar el cierre con la tecla Escape
   useEffect(() => {
     const handleEscapeKey = (e: KeyboardEvent) => {
@@ -47,7 +49,7 @@ const AppModal: React.FC = () => {
   }, [modalState.isOpen]);
 
   // Manejar clic fuera del modal para cerrarlo
-  const handleBackdropClick = (e: React.MouseEvent) => {
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
       modalRef.current &&
       !modalRef.current.contains(e.target as Node) &&
@@ -74,15 +76,21 @@ const AppModal: React.FC = () => {
 
   // Renderizar el contenido apropiado según el tipo de modal
   const renderModalContent = () => {
+    console.log("Renderizando contenido para tipo de modal:", modalState.type);
+
     switch (modalState.type) {
       case "recipeDetail":
+        console.log(
+          "Renderizando RecipeDetailModal con datos:",
+          modalState.data
+        );
         return <RecipeDetailModal />;
 
       case "shopping":
-        return <ShoppingListContent />;
+        return <ShoppingListContent data={modalState.data} />;
 
       case "summary":
-        return <SummaryContent />;
+        return <SummaryContent data={modalState.data} />;
 
       case "supplementDetail":
         return <SupplementDetailModal />;
@@ -108,6 +116,7 @@ const AppModal: React.FC = () => {
         );
 
       default:
+        console.log("Tipo de modal no implementado:", modalState.type);
         return (
           <div className="generic-modal-content">
             <h2>Modal</h2>

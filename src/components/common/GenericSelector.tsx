@@ -247,8 +247,10 @@ export default function GenericSelector<T extends Record<string, any>>({
   // Abrir modal con detalles del elemento
   const handleOpenModal = (item: T) => {
     if (selectorConfig.modalType === "recipeDetail") {
-      const modalData = item as unknown as Recipe;
-      openRecipeDetailModal(modalData);
+      // Asegurarse de que el item se trata como una receta
+      const recipeData = item as unknown as Recipe;
+      console.log("Abriendo modal de receta:", recipeData);
+      openRecipeDetailModal(recipeData);
     } else if (selectorConfig.modalType) {
       openModal(selectorConfig.modalType, item as any);
     }

@@ -7,17 +7,21 @@ import type {
   Ingredient,
   WeeklySummaryData,
   Snack,
-  Supplement,
 } from "../types";
+import type { Supplement } from "../types/supplements";
 
 // Extendemos los tipos de modales
 export type ExtendedModalType =
-  | ModalType
+  | "shopping"
+  | "analysis"
+  | "summary"
+  | "recipeDetail"
   | "supplementDetail"
   | "nutritionDetail"
   | "mealPlanner"
   | "confirmAction"
-  | "notification";
+  | "notification"
+  | null;
 
 // Definimos tipos específicos para los datos de cada modal
 export interface ModalDataMap {
@@ -265,7 +269,9 @@ export const getModalType = (): ExtendedModalType | null => {
 export const getModalData = <
   T extends ExtendedModalType
 >(): T extends keyof ModalDataMap ? ModalDataMap[T] : any => {
-  return $modal.get().data;
+  const currentModal = $modal.get();
+  console.log("Modal actual:", currentModal.type, currentModal.data);
+  return currentModal.data;
 };
 
 /**
