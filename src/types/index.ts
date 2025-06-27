@@ -137,13 +137,17 @@ export interface Snack {
 export interface Supplement {
   id: string;
   name: string;
-  calories: number;
-  protein: number;
-  carbs?: number;
-  fat?: number;
-  serving?: string;
   description?: string;
+  type?: string;
   tags?: string[];
+  dosage?: string;
+  timing?: string;
+  nutritionalInfo?: NutritionalInfo;
+  benefits?: string[];
+  imageUrl?: string;
+  brand?: string;
+  price?: number;
+  link?: string;
 }
 
 // Tipos de modales

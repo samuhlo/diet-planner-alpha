@@ -195,6 +195,27 @@ export const $allTags = computed($recipes, (recipesState) => {
 });
 
 /**
+ * Obtiene todos los tags de recetas disponibles
+ */
+export function getAllRecipeTags(): string[] {
+  return $allTags.get();
+}
+
+/**
+ * Obtiene todos los tipos de recetas disponibles
+ */
+export function getAllRecipeTypes(): string[] {
+  const { allRecipes } = $recipes.get();
+  const types = new Set<string>();
+
+  allRecipes.forEach((recipe) => {
+    types.add(recipe.tipo);
+  });
+
+  return Array.from(types).sort();
+}
+
+/**
  * Filtra recetas según múltiples criterios
  */
 export function filterRecipes(criteria: {

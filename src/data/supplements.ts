@@ -3,6 +3,150 @@ import type { Supplement } from "../types";
 // Datos de suplementos - solo información, sin funciones de utilidad
 export const allSupplements: Supplement[] = [
   {
+    id: "whey-protein",
+    name: "Proteína de suero",
+    description:
+      "Proteína de absorción rápida ideal para después del entrenamiento",
+    type: "proteina",
+    tags: ["proteina", "post-entrenamiento", "recuperacion"],
+    dosage: "30g (1 scoop)",
+    timing: "Después del entrenamiento o entre comidas",
+    nutritionalInfo: {
+      calories: 120,
+      protein: 24,
+      carbs: 3,
+      fat: 1,
+    },
+    benefits: [
+      "Aumenta la síntesis de proteínas",
+      "Mejora la recuperación muscular",
+      "Ayuda al crecimiento muscular",
+    ],
+    imageUrl: "/images/supplements/whey-protein.jpg",
+    brand: "MyProtein",
+    price: 24.99,
+    link: "https://example.com/whey-protein",
+  },
+  {
+    id: "creatine",
+    name: "Creatina monohidrato",
+    description:
+      "Suplemento para aumentar la fuerza y el rendimiento en entrenamientos de alta intensidad",
+    type: "rendimiento",
+    tags: ["fuerza", "rendimiento", "musculo"],
+    dosage: "5g diarios",
+    timing: "En cualquier momento del día, preferiblemente con comidas",
+    nutritionalInfo: {
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+    },
+    benefits: [
+      "Aumenta la fuerza",
+      "Mejora el rendimiento en ejercicios de alta intensidad",
+      "Favorece la ganancia muscular",
+    ],
+    imageUrl: "/images/supplements/creatine.jpg",
+    brand: "Optimum Nutrition",
+    price: 19.99,
+    link: "https://example.com/creatine",
+  },
+  {
+    id: "bcaa",
+    name: "BCAA (Aminoácidos de cadena ramificada)",
+    description:
+      "Aminoácidos esenciales que ayudan a prevenir el catabolismo muscular",
+    type: "aminoacidos",
+    tags: ["recuperacion", "anti-catabolico", "entrenamiento"],
+    dosage: "5-10g",
+    timing: "Durante el entrenamiento o entre comidas",
+    nutritionalInfo: {
+      calories: 20,
+      protein: 5,
+      carbs: 0,
+      fat: 0,
+    },
+    benefits: [
+      "Reduce el catabolismo muscular",
+      "Favorece la recuperación",
+      "Disminuye el dolor muscular",
+    ],
+    imageUrl: "/images/supplements/bcaa.jpg",
+    brand: "Scitec Nutrition",
+    price: 22.5,
+    link: "https://example.com/bcaa",
+  },
+  {
+    id: "multivitamin",
+    name: "Multivitamínico",
+    description:
+      "Complejo de vitaminas y minerales para cubrir posibles deficiencias nutricionales",
+    type: "vitaminas",
+    tags: ["salud", "bienestar", "micronutrientes"],
+    dosage: "1 cápsula diaria",
+    timing: "Con el desayuno o la comida principal",
+    benefits: [
+      "Cubre deficiencias nutricionales",
+      "Mejora el sistema inmunológico",
+      "Optimiza el metabolismo",
+    ],
+    imageUrl: "/images/supplements/multivitamin.jpg",
+    brand: "Now Foods",
+    price: 15.99,
+    link: "https://example.com/multivitamin",
+  },
+  {
+    id: "omega3",
+    name: "Omega 3",
+    description:
+      "Ácidos grasos esenciales con beneficios para la salud cardiovascular y cerebral",
+    type: "acidos-grasos",
+    tags: ["salud", "antiinflamatorio", "corazon"],
+    dosage: "1-2g diarios",
+    timing: "Con las comidas",
+    nutritionalInfo: {
+      calories: 10,
+      protein: 0,
+      carbs: 0,
+      fat: 1,
+    },
+    benefits: [
+      "Mejora la salud cardiovascular",
+      "Reduce la inflamación",
+      "Mejora la función cerebral",
+    ],
+    imageUrl: "/images/supplements/omega3.jpg",
+    brand: "Life Extension",
+    price: 18.99,
+    link: "https://example.com/omega3",
+  },
+  {
+    id: "pre-workout",
+    name: "Pre-entreno",
+    description:
+      "Fórmula energética para maximizar el rendimiento durante el entrenamiento",
+    type: "energia",
+    tags: ["energia", "concentracion", "bombeo"],
+    dosage: "1 scoop (10g)",
+    timing: "30 minutos antes del entrenamiento",
+    nutritionalInfo: {
+      calories: 5,
+      protein: 0,
+      carbs: 1,
+      fat: 0,
+    },
+    benefits: [
+      "Aumenta la energía",
+      "Mejora la concentración",
+      "Incrementa la vasodilatación",
+    ],
+    imageUrl: "/images/supplements/pre-workout.jpg",
+    brand: "C4",
+    price: 29.99,
+    link: "https://example.com/pre-workout",
+  },
+  {
     id: "default-whey",
     name: "Proteína Whey (30g)",
     calories: 109,
@@ -263,3 +407,5 @@ export const allSupplements: Supplement[] = [
     tags: ["Adaptógeno", "Estrés", "Salud general", "Rendimiento"],
   },
 ];
+
+export default allSupplements;
