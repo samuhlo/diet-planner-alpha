@@ -322,5 +322,17 @@ export function processEnabledChange(
  * Genera postres desde las recetas añadiendo un ID basado en el nombre
  */
 export function generateDessertsFromRecipes(recipes: Recipe[]): Recipe[] {
-  return recipes.filter((recipe) => recipe.tipo === "Postre");
+  // Filtrar recetas de tipo Postre y asegurar que tengan ID
+  const desserts = recipes.filter((recipe) => recipe.tipo === "Postre");
+
+  // Asegurar que cada postre tenga un ID
+  return desserts.map((dessert) => {
+    if (!dessert.id) {
+      return {
+        ...dessert,
+        id: dessert.nombre.toLowerCase().replace(/\s+/g, "-"),
+      };
+    }
+    return dessert;
+  });
 }

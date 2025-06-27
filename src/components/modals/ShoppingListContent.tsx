@@ -19,6 +19,8 @@ const SHOPPING_LIST_KEY = "customShoppingList";
 export default function ShoppingListContent({
   data: ingredients,
 }: ShoppingListContentProps): VNode {
+  console.log("Ingredientes recibidos en la lista de compra:", ingredients);
+
   // Estado local de la lista editable
   const [customList, setCustomList] = useState<Ingredient[] | null>(null);
   const [originalNames, setOriginalNames] = useState<string[] | null>(null);
@@ -102,7 +104,8 @@ export default function ShoppingListContent({
   return (
     <div class="max-h-[750px] overflow-y-auto">
       <p class="text-sm text-gray-600 mb-3">
-        Lista de ingredientes para comidas principales y snacks elaborados:
+        Lista de ingredientes para comidas principales, snacks elaborados y
+        postres:
       </p>
       <ul class="list-disc list-inside space-y-2">
         {list.map((ing, index) => {

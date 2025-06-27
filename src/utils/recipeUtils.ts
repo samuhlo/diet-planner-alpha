@@ -7,17 +7,33 @@ import { allMeals } from "../data/recipes";
 export const getSnacksFromRecipes = (recipes: Recipe[]): Snack[] => {
   const snackRecipes = recipes.filter((recipe) => recipe.tipo === "Snack");
 
-  return snackRecipes.map((recipe) => ({
-    id: recipe.id || recipe.nombre.toLowerCase().replace(/\s+/g, "-"),
-    nombre: recipe.nombre,
-    tipo: "simple", // Todos los snacks generados desde recetas son "simple"
-    calorias: recipe.calorias,
-    p: recipe.p,
-    c: recipe.c,
-    f: recipe.f,
-    tags: recipe.tags,
-    porcion: "1 unidad",
-  }));
+  console.log(
+    `Generando snacks desde ${snackRecipes.length} recetas de tipo Snack`
+  );
+
+  return snackRecipes.map((recipe) => {
+    // Determinar si es un snack elaborado o simple basado en si tiene ingredientes
+    const tipoSnack =
+      recipe.ingredientes && recipe.ingredientes.length > 0
+        ? "elaborado"
+        : "simple";
+
+    console.log(`Snack ${recipe.nombre} (${recipe.id}) - Tipo: ${tipoSnack}`);
+
+    return {
+      id: recipe.id || recipe.nombre.toLowerCase().replace(/\s+/g, "-"),
+      nombre: recipe.nombre,
+      tipo: tipoSnack,
+      calorias: recipe.calorias,
+      p: recipe.p,
+      c: recipe.c,
+      f: recipe.f,
+      ingredientes: recipe.ingredientes,
+      preparacion: recipe.preparacion,
+      tags: recipe.tags,
+      porcion: "1 unidad",
+    };
+  });
 };
 
 /**

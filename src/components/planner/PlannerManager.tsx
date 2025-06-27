@@ -1,10 +1,17 @@
 import type { VNode } from "preact";
 import { useStore } from "@nanostores/preact";
-import { useState, useMemo, useEffect } from "preact/hooks";
+import { useState, useMemo, useEffect, useCallback } from "preact/hooks";
 import { $plan, clearWeeklyPlan } from "../../stores/planStore";
+import {
+  $recipes,
+  initializeRecipes,
+  findRecipeById,
+  findSnackById,
+  findDessertById,
+  logStoreState,
+} from "../../stores/recipesStore";
 import { $userData, $userGoal } from "../../stores/userProfileStore";
 import { allSupplements } from "../../data/supplements";
-import { getSnacksFromRecipes } from "../../utils/recipeUtils";
 import InteractivePlanner from "./InteractivePlanner";
 import { openModal } from "../../stores/modalStore";
 import NutritionalSummary from "../common/NutritionalSummary";
@@ -19,6 +26,7 @@ interface PlannerManagerProps {
 
 export default function PlannerManager({ allMeals }: PlannerManagerProps) {
   const plan = useStore($plan);
+  const recipesState = useStore($recipes);
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -28,18 +36,20 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
     userGoal
   );
 
+  // Inicializar el store de recetas
+  useEffect(() => {
+    if (!recipesState.isInitialized) {
+      initializeRecipes(allMeals);
+    }
+  }, [allMeals, recipesState.isInitialized]);
+
   // Verificar que el componente está hidratado
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  // Memoizar los datos para evitar recálculos innecesarios
-  const memoizedAllMeals = useMemo(() => allMeals, [allMeals]);
+  // Memoizar los suplementos para evitar recálculos innecesarios
   const memoizedAllSupplements = useMemo(() => allSupplements, []);
-  const memoizedAllSnacks = useMemo(
-    () => getSnacksFromRecipes(allMeals),
-    [allMeals]
-  );
 
   // Limpiar memoria cuando el componente se desmonte
   useEffect(() => {
@@ -49,8 +59,8 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
     };
   }, []);
 
-  // Mostrar loader mientras se hidrata
-  if (!isHydrated) {
+  // Mostrar loader mientras se hidrata o se inicializan las recetas
+  if (!isHydrated || !recipesState.isInitialized) {
     return (
       <ErrorBoundary>
         <div class="bg-white p-6 rounded-lg shadow-md mb-8">
@@ -66,14 +76,20 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
   }
 
   const generateShoppingList = () => {
+    // Imprimir el estado del store para depuración
+    logStoreState();
+
     const shoppingList: Record<string, Ingredient & { q: number }> = {};
+
+    console.log("Plan completo:", plan);
 
     Object.values(plan).forEach((dailyPlan) => {
       // Procesar comidas principales
       MAIN_MEAL_TYPES.forEach((mealType) => {
         const mealInfo = dailyPlan[mealType];
         if (mealInfo?.recipeName) {
-          const mealData = memoizedAllMeals.find(
+          // Buscar la receta por nombre
+          const mealData = recipesState.allRecipes.find(
             (m) => m.nombre === mealInfo.recipeName
           );
           const diners = mealInfo.diners || 1;
@@ -91,12 +107,18 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
 
       // Procesar snacks
       const snackInfo = dailyPlan.snacks;
+      console.log("Snack info:", snackInfo);
       if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
+        console.log("Procesando snacks:", snackInfo.snacks);
         snackInfo.snacks.forEach((selectedSnack) => {
           if (selectedSnack.snackId) {
-            const snackData = memoizedAllSnacks.find(
-              (s) => s.id === selectedSnack.snackId
-            );
+            // Usar el store para buscar el snack
+            const snackId = selectedSnack.snackId;
+            console.log("Buscando snack con ID:", snackId);
+
+            const snackData = findSnackById(snackId);
+            console.log("Snack encontrado:", snackData);
+
             if (snackData) {
               if (snackData.tipo === "elaborado" && snackData.ingredientes) {
                 // Snacks elaborados: procesar ingredientes
@@ -124,6 +146,67 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
                 }
                 shoppingList[key].q += cantidad * selectedSnack.quantity;
               }
+            } else {
+              // Si no se encontró el snack en ninguna parte, añadir un placeholder
+              const key = `snack-${snackId}_unidad`;
+              if (!shoppingList[key]) {
+                shoppingList[key] = {
+                  n: `Snack (${snackId})`,
+                  q: 0,
+                  u: "unidad",
+                };
+              }
+              shoppingList[key].q += selectedSnack.quantity;
+            }
+          }
+        });
+      }
+
+      // Procesar postres
+      const dessertInfo = dailyPlan.desserts;
+      console.log("Dessert info:", dessertInfo);
+      if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
+        console.log("Procesando postres:", dessertInfo.desserts);
+        dessertInfo.desserts.forEach((selectedDessert) => {
+          if (selectedDessert.dessertId) {
+            // Usar el store para buscar el postre
+            const dessertId = selectedDessert.dessertId;
+            const dessertData = findDessertById(dessertId);
+
+            console.log("Buscando postre con ID:", dessertId);
+            console.log("Postre encontrado:", dessertData);
+
+            if (dessertData?.ingredientes) {
+              // Procesar ingredientes del postre
+              dessertData.ingredientes.forEach((ing) => {
+                const key = `${ing.n.toLowerCase()}_${ing.u.toLowerCase()}`;
+                if (!shoppingList[key]) {
+                  shoppingList[key] = { ...ing, q: 0 };
+                }
+                shoppingList[key].q += ing.q * selectedDessert.quantity;
+              });
+            } else if (dessertData) {
+              // Si no tiene ingredientes, añadirlo como ingrediente simple
+              const key = `${dessertData.nombre.toLowerCase()}_unidad`;
+              if (!shoppingList[key]) {
+                shoppingList[key] = {
+                  n: dessertData.nombre,
+                  q: 0,
+                  u: "unidad",
+                };
+              }
+              shoppingList[key].q += selectedDessert.quantity;
+            } else {
+              // Si no se encontró el postre, añadir un placeholder
+              const key = `postre-${dessertId}_unidad`;
+              if (!shoppingList[key]) {
+                shoppingList[key] = {
+                  n: `Postre (${dessertId})`,
+                  q: 0,
+                  u: "unidad",
+                };
+              }
+              shoppingList[key].q += selectedDessert.quantity;
             }
           }
         });
@@ -131,10 +214,14 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
     });
 
     const aggregated = Object.values(shoppingList);
+    console.log("Lista de compra final:", aggregated);
     openModal("shopping", aggregated);
   };
 
   const generateWeekSummary = () => {
+    // Imprimir el estado del store para depuración
+    logStoreState();
+
     const summaryData = DAYS_OF_WEEK.map((day) => {
       const dayId = day.toLowerCase();
       const dailyPlan = plan[dayId] || {};
@@ -176,16 +263,50 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
         const snackList = snackInfo.snacks
           .filter((s) => s.snackId)
           .map((s) => {
-            const snackData = memoizedAllSnacks.find(
-              (sn) => sn.id === s.snackId
-            );
-            return snackData ? `${s.quantity}x ${snackData.nombre}` : null;
+            // Usar el store para buscar el snack
+            const snackId = s.snackId;
+            console.log("Buscando snack en resumen con ID:", snackId);
+
+            const snackData = findSnackById(snackId);
+            console.log("Snack encontrado en resumen:", snackData);
+
+            return snackData
+              ? `${s.quantity}x ${snackData.nombre}`
+              : `${s.quantity}x Snack (ID: ${snackId})`;
           })
           .filter(Boolean)
           .join(", ");
 
         if (snackList) {
           dayMeals.snacks = snackList;
+          hasContent = true;
+        }
+      }
+
+      // Procesar postres
+      const dessertInfo = dailyPlan.desserts;
+      console.log("Dessert info en resumen:", dessertInfo);
+      if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
+        const dessertList = dessertInfo.desserts
+          .filter((d) => d.dessertId)
+          .map((d) => {
+            // Usar el store para buscar el postre
+            const dessertId = d.dessertId;
+            const dessertData = findDessertById(dessertId);
+
+            console.log("Buscando postre en resumen con ID:", dessertId);
+            console.log("Postre encontrado en resumen:", dessertData);
+
+            return dessertData
+              ? `${d.quantity}x ${dessertData.nombre}`
+              : `${d.quantity}x Postre (ID: ${dessertId})`;
+          })
+          .filter(Boolean)
+          .join(", ");
+
+        console.log("Lista de postres:", dessertList);
+        if (dessertList) {
+          dayMeals.desserts = dessertList;
           hasContent = true;
         }
       }
@@ -215,17 +336,24 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
           </button>
           {/* Clear plan button */}
           <button
-            onClick={clearWeeklyPlan}
+            onClick={() => {
+              if (
+                confirm(
+                  "¿Estás seguro de que quieres borrar todo el plan semanal?"
+                )
+              ) {
+                clearWeeklyPlan();
+              }
+            }}
             class="bg-red-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-red-700 transition shadow-lg"
           >
-            Limpiar Plan
+            Borrar Plan
           </button>
         </div>
         <InteractivePlanner
-          allMeals={memoizedAllMeals}
+          allMeals={recipesState.allRecipes}
           allSupplements={memoizedAllSupplements}
-          targetCalories={calorieGoal}
-          targetProtein={proteinGoal}
+          snacks={recipesState.snacks as any}
         />
       </div>
     </ErrorBoundary>

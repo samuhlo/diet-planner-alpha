@@ -66,7 +66,9 @@ export default function AppModal(): VNode | null {
       }
       case "summary":
         textToCopy = "Resumen del Plan Semanal:\n\n";
+        console.log("Datos del resumen para copiar:", data);
         (data as WeeklySummaryData[]).forEach((dayData) => {
+          console.log(`Día ${dayData.day}, comidas:`, dayData.meals);
           textToCopy += `--- ${dayData.day} ---\n`;
           if (dayData.meals.desayuno)
             textToCopy += `Desayuno: ${dayData.meals.desayuno}\n`;
@@ -75,6 +77,12 @@ export default function AppModal(): VNode | null {
           if (dayData.meals.cena) textToCopy += `Cena: ${dayData.meals.cena}\n`;
           if (dayData.meals.supplement)
             textToCopy += `Suplemento: ${dayData.meals.supplement}\n`;
+          if (dayData.meals.snacks)
+            textToCopy += `Snacks: ${dayData.meals.snacks}\n`;
+          if (dayData.meals.desserts) {
+            console.log(`Postres para ${dayData.day}:`, dayData.meals.desserts);
+            textToCopy += `Postres: ${dayData.meals.desserts}\n`;
+          }
           textToCopy += "\n";
         });
         break;
