@@ -6,6 +6,7 @@ import type {
   SnackPlan,
   SupplementPlan,
   DessertPlan,
+  MealPlan,
 } from "../types";
 
 // Función para cargar el plan desde localStorage
@@ -73,6 +74,34 @@ export function updatePlanEntry(
 
   // Actualizamos la store con el nuevo estado para ese día.
   $plan.setKey(dayId, newDayPlan);
+}
+
+/**
+ * Actualiza el plan de una comida específica para un día
+ * @param dayId - El ID del día
+ * @param mealType - El tipo de comida ('Desayuno', 'Almuerzo', 'Cena')
+ * @param mealPlan - Los datos del plan de comida, o undefined para eliminar
+ */
+export function updateMealPlan(
+  dayId: string,
+  mealType: string,
+  mealPlan?: MealPlan
+) {
+  const currentDayPlan = $plan.get()[dayId] || {};
+
+  // Si mealPlan es undefined, eliminar la comida
+  if (mealPlan === undefined) {
+    const newDayPlan = { ...currentDayPlan };
+    delete newDayPlan[mealType as keyof DailyPlan];
+    $plan.setKey(dayId, newDayPlan);
+  } else {
+    // Actualizar la comida con el nuevo plan
+    const newDayPlan = {
+      ...currentDayPlan,
+      [mealType]: mealPlan,
+    };
+    $plan.setKey(dayId, newDayPlan);
+  }
 }
 
 /**

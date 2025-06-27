@@ -1,154 +1,142 @@
-import type { VNode } from "preact";
+import React, { useEffect, useRef } from "preact/compat";
 import { useStore } from "@nanostores/preact";
-import { useState } from "preact/hooks";
-import { $modal, closeModal } from "../../stores/modalStore.ts";
-import ShoppingListContent from "./ShoppingListContent.tsx";
-import SummaryContent from "./SummaryContent.tsx";
-import type { Ingredient, WeeklySummaryData } from "../../types";
-import RecipeDetailModal from "./RecipeDetailModal.tsx";
+import { $modal, closeModal, getModalOptions } from "../../stores/modalStore";
+import RecipeDetailModal from "./RecipeDetailModal";
+import ShoppingListContent from "./ShoppingListContent";
+import SummaryContent from "./SummaryContent";
+import SupplementDetailModal from "./SupplementDetailModal";
+import NutritionDetailModal from "./NutritionDetailModal";
+import MealPlannerModal from "./MealPlannerModal";
+import ConfirmModal from "./ConfirmModal";
+import NotificationModal from "./NotificationModal";
 
-interface ModalComponent<T> {
-  Component: (props: { data: T }) => VNode;
-  title: string;
-}
+const AppModal: React.FC = () => {
+  const modalState = useStore($modal);
+  const modalRef = useRef<HTMLDivElement>(null);
 
-const MODAL_COMPONENTS = {
-  shopping: {
-    Component: ShoppingListContent,
-    title: "Lista de la Compra",
-  } as ModalComponent<Ingredient[]>,
-  summary: {
-    Component: SummaryContent,
-    title: "Resumen del Plan",
-  } as ModalComponent<WeeklySummaryData[]>,
-};
-
-export default function AppModal(): VNode | null {
-  const { isOpen, type, data } = useStore($modal);
-  // Estado local para el feedback del botón de copiar
-  const [copySuccess, setCopySuccess] = useState(false);
-
-  const handleClose = (): void => {
-    closeModal();
-    setCopySuccess(false); // Reseteamos el estado al cerrar
-  };
-
-  // --- NUEVA FUNCIÓN DE COPIADO ---
-  const handleCopy = (): void => {
-    if (!type || !data) return;
-
-    let textToCopy = "";
-
-    switch (type) {
-      case "shopping": {
-        // Intentar obtener la lista personalizada de localStorage
-        let list: Ingredient[] = [];
-        if (typeof window !== "undefined") {
-          const stored = localStorage.getItem("customShoppingList");
-          if (stored) {
-            try {
-              list = JSON.parse(stored);
-            } catch {
-              list = [];
-            }
-          }
-        }
-        if (!list.length) {
-          list = data as Ingredient[];
-        }
-        textToCopy = "Lista de la Compra:\n";
-        list.forEach((ing) => {
-          textToCopy += `• ${Number(ing.q.toPrecision(3))} ${ing.u} de ${
-            ing.n
-          }\n`;
-        });
-        break;
+  // Efecto para manejar el cierre con la tecla Escape
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (
+        e.key === "Escape" &&
+        modalState.isOpen &&
+        !modalState.preventOutsideClick
+      ) {
+        closeModal();
       }
-      case "summary":
-        textToCopy = "Resumen del Plan Semanal:\n\n";
-        console.log("Datos del resumen para copiar:", data);
-        (data as WeeklySummaryData[]).forEach((dayData) => {
-          console.log(`Día ${dayData.day}, comidas:`, dayData.meals);
-          textToCopy += `--- ${dayData.day} ---\n`;
-          if (dayData.meals.desayuno)
-            textToCopy += `Desayuno: ${dayData.meals.desayuno}\n`;
-          if (dayData.meals.almuerzo)
-            textToCopy += `Almuerzo: ${dayData.meals.almuerzo}\n`;
-          if (dayData.meals.cena) textToCopy += `Cena: ${dayData.meals.cena}\n`;
-          if (dayData.meals.supplement)
-            textToCopy += `Suplemento: ${dayData.meals.supplement}\n`;
-          if (dayData.meals.snacks)
-            textToCopy += `Snacks: ${dayData.meals.snacks}\n`;
-          if (dayData.meals.desserts) {
-            console.log(`Postres para ${dayData.day}:`, dayData.meals.desserts);
-            textToCopy += `Postres: ${dayData.meals.desserts}\n`;
-          }
-          textToCopy += "\n";
-        });
-        break;
-      // Se pueden añadir más casos para otros modales si fuera necesario
+    };
+
+    window.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [modalState.isOpen, modalState.preventOutsideClick]);
+
+  // Efecto para bloquear el scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (modalState.isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
     }
 
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000); // Reset after 2 seconds
-    });
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [modalState.isOpen]);
+
+  // Manejar clic fuera del modal para cerrarlo
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (
+      modalRef.current &&
+      !modalRef.current.contains(e.target as Node) &&
+      !modalState.preventOutsideClick
+    ) {
+      closeModal();
+    }
   };
 
-  if (!isOpen || !type || !data) return null;
+  // Si el modal no está abierto, no renderizar nada
+  if (!modalState.isOpen) {
+    return null;
+  }
 
-  let title = "";
-  if (type === "shopping") title = "Lista de la Compra";
-  else if (type === "summary") title = "Resumen del Plan";
-  else if (type === "recipeDetail")
-    title = (data as any)?.nombre || "Detalle de Receta";
-  const showCopyButton = type === "shopping" || type === "summary";
+  // Determinar clases CSS basadas en las opciones del modal
+  const getModalClasses = () => {
+    const options = getModalOptions();
+    const sizeClass = `modal-${options.size || "medium"}`;
+    const positionClass = `modal-position-${options.position || "center"}`;
+    const animationClass = `modal-animation-${options.animation || "fade"}`;
+
+    return `modal-content ${sizeClass} ${positionClass} ${animationClass}`;
+  };
+
+  // Renderizar el contenido apropiado según el tipo de modal
+  const renderModalContent = () => {
+    switch (modalState.type) {
+      case "recipeDetail":
+        return <RecipeDetailModal />;
+
+      case "shopping":
+        return <ShoppingListContent />;
+
+      case "summary":
+        return <SummaryContent />;
+
+      case "supplementDetail":
+        return <SupplementDetailModal />;
+
+      case "nutritionDetail":
+        return <NutritionDetailModal />;
+
+      case "mealPlanner":
+        return <MealPlannerModal />;
+
+      case "confirmAction":
+        return <ConfirmModal />;
+
+      case "notification":
+        return <NotificationModal />;
+
+      case "analysis":
+        return (
+          <div className="analysis-content">
+            <h2>Análisis</h2>
+            <pre>{JSON.stringify(modalState.data, null, 2)}</pre>
+          </div>
+        );
+
+      default:
+        return (
+          <div className="generic-modal-content">
+            <h2>Modal</h2>
+            <p>Tipo de modal no implementado: {modalState.type}</p>
+          </div>
+        );
+    }
+  };
 
   return (
-    <div
-      class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-      onClick={handleClose}
-    >
+    <div className="modal-overlay" onClick={handleBackdropClick}>
       <div
-        class="modal-content bg-white w-full max-w-2xl max-h-[90vh] rounded-lg shadow-xl"
-        onClick={(e) => e.stopPropagation()}
+        ref={modalRef}
+        className={getModalClasses()}
+        role="dialog"
+        aria-modal="true"
       >
-        <div class="p-6 border-b flex justify-between items-center">
-          <h3 class="text-2xl font-bold text-stone-800">{title}</h3>
-          {/* --- NUEVO BLOQUE DE BOTONES --- */}
-          <div class="flex items-center gap-2">
-            {showCopyButton && (
-              <button
-                onClick={handleCopy}
-                class="bg-gray-200 text-sm text-stone-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition"
-              >
-                {copySuccess ? "¡Copiado!" : "Copiar"}
-              </button>
-            )}
-            <button
-              onClick={handleClose}
-              class="text-3xl font-bold text-stone-500 hover:text-stone-800"
-            >
-              &times;
-            </button>
-          </div>
-        </div>
-        <div class="p-6 overflow-y-auto">
-          {type === "shopping" && (
-            <ShoppingListContent data={data as Ingredient[]} />
-          )}
-          {type === "summary" && (
-            <SummaryContent data={data as WeeklySummaryData[]} />
-          )}
-          {type === "recipeDetail" && (
-            <RecipeDetailModal
-              recipe={data as any}
-              isOpen={isOpen}
-              onClose={handleClose}
-            />
-          )}
-        </div>
+        <button
+          className="modal-close-button"
+          onClick={closeModal}
+          aria-label="Cerrar"
+        >
+          &times;
+        </button>
+
+        {renderModalContent()}
       </div>
     </div>
   );
-}
+};
+
+export default AppModal;

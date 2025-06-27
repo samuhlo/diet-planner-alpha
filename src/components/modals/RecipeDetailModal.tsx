@@ -1,3 +1,6 @@
+import React from "preact/compat";
+import { useStore } from "@nanostores/preact";
+import { $modal, getModalData, closeModal } from "../../stores/modalStore";
 import type { Recipe } from "../../types";
 import {
   formatIngredient,
@@ -6,18 +9,13 @@ import {
 } from "../../utils/ingredientFormatter";
 import { getCalorieColor, getProteinColor } from "../../utils/recipeUtils";
 
-interface RecipeDetailModalProps {
-  recipe: Recipe | null;
-  isOpen: boolean;
-  onClose: () => void;
-}
+export default function RecipeDetailModal() {
+  // Usar el store modal en lugar de props
+  const modalState = useStore($modal);
+  const recipe = getModalData() as Recipe;
 
-export default function RecipeDetailModal({
-  recipe,
-  isOpen,
-  onClose,
-}: RecipeDetailModalProps) {
-  if (!isOpen || !recipe) return null;
+  // Si el modal no es del tipo correcto o no hay receta, no renderizar nada
+  if (modalState.type !== "recipeDetail" || !recipe) return null;
 
   const getMealTypeColor = (tipo: string) => {
     switch (tipo) {
@@ -54,7 +52,7 @@ export default function RecipeDetailModal({
       {/* Overlay */}
       <div
         class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-        onClick={onClose}
+        onClick={closeModal}
       ></div>
 
       {/* Modal */}
@@ -62,7 +60,7 @@ export default function RecipeDetailModal({
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           {/* Botón de cerrar flotante */}
           <button
-            onClick={onClose}
+            onClick={closeModal}
             class="absolute top-4 right-4 z-10 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
           >
             <svg
@@ -243,7 +241,7 @@ export default function RecipeDetailModal({
           {/* Footer */}
           <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 rounded-b-2xl">
             <button
-              onClick={onClose}
+              onClick={closeModal}
               class="w-full bg-[#6B8A7A] text-white font-semibold py-3 px-6 rounded-xl hover:bg-[#5a7a6a] transition-colors duration-200"
             >
               Cerrar
