@@ -4,7 +4,7 @@ import { $modal, getModalData, closeModal } from "../../stores/modalStore";
 
 const ConfirmModal: React.FC = () => {
   const modalState = useStore($modal);
-  const confirmData = getModalData<"confirmAction">();
+  const confirmData = getModalData();
 
   if (!confirmData) {
     return (

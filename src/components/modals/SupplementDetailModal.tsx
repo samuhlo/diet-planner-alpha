@@ -1,18 +1,14 @@
 import React from "preact/compat";
 import { useStore } from "@nanostores/preact";
-import { $modal, getModalData } from "../../stores/modalStore";
-import type { Supplement } from "../../types";
+import { $modal, getModalData, closeModal } from "../../stores/modalStore";
+import type { Supplement } from "../../types/supplements";
 
 const SupplementDetailModal: React.FC = () => {
   const modalState = useStore($modal);
-  const supplement = getModalData<"supplementDetail">() as Supplement;
+  const supplement = getModalData() as Supplement;
 
-  if (!supplement) {
-    return (
-      <div className="error-message">
-        No se encontró información del suplemento
-      </div>
-    );
+  if (modalState.type !== "supplementDetail" || !supplement) {
+    return null;
   }
 
   return (

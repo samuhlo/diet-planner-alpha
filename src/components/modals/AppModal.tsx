@@ -6,7 +6,6 @@ import ShoppingListContent from "./ShoppingListContent";
 import SummaryContent from "./SummaryContent";
 import SupplementDetailModal from "./SupplementDetailModal";
 import NutritionDetailModal from "./NutritionDetailModal";
-import MealPlannerModal from "./MealPlannerModal";
 import ConfirmModal from "./ConfirmModal";
 import NotificationModal from "./NotificationModal";
 
@@ -125,9 +124,6 @@ const AppModal: React.FC = () => {
 
       case "nutritionDetail":
         return <NutritionDetailModal />;
-
-      case "mealPlanner":
-        return <MealPlannerModal />;
 
       case "confirmAction":
         return <ConfirmModal />;

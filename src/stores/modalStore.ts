@@ -10,7 +10,6 @@ export type ModalType =
   | "recipeDetail"
   | "supplementDetail"
   | "nutritionDetail"
-  | "mealPlanner"
   | "confirmAction"
   | "notification"
   | null;
@@ -83,17 +82,6 @@ export const openRecipeDetailModal = (recipe: Recipe) => {
  */
 export const openSupplementDetailModal = (supplement: Supplement) => {
   openModal("supplementDetail", supplement);
-};
-
-/**
- * Abre el modal de planificador de comidas
- */
-export const openMealPlannerModal = (plannerData: {
-  day: string;
-  mealType: string;
-  currentRecipe?: Recipe | null;
-}) => {
-  openModal("mealPlanner", plannerData);
 };
 
 /**
