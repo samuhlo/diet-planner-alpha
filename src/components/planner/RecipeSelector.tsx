@@ -2,6 +2,7 @@ import { useMemo } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $recipes } from "../../stores/recipesStore";
 import GenericSelector from "../common/GenericSelector";
+import { openRecipeDetailModal } from "../../stores/modalStore";
 import type { SelectedItem, SelectorConfig } from "../common/GenericSelector";
 import type { Recipe } from "../../types";
 

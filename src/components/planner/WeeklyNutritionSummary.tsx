@@ -1,7 +1,11 @@
 import { useMemo, useState } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $plan } from "../../stores/planStore";
-import { $userData, $userGoal } from "../../stores/userProfileStore";
+import {
+  $userData,
+  $userGoal,
+  $nutritionalGoals,
+} from "../../stores/userProfileStore";
 import { allMeals } from "../../data/recipes";
 import { allSupplements } from "../../data/supplements";
 import { NutritionService } from "../../services/nutritionService";
@@ -23,10 +27,11 @@ export default function WeeklyNutritionSummary({
   const plan = useStore($plan);
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
+  const nutritionalGoals = useStore($nutritionalGoals);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { calorieGoal, proteinGoal, carbGoal, fatGoal } =
-    useNutritionalCalculations(userData, userGoal);
+  // Usar los objetivos nutricionales calculados por la store
+  const { calorieGoal, proteinGoal, carbGoal, fatGoal } = nutritionalGoals;
 
   const weeklyNutrition = useMemo(() => {
     let totalCalories = 0;

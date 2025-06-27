@@ -13,7 +13,10 @@ import {
 import { $userData, $userGoal } from "../../stores/userProfileStore";
 import { allSupplements } from "../../data/supplements";
 import InteractivePlanner from "./InteractivePlanner";
-import { openModal } from "../../stores/modalStore";
+import {
+  openShoppingListModal,
+  openWeekSummaryModal,
+} from "../../stores/modalStore";
 import NutritionalSummary from "../common/NutritionalSummary";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
 import type { Recipe, Ingredient, WeeklySummaryData } from "../../types";
@@ -215,7 +218,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
 
     const aggregated = Object.values(shoppingList);
     console.log("Lista de compra final:", aggregated);
-    openModal("shopping", aggregated);
+    openShoppingListModal(aggregated);
   };
 
   const generateWeekSummary = () => {
@@ -314,7 +317,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
       return hasContent ? { day, meals: dayMeals } : null;
     }).filter(Boolean);
 
-    openModal("summary", summaryData as WeeklySummaryData[]);
+    openWeekSummaryModal(summaryData as WeeklySummaryData[]);
   };
 
   return (

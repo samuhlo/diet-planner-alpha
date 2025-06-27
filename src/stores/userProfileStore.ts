@@ -1,6 +1,7 @@
 // src/stores/userProfileStore.ts
 import { map, computed } from "nanostores";
 import type { UserData, UserGoal, WeightEntry } from "../types";
+import { NutritionService } from "../services/nutritionService";
 
 // --- FUNCIÓN AUXILIAR ---
 const getFromStorage = <T>(key: string, defaultValue: T): T => {
@@ -111,3 +112,74 @@ export const addWeightEntry = (entry: WeightEntry) => {
 
   return id;
 };
+
+/**
+ * Store computada que calcula los objetivos nutricionales basados en los datos del usuario
+ */
+export const $nutritionalGoals = computed(
+  [$userData, $userGoal],
+  (userData, userGoal) => {
+    // Si no hay datos suficientes, devolver valores por defecto
+    if (!userData || !userGoal) {
+      return {
+        calorieGoal: 2000,
+        proteinGoal: 120,
+        carbGoal: 200,
+        fatGoal: 65,
+        isCalculated: false,
+      };
+    }
+
+    // Calcular los objetivos nutricionales
+    const tdee = NutritionService.calculateTDEE(userData);
+
+    // Determinar el objetivo calórico basado en el tipo de objetivo
+    let calorieGoal = tdee;
+
+    if (userGoal.goalType === "lose") {
+      // Calcular déficit para pérdida de peso
+      const startWeight = userData.weight;
+      const targetWeight = userGoal.targetWeight;
+      const weightDiff = startWeight - targetWeight;
+
+      // Calcular duración en semanas
+      const startDate = new Date(userGoal.startDate);
+      const endDate = new Date(userGoal.endDate);
+      const durationWeeks = Math.max(
+        1,
+        Math.round(
+          (endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)
+        )
+      );
+
+      // Calcular pérdida semanal
+      const weeklyLoss = weightDiff / durationWeeks;
+
+      // Calcular calorías objetivo
+      calorieGoal = NutritionService.calculateTargetCalories(
+        userData,
+        weeklyLoss
+      );
+    }
+
+    // Calcular macronutrientes
+    const proteinGoal = NutritionService.calculateProteinIntake(userData);
+    const proteinCalories = proteinGoal * 4; // 4 kcal por gramo de proteína
+
+    // Distribuir el resto de calorías entre carbos y grasas (40% carbos, 60% grasas)
+    const remainingCalories = calorieGoal - proteinCalories;
+    const carbCalories = remainingCalories * 0.4;
+    const fatCalories = remainingCalories * 0.6;
+
+    const carbGoal = Math.round(carbCalories / 4); // 4 kcal por gramo de carbos
+    const fatGoal = Math.round(fatCalories / 9); // 9 kcal por gramo de grasa
+
+    return {
+      calorieGoal: Math.round(calorieGoal),
+      proteinGoal,
+      carbGoal,
+      fatGoal,
+      isCalculated: true,
+    };
+  }
+);

@@ -1,7 +1,11 @@
 import { useMemo } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $plan } from "../../stores/planStore";
-import { $userData, $userGoal } from "../../stores/userProfileStore";
+import {
+  $userData,
+  $userGoal,
+  $nutritionalGoals,
+} from "../../stores/userProfileStore";
 import { allMeals } from "../../data/recipes";
 import { allSupplements } from "../../data/supplements";
 import { getSnacksFromRecipes } from "../../utils/recipeUtils";
@@ -26,9 +30,17 @@ export default function DailyNutritionSummary({
   const plan = useStore($plan);
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
+  const nutritionalGoals = useStore($nutritionalGoals);
 
-  const { calorieGoal, proteinGoal, carbGoal, fatGoal } =
-    useNutritionalCalculations(userData, userGoal);
+  // Usar los objetivos nutricionales calculados por la store
+  const { calorieGoal, proteinGoal, carbGoal, fatGoal } = nutritionalGoals;
+
+  const {
+    calorieGoal: calculatedCalorieGoal,
+    proteinGoal: calculatedProteinGoal,
+    carbGoal: calculatedCarbGoal,
+    fatGoal: calculatedFatGoal,
+  } = useNutritionalCalculations(userData, userGoal);
 
   // Obtener solo el plan del día específico para evitar recálculos innecesarios
   const dailyPlan = plan[dayId] || {};

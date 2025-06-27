@@ -133,3 +133,60 @@ export function clearWeeklyPlan() {
 export function loadWeeklyPlan(plan: WeeklyPlan) {
   $plan.set(plan);
 }
+
+/**
+ * Actualiza múltiples secciones de un día a la vez
+ * @param dayId - El ID del día a actualizar
+ * @param updates - Objeto con las secciones y valores a actualizar
+ */
+export function updateDayPlan(dayId: string, updates: Partial<DailyPlan>) {
+  const currentDayPlan = $plan.get()[dayId] || {};
+
+  const newDayPlan = {
+    ...currentDayPlan,
+    ...updates,
+  };
+
+  $plan.setKey(dayId, newDayPlan);
+}
+
+/**
+ * Copia el plan de un día a otro
+ * @param sourceDayId - El ID del día de origen
+ * @param targetDayId - El ID del día de destino
+ */
+export function copyDayPlan(sourceDayId: string, targetDayId: string) {
+  const currentPlan = $plan.get();
+  const sourceDayPlan = currentPlan[sourceDayId];
+
+  if (sourceDayPlan) {
+    $plan.setKey(targetDayId, { ...sourceDayPlan });
+  }
+}
+
+/**
+ * Elimina un día completo del plan
+ * @param dayId - El ID del día a eliminar
+ */
+export function clearDayPlan(dayId: string) {
+  const currentPlan = $plan.get();
+  const newPlan = { ...currentPlan };
+  delete newPlan[dayId];
+  $plan.set(newPlan);
+}
+
+/**
+ * Obtiene el plan para un día específico
+ * @param dayId - El ID del día
+ */
+export function getDayPlan(dayId: string) {
+  return $plan.get()[dayId] || {};
+}
+
+/**
+ * Comprueba si hay algún contenido en el plan semanal
+ */
+export function hasPlanContent(): boolean {
+  const currentPlan = $plan.get();
+  return Object.keys(currentPlan).length > 0;
+}

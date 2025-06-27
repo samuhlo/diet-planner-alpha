@@ -1,4 +1,4 @@
-import { map } from "nanostores";
+import { map, computed } from "nanostores";
 import type { Recipe, Snack } from "../types";
 import { getSnacksFromRecipes, assignIdsToRecipes } from "../utils/recipeUtils";
 import { generateDessertsFromRecipes } from "../utils/selectorUtils";
@@ -151,4 +151,214 @@ export function logStoreState(): void {
   });
 
   console.log("=== FIN DEL ESTADO ===");
+}
+
+// Store computada para recetas por tipo
+export const $recipesByType = computed($recipes, (recipesState) => {
+  const byType: Record<string, Recipe[]> = {};
+
+  recipesState.allRecipes.forEach((recipe) => {
+    if (!byType[recipe.tipo]) {
+      byType[recipe.tipo] = [];
+    }
+    byType[recipe.tipo].push(recipe);
+  });
+
+  return byType;
+});
+
+// Store computada para recetas por tag
+export const $recipesByTag = computed($recipes, (recipesState) => {
+  const byTag: Record<string, Recipe[]> = {};
+
+  recipesState.allRecipes.forEach((recipe) => {
+    recipe.tags.forEach((tag) => {
+      if (!byTag[tag]) {
+        byTag[tag] = [];
+      }
+      byTag[tag].push(recipe);
+    });
+  });
+
+  return byTag;
+});
+
+// Store computada para todos los tags únicos
+export const $allTags = computed($recipes, (recipesState) => {
+  const tags = new Set<string>();
+
+  recipesState.allRecipes.forEach((recipe) => {
+    recipe.tags.forEach((tag) => tags.add(tag));
+  });
+
+  return Array.from(tags).sort();
+});
+
+/**
+ * Filtra recetas según múltiples criterios
+ */
+export function filterRecipes(criteria: {
+  tipo?: string | string[];
+  tags?: string[];
+  minCalorias?: number;
+  maxCalorias?: number;
+  minProteina?: number;
+  search?: string;
+}): Recipe[] {
+  const { allRecipes } = $recipes.get();
+
+  return allRecipes.filter((recipe) => {
+    // Filtrar por tipo
+    if (criteria.tipo) {
+      if (Array.isArray(criteria.tipo)) {
+        if (!criteria.tipo.includes(recipe.tipo)) {
+          return false;
+        }
+      } else if (recipe.tipo !== criteria.tipo) {
+        return false;
+      }
+    }
+
+    // Filtrar por tags (debe contener todos los tags especificados)
+    if (criteria.tags && criteria.tags.length > 0) {
+      if (!criteria.tags.every((tag) => recipe.tags.includes(tag))) {
+        return false;
+      }
+    }
+
+    // Filtrar por calorías mínimas
+    if (
+      criteria.minCalorias !== undefined &&
+      recipe.calorias < criteria.minCalorias
+    ) {
+      return false;
+    }
+
+    // Filtrar por calorías máximas
+    if (
+      criteria.maxCalorias !== undefined &&
+      recipe.calorias > criteria.maxCalorias
+    ) {
+      return false;
+    }
+
+    // Filtrar por proteína mínima
+    if (criteria.minProteina !== undefined && recipe.p < criteria.minProteina) {
+      return false;
+    }
+
+    // Filtrar por término de búsqueda
+    if (criteria.search) {
+      const searchTerm = criteria.search.toLowerCase();
+      const matchesName = recipe.nombre.toLowerCase().includes(searchTerm);
+      const matchesTags = recipe.tags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm)
+      );
+
+      if (!matchesName && !matchesTags) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+/**
+ * Ordena recetas según un criterio específico
+ */
+export function sortRecipes(
+  recipes: Recipe[],
+  sortBy: "nombre" | "calorias" | "proteina" | "carbos" | "grasas" = "nombre",
+  direction: "asc" | "desc" = "asc"
+): Recipe[] {
+  return [...recipes].sort((a, b) => {
+    let valueA: number | string;
+    let valueB: number | string;
+
+    switch (sortBy) {
+      case "nombre":
+        valueA = a.nombre;
+        valueB = b.nombre;
+        break;
+      case "calorias":
+        valueA = a.calorias;
+        valueB = b.calorias;
+        break;
+      case "proteina":
+        valueA = a.p;
+        valueB = b.p;
+        break;
+      case "carbos":
+        valueA = a.c;
+        valueB = b.c;
+        break;
+      case "grasas":
+        valueA = a.f;
+        valueB = b.f;
+        break;
+      default:
+        valueA = a.nombre;
+        valueB = b.nombre;
+    }
+
+    if (valueA < valueB) {
+      return direction === "asc" ? -1 : 1;
+    }
+    if (valueA > valueB) {
+      return direction === "asc" ? 1 : -1;
+    }
+    return 0;
+  });
+}
+
+/**
+ * Obtiene recetas recomendadas basadas en objetivos nutricionales
+ */
+export function getRecommendedRecipes(
+  targetCalories: number,
+  targetProtein: number,
+  mealType?: string,
+  count: number = 5
+): Recipe[] {
+  const { allRecipes } = $recipes.get();
+
+  // Filtrar por tipo de comida si se especifica
+  let candidates = mealType
+    ? allRecipes.filter((r) => r.tipo === mealType)
+    : allRecipes;
+
+  // Calcular puntuación para cada receta según qué tan bien se ajusta a los objetivos
+  const scoredRecipes = candidates.map((recipe) => {
+    // Calcular qué porcentaje de las calorías diarias representa esta receta
+    const caloriePercentage = recipe.calorias / targetCalories;
+
+    // Calcular qué porcentaje de la proteína diaria aporta esta receta
+    const proteinPercentage = recipe.p / targetProtein;
+
+    // Penalizar recetas que se alejan demasiado de los valores ideales
+    // Idealmente, una comida principal debería ser ~30% de las calorías diarias
+    const idealCaloriePercentage = 0.3;
+    const calorieScore =
+      1 - Math.abs(caloriePercentage - idealCaloriePercentage);
+
+    // Idealmente, una comida principal debería aportar ~30% de la proteína diaria
+    const idealProteinPercentage = 0.3;
+    const proteinScore =
+      1 - Math.abs(proteinPercentage - idealProteinPercentage);
+
+    // Combinar puntuaciones (se puede ajustar la ponderación)
+    const totalScore = calorieScore * 0.5 + proteinScore * 0.5;
+
+    return {
+      recipe,
+      score: totalScore,
+    };
+  });
+
+  // Ordenar por puntuación y tomar los N mejores
+  return scoredRecipes
+    .sort((a, b) => b.score - a.score)
+    .slice(0, count)
+    .map((item) => item.recipe);
 }

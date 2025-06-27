@@ -6,7 +6,7 @@ import {
   useEffect,
 } from "preact/hooks";
 import type { BaseItem, ModalType, Recipe } from "../../types";
-import { openModal } from "../../stores/modalStore";
+import { openModal, openRecipeDetailModal } from "../../stores/modalStore";
 
 // Interfaz para configurar la apariencia y comportamiento del selector
 export interface SelectorConfig {
@@ -246,9 +246,11 @@ export default function GenericSelector<T extends Record<string, any>>({
 
   // Abrir modal con detalles del elemento
   const handleOpenModal = (item: T) => {
-    if (selectorConfig.modalType) {
+    if (selectorConfig.modalType === "recipeDetail") {
       const modalData = item as unknown as Recipe;
-      openModal(selectorConfig.modalType, modalData);
+      openRecipeDetailModal(modalData);
+    } else if (selectorConfig.modalType) {
+      openModal(selectorConfig.modalType, item as any);
     }
   };
 
