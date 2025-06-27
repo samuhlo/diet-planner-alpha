@@ -31,7 +31,7 @@ const MealPlannerModal: React.FC = () => {
 
     // Filtrar por el tipo de comida actual
     if (plannerData?.mealType) {
-      updateFilters({ type: [plannerData.mealType] });
+      updateFilters({ categories: [plannerData.mealType] });
     }
   }, [searchTerm, plannerData?.mealType]);
 
@@ -53,7 +53,7 @@ const MealPlannerModal: React.FC = () => {
   const handleSave = () => {
     if (selectedRecipe) {
       updateMealPlan(day, mealType, {
-        recipeName: selectedRecipe.name,
+        recipeName: selectedRecipe.nombre,
         diners,
       });
       closeModal();
@@ -65,8 +65,9 @@ const MealPlannerModal: React.FC = () => {
     closeModal();
   };
 
-  const handleDinersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
+  const handleDinersChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const value = parseInt(target.value, 10);
     if (!isNaN(value) && value > 0) {
       setDiners(value);
     }
@@ -83,7 +84,10 @@ const MealPlannerModal: React.FC = () => {
           type="text"
           placeholder="Buscar recetas..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e: Event) => {
+            const target = e.target as HTMLInputElement;
+            setSearchTerm(target.value);
+          }}
           className="search-input"
         />
       </div>
@@ -91,11 +95,11 @@ const MealPlannerModal: React.FC = () => {
       <div className="recipe-selection-container">
         <div className="recipe-list">
           <h3>Recetas disponibles</h3>
-          {filteredRecipes.length === 0 ? (
+          {filteredRecipes.items.length === 0 ? (
             <p className="no-results">No se encontraron recetas</p>
           ) : (
             <ul className="recipes-list">
-              {filteredRecipes.map((recipe) => (
+              {filteredRecipes.items.map((recipe) => (
                 <li
                   key={recipe.id}
                   className={`recipe-item ${
@@ -103,7 +107,7 @@ const MealPlannerModal: React.FC = () => {
                   }`}
                   onClick={() => handleRecipeSelect(recipe)}
                 >
-                  <div className="recipe-name">{recipe.name}</div>
+                  <div className="recipe-name">{recipe.nombre}</div>
                   <div className="recipe-macros">
                     <span>
                       {recipe.nutritionalInfo?.calories || recipe.calorias} kcal
@@ -124,7 +128,7 @@ const MealPlannerModal: React.FC = () => {
           <h3>Receta seleccionada</h3>
           {selectedRecipe ? (
             <div className="selected-recipe">
-              <h4>{selectedRecipe.name}</h4>
+              <h4>{selectedRecipe.nombre}</h4>
 
               <div className="diners-control">
                 <label htmlFor="diners">Comensales:</label>

@@ -1,361 +1,303 @@
 import { map, computed } from "nanostores";
 import { $recipes } from "./recipesStore";
-import { $supplements } from "./supplementsStore";
-import type { Recipe, Supplement } from "../types";
+import type { Recipe } from "../types";
+import type { Supplement } from "../types/supplements";
 
-// Definimos la estructura del estado de búsqueda
-interface SearchState {
-  query: string;
-  filters: {
-    type: string[];
-    tags: string[];
-    ingredients: string[];
-    maxCalories: number | null;
-    maxCarbs: number | null;
-    minProtein: number | null;
-    maxFat: number | null;
-  };
-  sortBy: "name" | "calories" | "protein" | "carbs" | "fat" | "relevance";
+// Tipos para los filtros
+export interface SearchFilters {
+  searchTerm: string;
+  categories: string[];
+  tags: string[];
+  minCalories: number | null;
+  maxCalories: number | null;
+  minProtein: number | null;
+  maxProtein: number | null;
+  sortBy: "name" | "calories" | "protein" | "carbs" | "fat";
   sortDirection: "asc" | "desc";
-  activeSearchType: "recipes" | "supplements" | "all";
 }
 
-// Inicializamos con un estado por defecto
-export const $search = map<SearchState>({
-  query: "",
-  filters: {
-    type: [],
-    tags: [],
-    ingredients: [],
-    maxCalories: null,
-    maxCarbs: null,
-    minProtein: null,
-    maxFat: null,
-  },
-  sortBy: "relevance",
-  sortDirection: "desc",
-  activeSearchType: "recipes",
-});
+// Tipos para los resultados de búsqueda
+export interface SearchResults<T> {
+  items: T[];
+  totalCount: number;
+  filteredCount: number;
+}
 
-/**
- * Actualiza la consulta de búsqueda
- * @param query - La consulta de búsqueda
- */
+// Estado inicial para los filtros
+const initialFilters: SearchFilters = {
+  searchTerm: "",
+  categories: [],
+  tags: [],
+  minCalories: null,
+  maxCalories: null,
+  minProtein: null,
+  maxProtein: null,
+  sortBy: "name",
+  sortDirection: "asc",
+};
+
+// Estado principal de búsqueda
+export const $searchFilters = map<SearchFilters>(initialFilters);
+
+// Store para el historial de búsquedas
+export const $searchHistory = map<string[]>([]);
+
+// Función para actualizar el término de búsqueda
 export function setSearchQuery(query: string) {
-  $search.setKey("query", query);
+  updateFilters({ searchTerm: query });
+  if (query.trim()) {
+    addToSearchHistory(query);
+  }
 }
 
-/**
- * Actualiza los filtros de búsqueda
- * @param filters - Los filtros a aplicar
- */
-export function updateFilters(filters: Partial<SearchState["filters"]>) {
-  const currentFilters = $search.get().filters;
-  $search.setKey("filters", { ...currentFilters, ...filters });
+// Función para actualizar los filtros
+export function updateFilters(filters: Partial<SearchFilters>) {
+  $searchFilters.set({ ...$searchFilters.get(), ...filters });
 }
 
-/**
- * Limpia todos los filtros
- */
-export function clearFilters() {
-  $search.setKey("filters", {
-    type: [],
-    tags: [],
-    ingredients: [],
-    maxCalories: null,
-    maxCarbs: null,
-    minProtein: null,
-    maxFat: null,
+// Función para resetear los filtros
+export function resetFilters() {
+  $searchFilters.set(initialFilters);
+}
+
+// Función para añadir una búsqueda al historial
+export function addToSearchHistory(term: string) {
+  if (!term.trim()) return;
+
+  const history = $searchHistory.get();
+
+  // Eliminar duplicados y añadir al principio
+  const newHistory = [
+    term,
+    ...history.filter((item) => item.toLowerCase() !== term.toLowerCase()),
+  ].slice(0, 10); // Mantener solo las 10 últimas búsquedas
+
+  $searchHistory.set(newHistory);
+}
+
+// Función para limpiar el historial de búsquedas
+export function clearSearchHistory() {
+  $searchHistory.set([]);
+}
+
+// Función genérica para filtrar elementos
+function filterItems<T>(
+  items: T[],
+  filters: SearchFilters,
+  getters: {
+    getName: (item: T) => string;
+    getCalories: (item: T) => number;
+    getProtein: (item: T) => number;
+    getCarbs?: (item: T) => number;
+    getFat?: (item: T) => number;
+    getCategories?: (item: T) => string[];
+    getTags?: (item: T) => string[];
+    getDescription?: (item: T) => string;
+  }
+): T[] {
+  return items.filter((item) => {
+    // Filtrar por término de búsqueda
+    if (filters.searchTerm) {
+      const searchTerm = filters.searchTerm.toLowerCase();
+      const name = getters.getName(item).toLowerCase();
+      const description = getters.getDescription
+        ? getters.getDescription(item).toLowerCase()
+        : "";
+      const tags = getters.getTags
+        ? getters.getTags(item).map((tag) => tag.toLowerCase())
+        : [];
+
+      const matchesSearch =
+        name.includes(searchTerm) ||
+        description.includes(searchTerm) ||
+        tags.some((tag) => tag.includes(searchTerm));
+
+      if (!matchesSearch) return false;
+    }
+
+    // Filtrar por categorías
+    if (filters.categories.length > 0 && getters.getCategories) {
+      const categories = getters.getCategories(item);
+      if (
+        !categories.some((category) => filters.categories.includes(category))
+      ) {
+        return false;
+      }
+    }
+
+    // Filtrar por tags
+    if (filters.tags.length > 0 && getters.getTags) {
+      const tags = getters.getTags(item);
+      if (!tags.some((tag) => filters.tags.includes(tag))) {
+        return false;
+      }
+    }
+
+    // Filtrar por calorías
+    if (
+      filters.minCalories !== null &&
+      getters.getCalories(item) < filters.minCalories
+    ) {
+      return false;
+    }
+    if (
+      filters.maxCalories !== null &&
+      getters.getCalories(item) > filters.maxCalories
+    ) {
+      return false;
+    }
+
+    // Filtrar por proteínas
+    if (
+      filters.minProtein !== null &&
+      getters.getProtein(item) < filters.minProtein
+    ) {
+      return false;
+    }
+    if (
+      filters.maxProtein !== null &&
+      getters.getProtein(item) > filters.maxProtein
+    ) {
+      return false;
+    }
+
+    return true;
   });
 }
 
-/**
- * Actualiza el criterio de ordenación
- * @param sortBy - El criterio de ordenación
- * @param direction - La dirección de ordenación
- */
-export function setSorting(
-  sortBy: SearchState["sortBy"],
-  direction: "asc" | "desc" = "asc"
-) {
-  $search.setKey("sortBy", sortBy);
-  $search.setKey("sortDirection", direction);
-}
-
-/**
- * Establece el tipo de búsqueda activa
- * @param type - El tipo de búsqueda
- */
-export function setSearchType(type: "recipes" | "supplements" | "all") {
-  $search.setKey("activeSearchType", type);
-}
-
-// Store computada para recetas filtradas
-export const $filteredRecipes = computed(
-  [$recipes, $search],
-  (recipes, searchState) => {
-    let filtered = [...recipes];
-
-    // Aplicar filtro de búsqueda por texto
-    if (searchState.query) {
-      const query = searchState.query.toLowerCase();
-      filtered = filtered.filter(
-        (recipe) =>
-          recipe.name.toLowerCase().includes(query) ||
-          recipe.description?.toLowerCase().includes(query) ||
-          recipe.ingredients.some((ing: any) =>
-            ing.name.toLowerCase().includes(query)
-          )
-      );
-    }
-
-    // Aplicar filtros de tipo
-    if (searchState.filters.type.length > 0) {
-      filtered = filtered.filter((recipe) =>
-        searchState.filters.type.includes(recipe.type)
-      );
-    }
-
-    // Aplicar filtros de etiquetas
-    if (searchState.filters.tags.length > 0) {
-      filtered = filtered.filter(
-        (recipe) =>
-          recipe.tags &&
-          searchState.filters.tags.some((tag: string) =>
-            recipe.tags?.includes(tag)
-          )
-      );
-    }
-
-    // Aplicar filtros de ingredientes
-    if (searchState.filters.ingredients.length > 0) {
-      filtered = filtered.filter((recipe) =>
-        searchState.filters.ingredients.some((ingredientName: string) =>
-          recipe.ingredients.some((recipeIng: any) =>
-            recipeIng.name.toLowerCase().includes(ingredientName.toLowerCase())
-          )
-        )
-      );
-    }
-
-    // Aplicar filtros nutricionales
-    if (searchState.filters.maxCalories) {
-      filtered = filtered.filter(
-        (recipe) =>
-          recipe.nutritionalInfo.calories <=
-          (searchState.filters.maxCalories || Infinity)
-      );
-    }
-
-    if (searchState.filters.maxCarbs) {
-      filtered = filtered.filter(
-        (recipe) =>
-          recipe.nutritionalInfo.carbs <=
-          (searchState.filters.maxCarbs || Infinity)
-      );
-    }
-
-    if (searchState.filters.minProtein) {
-      filtered = filtered.filter(
-        (recipe) =>
-          recipe.nutritionalInfo.protein >=
-          (searchState.filters.minProtein || 0)
-      );
-    }
-
-    if (searchState.filters.maxFat) {
-      filtered = filtered.filter(
-        (recipe) =>
-          recipe.nutritionalInfo.fat <= (searchState.filters.maxFat || Infinity)
-      );
-    }
-
-    // Aplicar ordenación
-    filtered.sort((a, b) => {
-      let comparison = 0;
-
-      switch (searchState.sortBy) {
-        case "name":
-          comparison = a.name.localeCompare(b.name);
-          break;
-        case "calories":
-          comparison = a.nutritionalInfo.calories - b.nutritionalInfo.calories;
-          break;
-        case "protein":
-          comparison = a.nutritionalInfo.protein - b.nutritionalInfo.protein;
-          break;
-        case "carbs":
-          comparison = a.nutritionalInfo.carbs - b.nutritionalInfo.carbs;
-          break;
-        case "fat":
-          comparison = a.nutritionalInfo.fat - b.nutritionalInfo.fat;
-          break;
-        case "relevance":
-        default:
-          // Para relevancia, priorizamos coincidencias en el nombre
-          if (searchState.query) {
-            const queryLower = searchState.query.toLowerCase();
-            const aNameMatch = a.name.toLowerCase().includes(queryLower);
-            const bNameMatch = b.name.toLowerCase().includes(queryLower);
-
-            if (aNameMatch && !bNameMatch) return -1;
-            if (!aNameMatch && bNameMatch) return 1;
-          }
-          break;
-      }
-
-      return searchState.sortDirection === "asc" ? comparison : -comparison;
-    });
-
-    return filtered;
+// Función genérica para ordenar elementos
+function sortItems<T>(
+  items: T[],
+  sortBy: SearchFilters["sortBy"],
+  sortDirection: SearchFilters["sortDirection"],
+  getters: {
+    getName: (item: T) => string;
+    getCalories: (item: T) => number;
+    getProtein: (item: T) => number;
+    getCarbs?: (item: T) => number;
+    getFat?: (item: T) => number;
   }
-);
+): T[] {
+  return [...items].sort((a, b) => {
+    let valueA: string | number;
+    let valueB: string | number;
 
-// Store computada para suplementos filtrados
-export const $filteredSupplements = computed(
-  [$supplements, $search],
-  (supplements, searchState) => {
-    let filtered = [...supplements];
-
-    // Aplicar filtro de búsqueda por texto
-    if (searchState.query) {
-      const query = searchState.query.toLowerCase();
-      filtered = filtered.filter(
-        (supplement) =>
-          supplement.name.toLowerCase().includes(query) ||
-          supplement.description?.toLowerCase().includes(query)
-      );
-    }
-
-    // Aplicar filtros de etiquetas si existen
-    if (searchState.filters.tags.length > 0) {
-      filtered = filtered.filter(
-        (supplement) =>
-          supplement.tags &&
-          searchState.filters.tags.some((tagName: string) =>
-            supplement.tags?.includes(tagName)
-          )
-      );
-    }
-
-    // Ordenar por nombre o relevancia
-    filtered.sort((a, b) => {
-      if (searchState.sortBy === "name") {
-        const comparison = a.name.localeCompare(b.name);
-        return searchState.sortDirection === "asc" ? comparison : -comparison;
-      }
-
-      // Para relevancia, priorizamos coincidencias en el nombre
-      if (searchState.query) {
-        const queryLower = searchState.query.toLowerCase();
-        const aNameMatch = a.name.toLowerCase().includes(queryLower);
-        const bNameMatch = b.name.toLowerCase().includes(queryLower);
-
-        if (aNameMatch && !bNameMatch) return -1;
-        if (!aNameMatch && bNameMatch) return 1;
-      }
-
-      return 0;
-    });
-
-    return filtered;
-  }
-);
-
-// Store computada para resultados combinados (recetas y suplementos)
-export const $searchResults = computed(
-  [$filteredRecipes, $filteredSupplements, $search],
-  (recipes, supplements, searchState) => {
-    switch (searchState.activeSearchType) {
-      case "recipes":
-        return { recipes, supplements: [] };
-      case "supplements":
-        return { recipes: [], supplements };
-      case "all":
+    switch (sortBy) {
+      case "calories":
+        valueA = getters.getCalories(a);
+        valueB = getters.getCalories(b);
+        break;
+      case "protein":
+        valueA = getters.getProtein(a);
+        valueB = getters.getProtein(b);
+        break;
+      case "carbs":
+        valueA = getters.getCarbs ? getters.getCarbs(a) : 0;
+        valueB = getters.getCarbs ? getters.getCarbs(b) : 0;
+        break;
+      case "fat":
+        valueA = getters.getFat ? getters.getFat(a) : 0;
+        valueB = getters.getFat ? getters.getFat(b) : 0;
+        break;
+      case "name":
       default:
-        return { recipes, supplements };
+        valueA = getters.getName(a).toLowerCase();
+        valueB = getters.getName(b).toLowerCase();
+        break;
     }
+
+    if (valueA < valueB) return sortDirection === "asc" ? -1 : 1;
+    if (valueA > valueB) return sortDirection === "asc" ? 1 : -1;
+    return 0;
+  });
+}
+
+// Store computado para resultados de búsqueda de recetas
+export const $filteredRecipes = computed(
+  [$recipes, $searchFilters],
+  (recipes, filters): SearchResults<Recipe> => {
+    if (!recipes.isInitialized) {
+      return { items: [], totalCount: 0, filteredCount: 0 };
+    }
+
+    const allRecipes = recipes.allRecipes;
+
+    // Aplicar filtros
+    const filtered = filterItems(allRecipes, filters, {
+      getName: (recipe) => recipe.nombre,
+      getCalories: (recipe) => recipe.calorias,
+      getProtein: (recipe) => recipe.p,
+      getCarbs: (recipe) => recipe.c,
+      getFat: (recipe) => recipe.f,
+      getCategories: (recipe) => [recipe.tipo],
+      getTags: (recipe) => recipe.tags || [],
+      getDescription: (recipe) => recipe.description || "",
+    });
+
+    // Aplicar ordenamiento
+    const sorted = sortItems(filtered, filters.sortBy, filters.sortDirection, {
+      getName: (recipe) => recipe.nombre,
+      getCalories: (recipe) => recipe.calorias,
+      getProtein: (recipe) => recipe.p,
+      getCarbs: (recipe) => recipe.c,
+      getFat: (recipe) => recipe.f,
+    });
+
+    return {
+      items: sorted,
+      totalCount: allRecipes.length,
+      filteredCount: sorted.length,
+    };
   }
 );
 
-/**
- * Obtiene el número total de resultados de búsqueda
- */
-export function getTotalResultsCount(): number {
-  const results = $searchResults.get();
-  return results.recipes.length + results.supplements.length;
-}
+// Valor predeterminado para filteredSupplements
+export const $filteredSupplements = computed(
+  [$searchFilters],
+  (): SearchResults<Supplement> => {
+    return { items: [], totalCount: 0, filteredCount: 0 };
+  }
+);
 
-/**
- * Obtiene los resultados de búsqueda paginados
- * @param page - Número de página
- * @param pageSize - Tamaño de página
- */
-export function getPaginatedResults(
-  page: number = 1,
-  pageSize: number = 10
-): {
-  recipes: Recipe[];
-  supplements: Supplement[];
-  totalPages: number;
-  currentPage: number;
-} {
-  const results = $searchResults.get();
-  const totalItems = results.recipes.length + results.supplements.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
+// Obtener todas las categorías disponibles de recetas
+export const $availableRecipeCategories = computed($recipes, (recipes) => {
+  if (!recipes.isInitialized) return [];
 
-  const startIdx = (page - 1) * pageSize;
-  const endIdx = startIdx + pageSize;
+  const categories = new Set<string>();
+  recipes.allRecipes.forEach((recipe) => {
+    categories.add(recipe.tipo);
+  });
 
-  // Si solo tenemos un tipo de resultados, es simple
-  if (results.recipes.length === 0) {
+  return Array.from(categories).sort();
+});
+
+// Obtener todos los tags disponibles de recetas
+export const $availableRecipeTags = computed($recipes, (recipes) => {
+  if (!recipes.isInitialized) return [];
+
+  const tags = new Set<string>();
+  recipes.allRecipes.forEach((recipe) => {
+    if (recipe.tags) {
+      recipe.tags.forEach((tag) => tags.add(tag));
+    }
+  });
+
+  return Array.from(tags).sort();
+});
+
+// Valores predeterminados para categorías y tags de suplementos
+export const $availableSupplementCategories = computed([], (): string[] => []);
+
+export const $availableSupplementTags = computed([], (): string[] => []);
+
+// Estadísticas de búsqueda
+export const $searchStats = computed(
+  [$filteredRecipes, $filteredSupplements],
+  (recipes, supplements) => {
     return {
-      recipes: [],
-      supplements: results.supplements.slice(startIdx, endIdx),
-      totalPages,
-      currentPage: page,
+      totalResults: recipes.filteredCount + supplements.filteredCount,
+      recipeResults: recipes.filteredCount,
+      supplementResults: supplements.filteredCount,
     };
   }
-
-  if (results.supplements.length === 0) {
-    return {
-      recipes: results.recipes.slice(startIdx, endIdx),
-      supplements: [],
-      totalPages,
-      currentPage: page,
-    };
-  }
-
-  // Si tenemos ambos tipos, necesitamos mezclarlos manteniendo el orden de relevancia
-  const allItems = [
-    ...results.recipes.map((r) => ({ type: "recipe" as const, item: r })),
-    ...results.supplements.map((s) => ({
-      type: "supplement" as const,
-      item: s,
-    })),
-  ];
-
-  // Ordenar por relevancia (esto es simplificado, puedes ajustarlo según tus necesidades)
-  const sortBy = $search.get().sortBy;
-  const sortDir = $search.get().sortDirection;
-
-  if (sortBy === "name") {
-    allItems.sort((a, b) => {
-      const comparison = a.item.name.localeCompare(b.item.name);
-      return sortDir === "asc" ? comparison : -comparison;
-    });
-  }
-
-  const paginatedItems = allItems.slice(startIdx, endIdx);
-
-  return {
-    recipes: paginatedItems
-      .filter((item) => item.type === "recipe")
-      .map((item) => item.item as Recipe),
-    supplements: paginatedItems
-      .filter((item) => item.type === "supplement")
-      .map((item) => item.item as Supplement),
-    totalPages,
-    currentPage: page,
-  };
-}
+);
