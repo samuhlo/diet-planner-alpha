@@ -39,18 +39,6 @@ export function initializeRecipes(rawRecipes: Recipe[]) {
     snacks,
     isInitialized: true,
   });
-
-  console.log("Store de recetas inicializado:", {
-    totalRecipes: allRecipes.length,
-    totalDesserts: desserts.length,
-    totalSnacks: snacks.length,
-  });
-
-  // Imprimir IDs de los postres para depuración
-  console.log(
-    "IDs de los postres:",
-    desserts.map((d) => d.id)
-  );
 }
 
 /**
@@ -67,27 +55,14 @@ export function findRecipeById(recipeId: string): Recipe | undefined {
 export function findDessertById(dessertId: string): Recipe | undefined {
   const { desserts, allRecipes } = $recipes.get();
 
-  console.log(`Buscando postre con ID: ${dessertId}`);
-  console.log(`Total de postres en store: ${desserts.length}`);
-  console.log(`IDs de postres disponibles: ${desserts.map((d) => d.id)}`);
-
   // Primero buscar en la lista de postres
   const dessert = desserts.find((d) => d.id === dessertId);
   if (dessert) {
-    console.log(`Postre encontrado en la lista de postres: ${dessert.nombre}`);
     return dessert;
   }
 
   // Si no se encuentra, buscar en todas las recetas
   const dessertRecipe = allRecipes.find((r) => r.id === dessertId);
-  if (dessertRecipe) {
-    console.log(
-      `Postre encontrado en todas las recetas: ${dessertRecipe.nombre}`
-    );
-  } else {
-    console.log(`No se encontró ningún postre con ID: ${dessertId}`);
-  }
-
   return dessertRecipe;
 }
 
@@ -127,30 +102,6 @@ export function findSnackById(snackId: string): Snack | undefined {
   }
 
   return undefined;
-}
-
-/**
- * Imprime el estado actual del store para depuración
- */
-export function logStoreState(): void {
-  const state = $recipes.get();
-
-  console.log("=== ESTADO ACTUAL DEL STORE DE RECETAS ===");
-  console.log(`Total de recetas: ${state.allRecipes.length}`);
-  console.log(`Total de postres: ${state.desserts.length}`);
-  console.log(`Total de snacks: ${state.snacks.length}`);
-
-  console.log("IDs de los primeros 5 snacks:");
-  state.snacks.slice(0, 5).forEach((snack) => {
-    console.log(`- ${snack.id}: ${snack.nombre} (${snack.tipo})`);
-  });
-
-  console.log("IDs de los primeros 5 postres:");
-  state.desserts.slice(0, 5).forEach((dessert) => {
-    console.log(`- ${dessert.id}: ${dessert.nombre}`);
-  });
-
-  console.log("=== FIN DEL ESTADO ===");
 }
 
 // Store computada para recetas por tipo

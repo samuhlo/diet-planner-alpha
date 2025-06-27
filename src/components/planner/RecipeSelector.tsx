@@ -182,28 +182,18 @@ export default function RecipeSelector({
     const tipoComida =
       mealTypeMapping[mealType] || (mealType as Recipe["tipo"]);
 
-    console.log(
-      `Filtrando recetas para tipo: ${tipoComida}, mealType: ${mealType}`
-    );
-
     // Filtrar las recetas por tipo
     const filteredRecipes = recipesState.allRecipes.filter(
       (meal) => meal.tipo === tipoComida
     );
 
-    console.log(
-      `Encontradas ${filteredRecipes.length} recetas para ${tipoComida}`
-    );
-
     // Si es tipo postre, usar los postres del store
     if (tipoComida === "Postre" && mealType === "dessert") {
-      console.log("Usando postres del store:", recipesState.desserts.length);
       return recipesState.desserts;
     }
 
     // Si es tipo snack, usar los snacks del store
     if (tipoComida === "Snack" && mealType === "snack") {
-      console.log("Usando snacks del store:", recipesState.snacks.length);
       return recipesState.snacks as unknown as Recipe[];
     }
 

@@ -8,8 +8,6 @@ interface SummaryContentProps {
 export default function SummaryContent({
   data: summary,
 }: SummaryContentProps): VNode {
-  console.log("Datos del resumen:", summary);
-
   if (!summary || summary.length === 0) {
     return (
       <p class="text-center text-stone-500 italic">
@@ -17,10 +15,10 @@ export default function SummaryContent({
       </p>
     );
   }
+
   return (
     <div id="summary-to-copy" class="space-y-4">
       {summary.map((dayData) => {
-        console.log(`Día ${dayData.day}, meals:`, dayData.meals);
         return (
           <div key={dayData.day} class="day-summary-block">
             <h4 class="font-bold text-lg text-[#6B8A7A] border-b pb-1 mb-2">

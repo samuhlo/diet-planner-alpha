@@ -112,8 +112,7 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
     setSortOrder("asc");
   };
 
-  const handleViewRecipe = (recipe: Recipe) => {
-    console.log("Abriendo modal de receta desde RecipeBrowser:", recipe);
+  const handleRecipeClick = (recipe: Recipe) => {
     openRecipeDetailModal(recipe);
   };
 
@@ -266,7 +265,7 @@ export default function RecipeBrowser({ allMeals }: RecipeBrowserProps): VNode {
             <RecipeCard
               key={receta.nombre}
               item={receta}
-              onViewRecipe={handleViewRecipe}
+              onViewRecipe={handleRecipeClick}
             />
           ))
         ) : (

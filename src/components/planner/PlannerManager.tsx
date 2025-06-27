@@ -5,10 +5,8 @@ import { $plan, clearWeeklyPlan } from "../../stores/planStore";
 import {
   $recipes,
   initializeRecipes,
-  findRecipeById,
   findSnackById,
   findDessertById,
-  logStoreState,
 } from "../../stores/recipesStore";
 import { $userData, $userGoal } from "../../stores/userProfileStore";
 import { allSupplements } from "../../data/supplements";
@@ -79,12 +77,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
   }
 
   const generateShoppingList = () => {
-    // Imprimir el estado del store para depuración
-    logStoreState();
-
     const shoppingList: Record<string, Ingredient & { q: number }> = {};
-
-    console.log("Plan completo:", plan);
 
     Object.values(plan).forEach((dailyPlan) => {
       // Procesar comidas principales
@@ -110,17 +103,14 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
 
       // Procesar snacks
       const snackInfo = dailyPlan.snacks;
-      console.log("Snack info:", snackInfo);
+
       if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
-        console.log("Procesando snacks:", snackInfo.snacks);
         snackInfo.snacks.forEach((selectedSnack) => {
           if (selectedSnack.snackId) {
             // Usar el store para buscar el snack
             const snackId = selectedSnack.snackId;
-            console.log("Buscando snack con ID:", snackId);
 
             const snackData = findSnackById(snackId);
-            console.log("Snack encontrado:", snackData);
 
             if (snackData) {
               if (snackData.tipo === "elaborado" && snackData.ingredientes) {
@@ -167,17 +157,13 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
 
       // Procesar postres
       const dessertInfo = dailyPlan.desserts;
-      console.log("Dessert info:", dessertInfo);
+
       if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
-        console.log("Procesando postres:", dessertInfo.desserts);
         dessertInfo.desserts.forEach((selectedDessert) => {
           if (selectedDessert.dessertId) {
             // Usar el store para buscar el postre
             const dessertId = selectedDessert.dessertId;
             const dessertData = findDessertById(dessertId);
-
-            console.log("Buscando postre con ID:", dessertId);
-            console.log("Postre encontrado:", dessertData);
 
             if (dessertData?.ingredientes) {
               // Procesar ingredientes del postre
@@ -217,14 +203,11 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
     });
 
     const aggregated = Object.values(shoppingList);
-    console.log("Lista de compra final:", aggregated);
+
     openShoppingListModal(aggregated);
   };
 
   const generateWeekSummary = () => {
-    // Imprimir el estado del store para depuración
-    logStoreState();
-
     const summaryData = DAYS_OF_WEEK.map((day) => {
       const dayId = day.toLowerCase();
       const dailyPlan = plan[dayId] || {};
@@ -268,10 +251,8 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
           .map((s) => {
             // Usar el store para buscar el snack
             const snackId = s.snackId;
-            console.log("Buscando snack en resumen con ID:", snackId);
 
             const snackData = findSnackById(snackId);
-            console.log("Snack encontrado en resumen:", snackData);
 
             return snackData
               ? `${s.quantity}x ${snackData.nombre}`
@@ -288,7 +269,7 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
 
       // Procesar postres
       const dessertInfo = dailyPlan.desserts;
-      console.log("Dessert info en resumen:", dessertInfo);
+
       if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
         const dessertList = dessertInfo.desserts
           .filter((d) => d.dessertId)
@@ -297,9 +278,6 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
             const dessertId = d.dessertId;
             const dessertData = findDessertById(dessertId);
 
-            console.log("Buscando postre en resumen con ID:", dessertId);
-            console.log("Postre encontrado en resumen:", dessertData);
-
             return dessertData
               ? `${d.quantity}x ${dessertData.nombre}`
               : `${d.quantity}x Postre (ID: ${dessertId})`;
@@ -307,7 +285,6 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
           .filter(Boolean)
           .join(", ");
 
-        console.log("Lista de postres:", dessertList);
         if (dessertList) {
           dayMeals.desserts = dessertList;
           hasContent = true;

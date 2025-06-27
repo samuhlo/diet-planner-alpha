@@ -1,5 +1,4 @@
 import type { Recipe, Snack } from "../types";
-import { allMeals } from "../data/recipes";
 
 /**
  * Obtiene todas las recetas de tipo Snack y las convierte al formato Snack
@@ -7,18 +6,12 @@ import { allMeals } from "../data/recipes";
 export const getSnacksFromRecipes = (recipes: Recipe[]): Snack[] => {
   const snackRecipes = recipes.filter((recipe) => recipe.tipo === "Snack");
 
-  console.log(
-    `Generando snacks desde ${snackRecipes.length} recetas de tipo Snack`
-  );
-
   return snackRecipes.map((recipe) => {
     // Determinar si es un snack elaborado o simple basado en si tiene ingredientes
     const tipoSnack =
       recipe.ingredientes && recipe.ingredientes.length > 0
         ? "elaborado"
         : "simple";
-
-    console.log(`Snack ${recipe.nombre} (${recipe.id}) - Tipo: ${tipoSnack}`);
 
     return {
       id: recipe.id || recipe.nombre.toLowerCase().replace(/\s+/g, "-"),

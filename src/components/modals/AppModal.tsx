@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "preact/compat";
 import { useStore } from "@nanostores/preact";
-import { $modal, closeModal, getModalOptions } from "../../stores/modalStore";
+import { $modal, closeModal } from "../../stores/modalStore";
 import RecipeDetailModal from "./RecipeDetailModal";
 import ShoppingListContent from "./ShoppingListContent";
 import SummaryContent from "./SummaryContent";
@@ -14,26 +14,17 @@ const AppModal: React.FC = () => {
   const modalState = useStore($modal);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  console.log("Estado del modal en AppModal:", modalState);
-
   // Efecto para manejar el cierre con la tecla Escape
   useEffect(() => {
     const handleEscapeKey = (e: KeyboardEvent) => {
-      if (
-        e.key === "Escape" &&
-        modalState.isOpen &&
-        !modalState.preventOutsideClick
-      ) {
+      if (e.key === "Escape" && modalState.isOpen) {
         closeModal();
       }
     };
 
     window.addEventListener("keydown", handleEscapeKey);
-
-    return () => {
-      window.removeEventListener("keydown", handleEscapeKey);
-    };
-  }, [modalState.isOpen, modalState.preventOutsideClick]);
+    return () => window.removeEventListener("keydown", handleEscapeKey);
+  }, [modalState.isOpen]);
 
   // Efecto para bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -42,7 +33,6 @@ const AppModal: React.FC = () => {
     } else {
       document.body.style.overflow = "";
     }
-
     return () => {
       document.body.style.overflow = "";
     };
@@ -50,11 +40,7 @@ const AppModal: React.FC = () => {
 
   // Manejar clic fuera del modal para cerrarlo
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      modalRef.current &&
-      !modalRef.current.contains(e.target as Node) &&
-      !modalState.preventOutsideClick
-    ) {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
       closeModal();
     }
   };
@@ -64,33 +50,75 @@ const AppModal: React.FC = () => {
     return null;
   }
 
-  // Determinar clases CSS basadas en las opciones del modal
-  const getModalClasses = () => {
-    const options = getModalOptions();
-    const sizeClass = `modal-${options.size || "medium"}`;
-    const positionClass = `modal-position-${options.position || "center"}`;
-    const animationClass = `modal-animation-${options.animation || "fade"}`;
-
-    return `modal-content ${sizeClass} ${positionClass} ${animationClass}`;
-  };
-
   // Renderizar el contenido apropiado según el tipo de modal
   const renderModalContent = () => {
-    console.log("Renderizando contenido para tipo de modal:", modalState.type);
-
     switch (modalState.type) {
       case "recipeDetail":
-        console.log(
-          "Renderizando RecipeDetailModal con datos:",
-          modalState.data
-        );
         return <RecipeDetailModal />;
 
       case "shopping":
-        return <ShoppingListContent data={modalState.data} />;
+        return (
+          <div className="max-w-4xl w-full bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Lista de la Compra
+              </h2>
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <ShoppingListContent data={modalState.data} />
+            </div>
+          </div>
+        );
 
       case "summary":
-        return <SummaryContent data={modalState.data} />;
+        return (
+          <div className="max-w-4xl w-full bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Resumen Semanal
+              </h2>
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              <SummaryContent data={modalState.data} />
+            </div>
+          </div>
+        );
 
       case "supplementDetail":
         return <SupplementDetailModal />;
@@ -107,41 +135,32 @@ const AppModal: React.FC = () => {
       case "notification":
         return <NotificationModal />;
 
-      case "analysis":
-        return (
-          <div className="analysis-content">
-            <h2>Análisis</h2>
-            <pre>{JSON.stringify(modalState.data, null, 2)}</pre>
-          </div>
-        );
-
       default:
-        console.log("Tipo de modal no implementado:", modalState.type);
         return (
-          <div className="generic-modal-content">
-            <h2>Modal</h2>
-            <p>Tipo de modal no implementado: {modalState.type}</p>
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">Modal no implementado</h2>
+            <p>Tipo de modal: {modalState.type}</p>
+            <button
+              onClick={closeModal}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Cerrar
+            </button>
           </div>
         );
     }
   };
 
   return (
-    <div className="modal-overlay" onClick={handleBackdropClick}>
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+      onClick={handleBackdropClick}
+    >
       <div
         ref={modalRef}
-        className={getModalClasses()}
-        role="dialog"
-        aria-modal="true"
+        className="relative"
+        onClick={(e) => e.stopPropagation()}
       >
-        <button
-          className="modal-close-button"
-          onClick={closeModal}
-          aria-label="Cerrar"
-        >
-          &times;
-        </button>
-
         {renderModalContent()}
       </div>
     </div>

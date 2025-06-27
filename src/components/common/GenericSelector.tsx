@@ -5,8 +5,9 @@ import {
   useRef,
   useEffect,
 } from "preact/hooks";
-import type { BaseItem, ModalType, Recipe } from "../../types";
+import type { BaseItem, Recipe } from "../../types";
 import { openModal, openRecipeDetailModal } from "../../stores/modalStore";
+import type { ModalType } from "../../stores/modalStore";
 
 // Interfaz para configurar la apariencia y comportamiento del selector
 export interface SelectorConfig {
@@ -249,7 +250,6 @@ export default function GenericSelector<T extends Record<string, any>>({
     if (selectorConfig.modalType === "recipeDetail") {
       // Asegurarse de que el item se trata como una receta
       const recipeData = item as unknown as Recipe;
-      console.log("Abriendo modal de receta:", recipeData);
       openRecipeDetailModal(recipeData);
     } else if (selectorConfig.modalType) {
       openModal(selectorConfig.modalType, item as any);

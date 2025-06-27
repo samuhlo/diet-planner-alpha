@@ -19,8 +19,6 @@ const SHOPPING_LIST_KEY = "customShoppingList";
 export default function ShoppingListContent({
   data: ingredients,
 }: ShoppingListContentProps): VNode {
-  console.log("Ingredientes recibidos en la lista de compra:", ingredients);
-
   // Estado local de la lista editable
   const [customList, setCustomList] = useState<Ingredient[] | null>(null);
   const [originalNames, setOriginalNames] = useState<string[] | null>(null);
