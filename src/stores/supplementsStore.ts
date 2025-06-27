@@ -1,129 +1,162 @@
 import { map, computed } from "nanostores";
 import { allSupplements as initialSupplements } from "../data/supplements";
-import type { Supplement } from "../types";
+import type { Supplement } from "../types/supplements";
 
-// Estado inicial para los suplementos
+// Definir la interfaz del estado
 interface SupplementsState {
-  supplements: Supplement[];
-  loading: boolean;
+  items: Supplement[];
+  isLoading: boolean;
   error: string | null;
+  selectedCategory: string | null;
 }
 
-// Inicializar el store con los suplementos del archivo de datos
-export const $supplementsState = map<SupplementsState>({
-  supplements: initialSupplements,
-  loading: false,
+// Estado inicial
+const initialState: SupplementsState = {
+  items: initialSupplements,
+  isLoading: false,
   error: null,
+  selectedCategory: null,
+};
+
+// Crear el store
+export const $supplements = map<SupplementsState>(initialState);
+
+// Acciones
+export function setSelectedCategory(category: string | null) {
+  $supplements.setKey("selectedCategory", category);
+}
+
+export function addSupplement(supplement: Supplement) {
+  const currentItems = $supplements.get().items;
+  $supplements.setKey("items", [...currentItems, supplement]);
+}
+
+export function updateSupplement(id: string, updates: Partial<Supplement>) {
+  const currentItems = $supplements.get().items;
+  const updatedItems = currentItems.map((item) =>
+    item.id === id ? { ...item, ...updates } : item
+  );
+  $supplements.setKey("items", updatedItems);
+}
+
+export function removeSupplement(id: string) {
+  const currentItems = $supplements.get().items;
+  const filteredItems = currentItems.filter((item) => item.id !== id);
+  $supplements.setKey("items", filteredItems);
+}
+
+// Stores computados
+export const $supplementsByCategory = computed($supplements, (state) => {
+  const { items, selectedCategory } = state;
+
+  if (!selectedCategory) {
+    return items;
+  }
+
+  return items.filter(
+    (item) =>
+      item.type === selectedCategory || item.categoria === selectedCategory
+  );
 });
 
-// Store computada que expone directamente la lista de suplementos
-export const $supplements = computed(
-  $supplementsState,
-  (state) => state.supplements
-);
+export const $supplementCategories = computed($supplements, (state) => {
+  const categories = new Set<string>();
 
-// Store computada para obtener suplementos por tipo
-export const $supplementsByType = computed($supplements, (supplements) => {
-  const byType: Record<string, Supplement[]> = {};
-
-  supplements.forEach((supplement) => {
-    const type = supplement.type || "general";
-    if (!byType[type]) {
-      byType[type] = [];
-    }
-    byType[type].push(supplement);
+  state.items.forEach((item) => {
+    if (item.type) categories.add(item.type);
+    if (item.categoria) categories.add(item.categoria);
   });
 
-  return byType;
+  return Array.from(categories).sort();
 });
 
-// Store computada para obtener suplementos por etiqueta
-export const $supplementsByTag = computed($supplements, (supplements) => {
-  const byTag: Record<string, Supplement[]> = {};
+export const $supplementsByTag = computed($supplements, (state) => {
+  const tagMap: Record<string, Supplement[]> = {};
 
-  supplements.forEach((supplement) => {
-    if (supplement.tags) {
+  state.items.forEach((supplement) => {
+    if (supplement.tags && supplement.tags.length > 0) {
       supplement.tags.forEach((tag) => {
-        if (!byTag[tag]) {
-          byTag[tag] = [];
+        if (!tagMap[tag]) {
+          tagMap[tag] = [];
         }
-        byTag[tag].push(supplement);
+        tagMap[tag].push(supplement);
       });
     }
   });
 
-  return byTag;
+  return tagMap;
 });
 
-/**
- * Añade un nuevo suplemento
- * @param supplement - El suplemento a añadir
- */
-export function addSupplement(supplement: Supplement) {
-  const currentSupplements = $supplementsState.get().supplements;
-  $supplementsState.setKey("supplements", [...currentSupplements, supplement]);
-}
-
-/**
- * Actualiza un suplemento existente
- * @param id - El ID del suplemento a actualizar
- * @param updatedData - Los datos actualizados
- */
-export function updateSupplement(id: string, updatedData: Partial<Supplement>) {
-  const currentSupplements = $supplementsState.get().supplements;
-  const updatedSupplements = currentSupplements.map((supplement) =>
-    supplement.id === id ? { ...supplement, ...updatedData } : supplement
-  );
-
-  $supplementsState.setKey("supplements", updatedSupplements);
-}
-
-/**
- * Elimina un suplemento
- * @param id - El ID del suplemento a eliminar
- */
-export function deleteSupplement(id: string) {
-  const currentSupplements = $supplementsState.get().supplements;
-  const filteredSupplements = currentSupplements.filter(
-    (supplement) => supplement.id !== id
-  );
-
-  $supplementsState.setKey("supplements", filteredSupplements);
-}
-
-/**
- * Busca un suplemento por su ID
- * @param id - El ID del suplemento a buscar
- */
-export function findSupplementById(id: string): Supplement | undefined {
-  return $supplements.get().find((supplement) => supplement.id === id);
-}
-
-/**
- * Obtiene todos los tipos de suplementos disponibles
- */
-export function getAllSupplementTypes(): string[] {
-  const types = new Set<string>();
-
-  $supplements.get().forEach((supplement) => {
-    const type = supplement.type || "general";
-    types.add(type);
-  });
-
-  return Array.from(types);
-}
-
-/**
- * Obtiene todas las etiquetas de suplementos disponibles
- */
-export function getAllSupplementTags(): string[] {
+export const $supplementTags = computed($supplements, (state) => {
   const tags = new Set<string>();
 
-  $supplements.get().forEach((supplement) => {
-    if (supplement.tags) {
-      supplement.tags.forEach((tag) => tags.add(tag));
+  state.items.forEach((item) => {
+    if (item.tags) {
+      item.tags.forEach((tag) => tags.add(tag));
     }
   });
 
-  return Array.from(tags);
+  return Array.from(tags).sort();
+});
+
+// Función para obtener un suplemento por ID
+export function getSupplementById(id: string): Supplement | undefined {
+  return $supplements.get().items.find((item) => item.id === id);
+}
+
+// Función para buscar suplementos por nombre
+export function searchSupplementsByName(query: string): Supplement[] {
+  const normalizedQuery = query.toLowerCase().trim();
+
+  if (!normalizedQuery) {
+    return $supplements.get().items;
+  }
+
+  return $supplements
+    .get()
+    .items.filter(
+      (item) =>
+        item.name.toLowerCase().includes(normalizedQuery) ||
+        (item.nombre && item.nombre.toLowerCase().includes(normalizedQuery))
+    );
+}
+
+// Función para filtrar suplementos por múltiples criterios
+export function filterSupplements({
+  categories = [],
+  tags = [],
+  minProteins = 0,
+}: {
+  categories?: string[];
+  tags?: string[];
+  minProteins?: number;
+}): Supplement[] {
+  let filtered = $supplements.get().items;
+
+  // Filtrar por categorías
+  if (categories.length > 0) {
+    filtered = filtered.filter(
+      (item) =>
+        (item.type && categories.includes(item.type)) ||
+        (item.categoria && categories.includes(item.categoria))
+    );
+  }
+
+  // Filtrar por tags
+  if (tags.length > 0) {
+    filtered = filtered.filter(
+      (item) => item.tags && tags.some((tag) => item.tags?.includes(tag))
+    );
+  }
+
+  // Filtrar por proteínas mínimas
+  if (minProteins > 0) {
+    filtered = filtered.filter((item) => {
+      const proteinValue =
+        item.proteinas || item.protein || item.nutritionalInfo?.protein || 0;
+      return proteinValue >= minProteins;
+    });
+  }
+
+  return filtered;
 }
