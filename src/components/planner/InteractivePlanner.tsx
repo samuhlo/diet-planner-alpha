@@ -39,9 +39,27 @@ import type { SelectorType } from "../../utils/selectorUtils";
 interface InteractivePlannerProps {
   allMeals: Recipe[];
   allSupplements: Supplement[];
-  snacks: any[]; // Usar any para evitar problemas de tipo
+  snacks: any[]; // Tipos mixtos - pueden ser Recipe o Snack según contexto
 }
 
+/**
+ * Componente principal del planificador interactivo de comidas
+ *
+ * Funcionalidades principales:
+ * - Navegación entre días de la semana
+ * - Planificación de desayuno, almuerzo y cena
+ * - Gestión de snacks, postres y suplementos
+ * - Cálculo automático de valores nutricionales
+ * - Interfaz responsive con vista móvil y desktop
+ * - Generación de lista de compra y resumen
+ *
+ * Estados manejados:
+ * - Plan semanal (recetas por día y comida)
+ * - Vista actual (desktop/móvil)
+ * - Día seleccionado
+ * - Filtros de búsqueda
+ * - Estados de selectores
+ */
 export default function InteractivePlanner({
   allMeals,
   allSupplements,
@@ -54,9 +72,9 @@ export default function InteractivePlanner({
   // Organizar recetas por tipo
   const mealsByType = useMemo(() => {
     return {
-      Desayuno: allMeals.filter((meal) => meal.tipo === "Desayuno"),
-      Almuerzo: allMeals.filter((meal) => meal.tipo === "Almuerzo"),
-      Cena: allMeals.filter((meal) => meal.tipo === "Cena"),
+      Desayuno: allMeals.filter((meal: Recipe) => meal.tipo === "Desayuno"),
+      Almuerzo: allMeals.filter((meal: Recipe) => meal.tipo === "Almuerzo"),
+      Cena: allMeals.filter((meal: Recipe) => meal.tipo === "Cena"),
     };
   }, [allMeals]);
 
@@ -127,16 +145,12 @@ export default function InteractivePlanner({
           break;
         }
         case "dessert": {
-          console.log("Items de postre seleccionados:", items);
-
           // Convertir los IDs de las recetas a IDs de postres
           // Aquí es importante asegurarse de que estamos guardando el ID exacto
           const dessertItems = items.map((item) => ({
             dessertId: item.id,
             quantity: item.quantity,
           }));
-
-          console.log("Items de postre procesados:", dessertItems);
 
           handleDessertPlanChange(dayId, {
             enabled: true,
@@ -286,8 +300,6 @@ export default function InteractivePlanner({
           ) {
             return [];
           }
-
-          console.log("Buscando postres para:", dailyPlan.desserts.desserts);
 
           return dailyPlan.desserts.desserts
             .map((dessertItem) => {

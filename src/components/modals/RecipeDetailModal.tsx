@@ -1,4 +1,3 @@
-import React from "preact/compat";
 import { useStore } from "@nanostores/preact";
 import { $modal, getModalData, closeModal } from "../../stores/modalStore";
 import type { Recipe } from "../../types";
@@ -9,6 +8,16 @@ import {
 } from "../../utils/ingredientFormatter";
 import { getCalorieColor, getProteinColor } from "../../utils/recipeUtils";
 
+/**
+ * Modal que muestra los detalles completos de una receta
+ *
+ * Funcionalidades:
+ * - Muestra información nutricional con colores
+ * - Lista ingredientes con precios individuales
+ * - Muestra preparación paso a paso
+ * - Calcula precio total de la receta
+ * - Tags y categorización
+ */
 export default function RecipeDetailModal() {
   // Usar el store modal en lugar de props
   const modalState = useStore($modal);

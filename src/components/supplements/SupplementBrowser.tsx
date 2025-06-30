@@ -1,28 +1,61 @@
 import type { VNode } from "preact";
 import { useState, useMemo } from "preact/hooks";
 import SupplementCard from "./SupplementCard.tsx";
-import type { Supplement } from "../../types";
-import {
-  searchSupplements,
-  getSupplementsByCategory,
-  getSupplementsByGoal,
-  filterSupplements,
-  sortSupplementsByCalories,
-  sortSupplementsByProtein,
-} from "../../utils/supplementUtils";
+import type { Supplement } from "../../types/supplements";
 
 interface SupplementBrowserProps {
   allSupplements: Supplement[];
 }
 
+/**
+ * Funciones auxiliares para filtrado de suplementos
+ */
+const searchSupplements = (supplements: Supplement[], term: string) => {
+  const lowerTerm = term.toLowerCase();
+  return supplements.filter(
+    (supplement) =>
+      supplement.name.toLowerCase().includes(lowerTerm) ||
+      supplement.description?.toLowerCase().includes(lowerTerm) ||
+      supplement.tags?.some((tag) => tag.toLowerCase().includes(lowerTerm))
+  );
+};
+
+const getSupplementsByCategory = (
+  supplements: Supplement[],
+  category: string
+) => {
+  return supplements.filter((supplement) => supplement.categoria === category);
+};
+
+const sortSupplementsByName = (supplements: Supplement[], ascending = true) => {
+  return [...supplements].sort((a, b) => {
+    return ascending
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
+  });
+};
+
+const sortSupplementsByCalories = (
+  supplements: Supplement[],
+  ascending = true
+) => {
+  return [...supplements].sort((a, b) => {
+    const aCalories = a.calories || 0;
+    const bCalories = b.calories || 0;
+    return ascending ? aCalories - bCalories : bCalories - aCalories;
+  });
+};
+
+/**
+ * Navegador de suplementos con filtros y búsqueda
+ */
 export default function SupplementBrowser({
   allSupplements,
 }: SupplementBrowserProps): VNode {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedGoal, setSelectedGoal] = useState<string>("");
-  const [sortBy, setSortBy] = useState<"name" | "calories" | "protein">("name");
+  const [sortBy, setSortBy] = useState<"name" | "calories">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // Obtener datos únicos para filtros
@@ -38,16 +71,6 @@ export default function SupplementBrowser({
     return ["protein", "vitamins", "minerals", "performance", "health"];
   }, []);
 
-  const allGoals = useMemo(() => {
-    return [
-      "muscle-gain",
-      "weight-loss",
-      "general-health",
-      "performance",
-      "recovery",
-    ];
-  }, []);
-
   const allCalories = useMemo(() => {
     return ["with-calories", "without-calories"];
   }, []);
@@ -56,46 +79,33 @@ export default function SupplementBrowser({
     return ["with-protein", "without-protein"];
   }, []);
 
-  // Filtrar suplementos usando las nuevas utilidades
+  // Filtrar suplementos usando la lógica simplificada
   const filteredSupplements = useMemo(() => {
     let supplements = allSupplements;
-
-    // Aplicar filtros básicos
-    if (selectedTags.length > 0 || selectedCategory || selectedGoal) {
-      supplements = filterSupplements(supplements, {
-        tags: selectedTags.length > 0 ? selectedTags : undefined,
-      });
-    }
-
-    // Aplicar filtros específicos
-    if (selectedCategory) {
-      supplements = getSupplementsByCategory(
-        supplements,
-        selectedCategory as any
-      );
-    }
-
-    if (selectedGoal) {
-      supplements = getSupplementsByGoal(supplements, selectedGoal as any);
-    }
 
     // Aplicar búsqueda
     if (searchTerm) {
       supplements = searchSupplements(supplements, searchTerm);
     }
 
+    // Aplicar filtros específicos
+    if (selectedCategory) {
+      supplements = getSupplementsByCategory(supplements, selectedCategory);
+    }
+
+    // Filtrar por tags
+    if (selectedTags.length > 0) {
+      supplements = supplements.filter((supplement) =>
+        selectedTags.some((tag) => supplement.tags?.includes(tag))
+      );
+    }
+
     // Aplicar ordenamiento
     if (sortBy === "calories") {
       supplements = sortSupplementsByCalories(supplements, sortOrder === "asc");
-    } else if (sortBy === "protein") {
-      supplements = sortSupplementsByProtein(supplements, sortOrder === "asc");
     } else {
       // Ordenar por nombre
-      supplements = [...supplements].sort((a, b) => {
-        return sortOrder === "asc"
-          ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
-      });
+      supplements = sortSupplementsByName(supplements, sortOrder === "asc");
     }
 
     return supplements;
@@ -103,8 +113,6 @@ export default function SupplementBrowser({
     allSupplements,
     selectedTags,
     selectedCategory,
-    selectedGoal,
-
     searchTerm,
     sortBy,
     sortOrder,
@@ -120,14 +128,13 @@ export default function SupplementBrowser({
     setSearchTerm("");
     setSelectedTags([]);
     setSelectedCategory("");
-    setSelectedGoal("");
 
     setSortBy("name");
     setSortOrder("asc");
   };
 
   const hasActiveFilters =
-    selectedTags.length > 0 || selectedCategory || selectedGoal || searchTerm;
+    selectedTags.length > 0 || selectedCategory || searchTerm;
 
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
@@ -138,17 +145,6 @@ export default function SupplementBrowser({
       health: "Salud",
     };
     return labels[category] || category;
-  };
-
-  const getGoalLabel = (goal: string) => {
-    const labels: Record<string, string> = {
-      "muscle-gain": "Ganar Músculo",
-      "weight-loss": "Pérdida de Peso",
-      "general-health": "Salud General",
-      performance: "Performance",
-      recovery: "Recuperación",
-    };
-    return labels[goal] || goal;
   };
 
   const getCaloriesLabel = (calories: string) => {
@@ -215,29 +211,6 @@ export default function SupplementBrowser({
             </select>
           </div>
 
-          {/* Filtro por objetivo */}
-          <div>
-            <label
-              for="supplement-goal-filter"
-              class="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Objetivo
-            </label>
-            <select
-              id="supplement-goal-filter"
-              value={selectedGoal}
-              onChange={(e) => setSelectedGoal(e.currentTarget.value)}
-              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#6B8A7A] focus:border-transparent"
-            >
-              <option value="">Todos los objetivos</option>
-              {allGoals.map((goal) => (
-                <option key={goal} value={goal}>
-                  {getGoalLabel(goal)}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Ordenamiento */}
           <div>
             <label
@@ -255,7 +228,6 @@ export default function SupplementBrowser({
               >
                 <option value="name">Nombre</option>
                 <option value="calories">Calorías</option>
-                <option value="protein">Proteína</option>
               </select>
               <button
                 onClick={() =>

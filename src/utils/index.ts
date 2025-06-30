@@ -1,32 +1,36 @@
-// Archivo de índice para exportar todas las utilidades de forma organizada
+/**
+ * Utilidades principales de la aplicación
+ *
+ * Este archivo centraliza las utilidades más utilizadas
+ * para facilitar las importaciones y mantener la organización
+ */
 
-// Utilidades de recetas
+// Utilidades para recetas
 export {
-  getRecipesByType,
-  searchRecipes,
-  filterRecipes,
   getSnacksFromRecipes,
+  assignIdsToRecipes,
+  getCalorieColor,
+  getProteinColor,
 } from "./recipeUtils";
 
-// Utilidades de suplementos
+// Utilidades para ingredientes y formateo
 export {
-  getSupplementsByTag,
-  searchSupplements,
-  getSupplementsWithCalories,
-  getSupplementsWithoutCalories,
-  getSupplementsWithProtein,
-  calculateTotalSupplementCalories,
-  sortSupplementsByCalories,
-  sortSupplementsByProtein,
-  filterSupplements,
-  getSupplementsByCategory,
-  getSupplementsByGoal,
-} from "./supplementUtils";
+  formatIngredient,
+  formatEuro,
+  calculateRecipePrice,
+  isOptionalIngredient,
+  calculateIngredientPrice,
+} from "./ingredientFormatter";
 
-// Utilidades de tips
+// Utilidades para selectores
 export {
-  getTipsByTag,
-  searchTips,
-  getRandomTips,
-  getTipsByCategory,
-} from "./tipUtils";
+  generateDessertsFromRecipes,
+  SELECTOR_CONFIG,
+  ITEM_ACCESSORS,
+  getSelectedItems,
+  getSelectorEnabled,
+  getPlanItems,
+  createSupplementPlan,
+} from "./selectorUtils";
+
+export type { SelectorType } from "./selectorUtils";

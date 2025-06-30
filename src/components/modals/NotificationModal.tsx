@@ -1,10 +1,15 @@
-import React, { useEffect } from "preact/compat";
+import { useEffect } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $modal, getModalData, closeModal } from "../../stores/modalStore";
 
-const NotificationModal: React.FC = () => {
+/**
+ * Modal de notificaciones temporales
+ *
+ * Se cierra automáticamente después de 3 segundos
+ */
+export default function NotificationModal() {
   const modalState = useStore($modal);
-  const notificationData = getModalData<"notification">();
+  const notificationData = getModalData() as any; // Simplificar temporalmente
 
   if (!notificationData) {
     return (
@@ -75,6 +80,4 @@ const NotificationModal: React.FC = () => {
       )}
     </div>
   );
-};
-
-export default NotificationModal;
+}

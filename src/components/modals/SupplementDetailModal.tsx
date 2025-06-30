@@ -1,9 +1,17 @@
-import React from "preact/compat";
 import { useStore } from "@nanostores/preact";
 import { $modal, getModalData, closeModal } from "../../stores/modalStore";
 import type { Supplement } from "../../types/supplements";
 
-const SupplementDetailModal: React.FC = () => {
+/**
+ * Modal que muestra los detalles de un suplemento
+ *
+ * Funcionalidades:
+ * - Información nutricional del suplemento
+ * - Dosis y momento de toma recomendado
+ * - Beneficios principales
+ * - Información de marca y precio
+ */
+const SupplementDetailModal = () => {
   const modalState = useStore($modal);
   const supplement = getModalData() as Supplement;
 

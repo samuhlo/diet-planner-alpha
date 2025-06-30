@@ -5,6 +5,15 @@ interface SummaryContentProps {
   data: WeeklySummaryData[];
 }
 
+/**
+ * Componente que muestra el resumen semanal del plan de comidas
+ *
+ * Funcionalidades:
+ * - Muestra un resumen organizado por días
+ * - Lista las comidas planificadas para cada día
+ * - Incluye desayuno, almuerzo, cena y suplementos
+ * - Formato limpio para visualización o exportación
+ */
 export default function SummaryContent({
   data: summary,
 }: SummaryContentProps): VNode {

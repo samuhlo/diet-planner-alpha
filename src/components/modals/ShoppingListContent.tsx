@@ -1,24 +1,32 @@
-import type { VNode } from "preact";
-import type { Ingredient } from "../../types";
-import { formatIngredient } from "../../utils/ingredientFormatter";
+import { useState, useEffect } from "preact/hooks";
+import { formatIngredient, formatEuro } from "../../utils/ingredientFormatter";
 import { getExtractedIngredientByName } from "../../data/ingredients";
-import { formatEuro } from "../../utils/ingredientFormatter";
-import { useEffect, useState } from "preact/hooks";
-
-interface ShoppingListContentProps {
-  data: Ingredient[];
-}
+import type { Ingredient } from "../../types";
 
 interface ShoppingListPersisted {
   list: Ingredient[];
   originalNames: string[];
 }
 
+interface ShoppingListContentProps {
+  data: Ingredient[];
+}
+
 const SHOPPING_LIST_KEY = "customShoppingList";
 
+/**
+ * Componente que muestra la lista de la compra con precios y permite edición
+ *
+ * Funcionalidades:
+ * - Muestra ingredientes con cantidades y precios
+ * - Permite eliminar ingredientes individualmente
+ * - Guarda cambios en localStorage
+ * - Calcula el total de la compra
+ * - Permite regenerar la lista original
+ */
 export default function ShoppingListContent({
   data: ingredients,
-}: ShoppingListContentProps): VNode {
+}: ShoppingListContentProps) {
   // Estado local de la lista editable
   const [customList, setCustomList] = useState<Ingredient[] | null>(null);
   const [originalNames, setOriginalNames] = useState<string[] | null>(null);

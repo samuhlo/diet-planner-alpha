@@ -1,8 +1,10 @@
-import React from "preact/compat";
 import { useStore } from "@nanostores/preact";
 import { $modal, getModalData, closeModal } from "../../stores/modalStore";
 
-const ConfirmModal: React.FC = () => {
+/**
+ * Modal de confirmación para acciones importantes
+ */
+export default function ConfirmModal() {
   const modalState = useStore($modal);
   const confirmData = getModalData();
 
@@ -59,6 +61,4 @@ const ConfirmModal: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default ConfirmModal;
+}

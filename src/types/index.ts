@@ -5,6 +5,9 @@ export interface BaseItem {
   id: string;
 }
 
+// Re-exportar tipos de suplementos desde su módulo específico
+export type { Supplement } from "./supplements";
+
 // Tipos de usuario
 export interface UserData {
   weight: number;
@@ -131,23 +134,6 @@ export interface Snack {
   preparacion?: string; // Solo para snacks elaborados
   tags: string[];
   porcion: string; // Ej: "1 unidad", "30g", "1 puñado"
-}
-
-// Tipos de suplementos
-export interface Supplement {
-  id: string;
-  name: string;
-  description?: string;
-  type?: string;
-  tags?: string[];
-  dosage?: string;
-  timing?: string;
-  nutritionalInfo?: NutritionalInfo;
-  benefits?: string[];
-  imageUrl?: string;
-  brand?: string;
-  price?: number;
-  link?: string;
 }
 
 // Tipos de modales

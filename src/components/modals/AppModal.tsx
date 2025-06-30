@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "preact/compat";
+import { useEffect, useRef } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $modal, closeModal } from "../../stores/modalStore";
 import RecipeDetailModal from "./RecipeDetailModal";
@@ -9,7 +9,25 @@ import NutritionDetailModal from "./NutritionDetailModal";
 import ConfirmModal from "./ConfirmModal";
 import NotificationModal from "./NotificationModal";
 
-const AppModal: React.FC = () => {
+/**
+ * Componente principal que gestiona todos los modales de la aplicación
+ *
+ * Funcionalidades:
+ * - Renderiza diferentes tipos de modales según el estado
+ * - Maneja cierre con ESC y clic fuera
+ * - Bloquea scroll del body cuando está abierto
+ * - Estilos responsive con Tailwind CSS
+ *
+ * Tipos de modales soportados:
+ * - recipeDetail: Detalles de receta
+ * - shopping: Lista de la compra
+ * - summary: Resumen semanal
+ * - supplementDetail: Detalles de suplemento
+ * - nutritionDetail: Información nutricional
+ * - confirmAction: Confirmación de acciones
+ * - notification: Notificaciones
+ */
+const AppModal = () => {
   const modalState = useStore($modal);
   const modalRef = useRef<HTMLDivElement>(null);
 
