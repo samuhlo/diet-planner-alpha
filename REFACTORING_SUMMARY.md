@@ -298,7 +298,7 @@ La refactorización está **100% completa** y el proyecto mantiene toda su funci
 
 ¡El proyecto ahora tiene una estructura de datos profesional, escalable y bien documentada!
 
-# Refactorización del Planificador de Dieta
+# Refactorización del Planificador de Dieta Apha
 
 ## Objetivo
 

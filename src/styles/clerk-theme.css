@@ -1,0 +1,337 @@
+/* ========================================
+   ESTILOS PERSONALIZADOS PARA CLERK
+   Paleta de colores de PlanificadorDietaAlpha:
+   - Verde principal: #6B8A7A
+   - Verde oscuro: #3a5a40  
+   - Verde hover: #5a7268
+   - Fondo: #f8f7f4
+   - Texto: #3d405b
+   ======================================== */
+
+/* ========================================
+   CONTENEDOR PRINCIPAL Y FONDO
+   ======================================== */
+
+/* Asegurar que el fondo principal sea blanco */
+.cl-rootBox,
+.cl-card,
+.cl-main {
+  background-color: #ffffff !important;
+  font-family: "Inter", sans-serif !important;
+  color: #3d405b !important;
+}
+
+/* ========================================
+   HEADERS Y TÍTULOS
+   ======================================== */
+
+.cl-headerTitle {
+  color: #3a5a40 !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.cl-headerSubtitle {
+  color: #6b7280 !important;
+  font-size: 0.875rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* ========================================
+   BOTONES PRINCIPALES
+   ======================================== */
+
+/* Botón principal de Clerk */
+.cl-formButtonPrimary {
+  background-color: #6b8a7a !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s ease-in-out !important;
+  width: 100% !important;
+}
+
+.cl-formButtonPrimary:hover,
+.cl-formButtonPrimary:focus {
+  background-color: #5a7268 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Botones secundarios */
+.cl-formButtonSecondary {
+  background-color: transparent !important;
+  color: #6b8a7a !important;
+  border: 2px solid #6b8a7a !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.cl-formButtonSecondary:hover,
+.cl-formButtonSecondary:focus {
+  background-color: #6b8a7a !important;
+  color: #ffffff !important;
+}
+
+/* ========================================
+   CAMPOS DE FORMULARIO
+   ======================================== */
+
+/* Inputs */
+.cl-formFieldInput,
+.cl-input {
+  background-color: #ffffff !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 0.75rem !important;
+  font-size: 0.875rem !important;
+  color: #3d405b !important;
+  transition: border-color 0.2s ease-in-out !important;
+}
+
+.cl-formFieldInput:focus,
+.cl-input:focus {
+  border-color: #6b8a7a !important;
+  box-shadow: 0 0 0 3px rgba(107, 138, 122, 0.1) !important;
+  outline: none !important;
+}
+
+/* Labels */
+.cl-formFieldLabel,
+.cl-label {
+  color: #3d405b !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* ========================================
+   BOTONES SOCIALES (Google, etc.)
+   ======================================== */
+
+.cl-socialButtonsIconButton {
+  border: 2px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 0.75rem !important;
+  background-color: #ffffff !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.cl-socialButtonsIconButton:hover {
+  border-color: #6b8a7a !important;
+  background-color: #f3f4f6 !important;
+}
+
+/* ========================================
+   ENLACES Y TEXTO
+   ======================================== */
+
+.cl-footerActionLink,
+.cl-link {
+  color: #6b8a7a !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease-in-out !important;
+}
+
+.cl-footerActionLink:hover,
+.cl-link:hover {
+  color: #5a7268 !important;
+  text-decoration: underline !important;
+}
+
+/* Texto del footer */
+.cl-footerActionText {
+  color: #6b7280 !important;
+  font-size: 0.875rem !important;
+}
+
+/* ========================================
+   MENSAJES DE ERROR Y ÉXITO
+   ======================================== */
+
+.cl-formFieldErrorText,
+.cl-error {
+  color: #ef4444 !important;
+  font-size: 0.75rem !important;
+  margin-top: 0.25rem !important;
+  font-weight: 500 !important;
+}
+
+.cl-formFieldSuccessText {
+  color: #10b981 !important;
+  font-size: 0.75rem !important;
+  margin-top: 0.25rem !important;
+  font-weight: 500 !important;
+}
+
+/* ========================================
+   DIVISORES
+   ======================================== */
+
+.cl-dividerLine {
+  border-color: #e5e7eb !important;
+}
+
+.cl-dividerText {
+  color: #9ca3af !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  background-color: #ffffff !important;
+  padding: 0 0.75rem !important;
+}
+
+/* ========================================
+   USER BUTTON (AVATAR)
+   ======================================== */
+
+.cl-userButtonAvatarBox {
+  border: 2px solid #6b8a7a !important;
+  border-radius: 50% !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.cl-userButtonAvatarBox:hover {
+  border-color: #5a7268 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Dropdown del user button */
+.cl-userButtonPopoverCard {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.cl-userButtonPopoverActionButton {
+  color: #3d405b !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 0.75rem !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background-color: #f3f4f6 !important;
+  color: #3a5a40 !important;
+}
+
+/* ========================================
+   VERIFICACIÓN DE CÓDIGO
+   ======================================== */
+
+.cl-verificationCodeInput {
+  background-color: #ffffff !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  color: #3d405b !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  transition: border-color 0.2s ease-in-out !important;
+}
+
+.cl-verificationCodeInput:focus {
+  border-color: #6b8a7a !important;
+  box-shadow: 0 0 0 3px rgba(107, 138, 122, 0.1) !important;
+}
+
+/* ========================================
+   LOADING SPINNER
+   ======================================== */
+
+.cl-spinner {
+  border-color: #6b8a7a !important;
+}
+
+/* ========================================
+   ALTERNATIVAS (Olvidé mi contraseña, etc.)
+   ======================================== */
+
+.cl-alternativeMethodsBlockButton {
+  color: #6b8a7a !important;
+  font-size: 0.875rem !important;
+  text-decoration: underline !important;
+}
+
+.cl-alternativeMethodsBlockButton:hover {
+  color: #5a7268 !important;
+}
+
+/* ========================================
+   RESPONSIVIDAD
+   ======================================== */
+
+@media (max-width: 640px) {
+  .cl-card {
+    padding: 1.5rem !important;
+    margin: 0.5rem !important;
+  }
+
+  .cl-headerTitle {
+    font-size: 1.25rem !important;
+  }
+
+  .cl-formButtonPrimary,
+  .cl-formButtonSecondary {
+    padding: 0.875rem 1.25rem !important;
+  }
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+
+@keyframes clerkFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cl-card,
+.cl-rootBox {
+  animation: clerkFadeIn 0.3s ease-out !important;
+}
+
+/* ========================================
+   FOCUS STATES PARA ACCESIBILIDAD
+   ======================================== */
+
+.cl-formButtonPrimary:focus,
+.cl-formButtonSecondary:focus {
+  box-shadow: 0 0 0 3px rgba(107, 138, 122, 0.3) !important;
+  outline: none !important;
+}
+
+/* ========================================
+   FORZAR ESTILOS DE FONDO BLANCOS
+   ======================================== */
+
+/* Asegurar que TODOS los contenedores tengan fondo blanco */
+[data-clerk-theme],
+[data-clerk-theme] *,
+.cl-rootBox *,
+.cl-card *,
+.cl-main *,
+.cl-modalContent,
+.cl-modalBackdrop {
+  background-color: inherit !important;
+}
+
+/* Forzar fondo blanco en el contenedor principal */
+.cl-card,
+.cl-rootBox,
+.cl-main,
+.cl-modalContent {
+  background-color: #ffffff !important;
+}
