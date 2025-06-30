@@ -1,6 +1,9 @@
 ---
 import "../styles/global.css";
 import AppModal from "../components/modals/AppModal.tsx";
+import AuthInitializer from "../components/auth/AuthInitializer.tsx";
+import ClerkDiagnostic from "../components/auth/ClerkDiagnostic.tsx";
+import { SignedIn, SignedOut, UserButton } from "@clerk/astro/components";
 
 // --- Code Fence (Aquí va el código JavaScript/TypeScript que se ejecuta en el servidor) ---
 // Definimos las "props" que este componente puede recibir.
@@ -35,6 +38,44 @@ const { title } = Astro.props;
     </style>
   </head>
   <body class="antialiased">
+    <!-- Barra de autenticación superior -->
+    <div class="bg-white shadow-sm border-b">
+      <div class="container mx-auto px-4 py-3 max-w-screen-xl">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <h1 class="text-xl font-semibold text-[#3a5a40]">PlanificaDieta</h1>
+          </div>
+
+          <!-- Componentes de autenticación -->
+          <div class="flex items-center gap-3">
+            <SignedOut>
+              <div class="flex gap-2">
+                <a
+                  href="/sign-in"
+                  class="bg-[#6B8A7A] hover:bg-[#5a7268] text-white px-4 py-2 rounded-lg transition-colors text-sm no-underline"
+                >
+                  Iniciar Sesión
+                </a>
+                <a
+                  href="/sign-up"
+                  class="bg-transparent border-2 border-[#6B8A7A] text-[#6B8A7A] hover:bg-[#6B8A7A] hover:text-white px-4 py-2 rounded-lg transition-colors text-sm no-underline"
+                >
+                  Registrarse
+                </a>
+              </div>
+            </SignedOut>
+
+            <SignedIn>
+              <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-600">Bienvenido de vuelta</span>
+                <UserButton />
+              </div>
+            </SignedIn>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container mx-auto px-4 py-8 max-w-screen-xl">
       <!-- El <slot /> es un marcador de posición.
              Aquí es donde Astro insertará el contenido de la página que use este Layout. -->
@@ -48,5 +89,7 @@ const { title } = Astro.props;
       </footer>
     </div>
     <AppModal client:load />
+    <AuthInitializer client:load />
+    <ClerkDiagnostic client:load />
   </body>
 </html>

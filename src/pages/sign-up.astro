@@ -1,0 +1,30 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { SignUp as ClerkSignUp } from "@clerk/astro/components";
+---
+
+<Layout title="Registro - PlanificaDieta">
+  <div class="flex items-center justify-center min-h-[60vh]">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-[#3a5a40] mb-2">Únete a nosotros</h1>
+        <p class="text-gray-600">
+          Crea tu cuenta y comienza tu viaje hacia el bienestar
+        </p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <ClerkSignUp routing="hash" signInUrl="/sign-in" />
+      </div>
+
+      <div class="text-center mt-6">
+        <p class="text-sm text-gray-600">
+          ¿Ya tienes una cuenta?
+          <a href="/sign-in" class="text-[#6B8A7A] hover:underline font-medium">
+            Inicia sesión aquí
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</Layout>

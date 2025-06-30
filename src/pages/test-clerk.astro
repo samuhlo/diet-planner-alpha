@@ -1,0 +1,108 @@
+---
+import Layout from "../layouts/Layout.astro";
+import {
+  SignIn as ClerkSignIn,
+  SignUp as ClerkSignUp,
+} from "@clerk/astro/components";
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY;
+const secretKey = import.meta.env.CLERK_SECRET_KEY
+  ? "***CONFIGURADA***"
+  : "NO CONFIGURADA";
+---
+
+<Layout title="Prueba de Clerk - PlanificaDieta">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-[#3a5a40] mb-8">
+      Prueba de Configuración de Clerk
+    </h1>
+
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Estado de la Configuración</h2>
+      <div class="space-y-2">
+        <div class="flex items-center gap-2">
+          <span class={publishableKey ? "text-green-600" : "text-red-600"}>
+            {publishableKey ? "✅" : "❌"}
+          </span>
+          <span
+            >Publishable Key: {
+              publishableKey ? "Configurada" : "NO CONFIGURADA"
+            }</span
+          >
+        </div>
+        <div class="flex items-center gap-2">
+          <span
+            class={secretKey.includes("CONFIGURADA")
+              ? "text-green-600"
+              : "text-red-600"}
+          >
+            {secretKey.includes("CONFIGURADA") ? "✅" : "❌"}
+          </span>
+          <span>Secret Key: {secretKey}</span>
+        </div>
+      </div>
+
+      {
+        !publishableKey && (
+          <div class="mt-4 p-4 bg-red-100 border border-red-300 rounded-lg">
+            <h3 class="font-semibold text-red-800">
+              ⚠️ Configuración Requerida
+            </h3>
+            <p class="text-red-700 mt-2">
+              Para que Clerk funcione, necesitas agregar las siguientes
+              variables a tu archivo .env:
+            </p>
+            <pre class="mt-2 bg-red-50 p-3 rounded text-sm">
+              PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_tu_clave_aqui
+              CLERK_SECRET_KEY=sk_test_tu_clave_aqui
+            </pre>
+          </div>
+        )
+      }
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">
+          Formulario de Inicio de Sesión
+        </h2>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          {
+            publishableKey ? (
+              <ClerkSignIn routing="hash" />
+            ) : (
+              <div class="text-center py-8 text-gray-500">
+                Configura las claves de Clerk para ver el formulario
+              </div>
+            )
+          }
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Formulario de Registro</h2>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          {
+            publishableKey ? (
+              <ClerkSignUp routing="hash" />
+            ) : (
+              <div class="text-center py-8 text-gray-500">
+                Configura las claves de Clerk para ver el formulario
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <a
+        href="/"
+        class="bg-[#6B8A7A] text-white px-6 py-3 rounded-lg hover:bg-[#5a7268] transition-colors"
+      >
+        Volver al Inicio
+      </a>
+    </div>
+  </div>
+</Layout>
+
