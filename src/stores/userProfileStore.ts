@@ -2,6 +2,111 @@
 import { map, computed } from "nanostores";
 import type { UserData, UserGoal, WeightEntry } from "../types";
 import { NutritionService } from "../services/nutritionService";
+import { getCompleteUserData } from "../services/databaseService";
+
+/**
+ * Limpiar todos los stores al cerrar sesión
+ */
+export const clearUserStores = () => {
+  $userData.set(null);
+  $userGoal.set({
+    startDate: "",
+    endDate: "",
+    targetWeight: 0,
+    goalType: "maintain",
+  });
+  $weightLog.set({});
+};
+
+/**
+ * Cargar datos del usuario desde Supabase y sincronizar con stores locales
+ */
+export const loadUserDataFromSupabase = async (userId: string) => {
+  try {
+    console.log("🔄 Cargando datos del usuario desde Supabase...");
+
+    const completeData = await getCompleteUserData(userId);
+
+    if (!completeData) {
+      console.warn("No se encontraron datos del usuario en Supabase");
+      return false;
+    }
+
+    // 1. Cargar datos del perfil si existen
+    if (completeData.profile) {
+      const profile = completeData.profile;
+
+      // Convertir datos de Supabase al formato local
+      const userData: UserData = {
+        weight: profile.weight || 0,
+        height: profile.height || 0,
+        age: profile.age || 0,
+        gender:
+          (profile.gender === "other" ? "male" : profile.gender) || "male",
+        steps: profile.steps || 15000,
+        doesStrengthTraining: profile.does_strength_training || false,
+        strengthTrainingDays: profile.strength_training_days || 0,
+      };
+
+      // Solo cargar si hay datos significativos
+      if (userData.weight && userData.height && userData.age) {
+        setUserData(userData);
+        console.log("✅ Datos del perfil cargados en store local");
+      }
+    }
+
+    // 2. Cargar objetivo activo si existe
+    if (completeData.activeGoal) {
+      const goal = completeData.activeGoal;
+
+      const userGoal: UserGoal = {
+        startDate: goal.start_date || "",
+        endDate: goal.end_date || "",
+        targetWeight: goal.target_weight || 0,
+        goalType:
+          (goal.goal_type === "gain" ? "maintain" : goal.goal_type) ||
+          "maintain",
+      };
+
+      // Solo cargar si hay datos del objetivo
+      if (userGoal.startDate || userGoal.targetWeight) {
+        $userGoal.set(userGoal);
+        console.log("✅ Objetivo activo cargado en store local");
+      }
+    }
+
+    // 3. Cargar registros de peso si existen
+    if (completeData.weightEntries && completeData.weightEntries.length > 0) {
+      const weightLog: Record<string, WeightEntry> = {};
+
+      completeData.weightEntries.forEach((entry, index) => {
+        const id = `entry-${entry.id || index}`;
+        weightLog[id] = {
+          weight: entry.weight,
+          date: entry.date,
+        };
+      });
+
+      $weightLog.set(weightLog);
+      console.log(
+        `✅ ${completeData.weightEntries.length} registros de peso cargados`
+      );
+    }
+
+    console.log("🎉 Datos cargados exitosamente desde Supabase");
+    return true;
+  } catch (error) {
+    console.error("Error cargando datos desde Supabase:", error);
+    return false;
+  }
+};
+
+/**
+ * Refrescar datos del usuario (útil para cuando se actualizan en otra parte)
+ */
+export const refreshUserData = async (userId: string) => {
+  return await loadUserDataFromSupabase(userId);
+};
 
 // --- FUNCIÓN AUXILIAR ---
 const getFromStorage = <T>(key: string, defaultValue: T): T => {

@@ -1,19 +1,20 @@
 ---
 // src/pages/index.astro
 import Layout from "../layouts/Layout.astro";
-import Header from "../components/ui/Header.tsx";
-import Navigation from "../components/ui/Navigation.astro";
+import AppGuard from "../components/common/AppGuard.tsx";
 
 // Importamos todos los componentes de sección
+import Header from "../components/ui/Header.tsx";
+import Navigation from "../components/ui/Navigation.astro";
 import WeeklyPlanner from "../components/planner/WeeklyPlanner.astro";
 import RecipeGallery from "../components/gallery/RecipeGallery.astro";
 import UnifiedGallery from "../components/gallery/UnifiedGallery.astro";
 import TipsGallery from "../components/gallery/TipsGallery.astro";
-import UserData from "../components/UserData.astro";
 import GoalProgress from "../components/progress/GoalProgress.astro";
 ---
 
 <Layout title="Plan de Dieta Interactivo">
+  <AppGuard client:load />
   <Header client:load />
   <Navigation />
 
@@ -47,10 +48,6 @@ import GoalProgress from "../components/progress/GoalProgress.astro";
 
     <section id="consejos" class="content-section hidden">
       <TipsGallery />
-    </section>
-
-    <section id="datos" class="content-section hidden">
-      <UserData />
     </section>
 
     <section id="progreso" class="content-section hidden">

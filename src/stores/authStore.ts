@@ -1,6 +1,31 @@
 import { atom, computed } from "nanostores";
 import { supabase } from "../lib/supabase";
 import type { User, Session, AuthError } from "../lib/supabase";
+import { syncUserDataAfterLogin } from "../services/migrationService";
+import { clearUserStores, loadUserDataFromSupabase } from "./userProfileStore";
+
+/**
+ * Limpiar todos los datos locales del localStorage y stores
+ */
+const clearLocalStorage = () => {
+  const keysToRemove = [
+    "userData",
+    "userGoal",
+    "userAnalysis",
+    "isProfileComplete",
+    "userProfile",
+    "weightLog",
+  ];
+
+  keysToRemove.forEach((key) => {
+    localStorage.removeItem(key);
+  });
+
+  // También limpiar los stores
+  clearUserStores();
+
+  console.log("localStorage y stores limpiados para usuario no autenticado");
+};
 
 // --- ESTADOS DEL STORE ---
 export const $user = atom<User | null>(null);
@@ -31,20 +56,41 @@ export const initAuth = async () => {
     if (error) {
       console.error("Error al obtener sesión:", error);
       $error.set(error.message);
+      clearLocalStorage(); // Limpiar si hay error
     } else {
       $session.set(session);
       $user.set(session?.user ?? null);
+
+      // Si no hay usuario autenticado, limpiar localStorage
+      if (!session?.user) {
+        clearLocalStorage();
+      } else {
+        // Si hay usuario autenticado, cargar sus datos
+        try {
+          await loadUserDataFromSupabase(session.user.id);
+        } catch (error) {
+          console.warn("Error cargando datos en initAuth:", error);
+        }
+      }
     }
 
     // Listener para cambios de autenticación
-    supabase.auth.onAuthStateChange((event, session) => {
+    supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
       $session.set(session);
       $user.set(session?.user ?? null);
 
-      if (event === "SIGNED_OUT") {
-        // Limpiar datos locales al cerrar sesión
+      if (event === "SIGNED_OUT" || !session?.user) {
+        // Limpiar datos locales al cerrar sesión o si no hay usuario
         $error.set(null);
+        clearLocalStorage();
+      } else if (event === "SIGNED_IN" && session?.user) {
+        // Cargar datos cuando se detecta una sesión activa
+        try {
+          await loadUserDataFromSupabase(session.user.id);
+        } catch (error) {
+          console.warn("Error cargando datos en auth state change:", error);
+        }
       }
     });
   } catch (error) {
@@ -101,6 +147,19 @@ export const signIn = async (email: string, password: string) => {
       return { success: false, error: error.message };
     }
 
+    // Sincronizar datos después del login exitoso
+    if (data.user?.email) {
+      try {
+        await syncUserDataAfterLogin(data.user.id, data.user.email);
+
+        // Cargar datos en stores locales para que estén disponibles inmediatamente
+        await loadUserDataFromSupabase(data.user.id);
+      } catch (error) {
+        console.warn("Error en sincronización post-login:", error);
+        // No fallar el login por errores de sincronización
+      }
+    }
+
     return { success: true, user: data.user };
   } catch (error) {
     const errorMessage = "Error al iniciar sesión";
@@ -123,11 +182,27 @@ export const signOut = async () => {
 
     if (error) {
       $error.set(error.message);
+      console.error("Error en Supabase signOut:", error);
       return { success: false, error: error.message };
     }
 
+    // Limpiar localStorage al cerrar sesión (inmediatamente, no esperar listener)
+    clearLocalStorage();
+
+    // Limpiar stores inmediatamente también
+    $user.set(null);
+    $session.set(null);
+
+    console.log("✅ Sesión cerrada exitosamente");
     return { success: true };
   } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+
+    // En caso de error, limpiar de todas formas para evitar estados inconsistentes
+    clearLocalStorage();
+    $user.set(null);
+    $session.set(null);
+
     const errorMessage = "Error al cerrar sesión";
     $error.set(errorMessage);
     return { success: false, error: errorMessage };

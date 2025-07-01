@@ -1,0 +1,190 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AuthForm from "../components/auth/AuthForm.tsx";
+import AuthRedirect from "../components/common/AuthRedirect.tsx";
+---
+
+<Layout title="Bienvenido - Planificador de Dieta">
+  <AuthRedirect client:load />
+  <div
+    class="min-h-screen bg-gradient-to-br from-[#f8fffe] via-[#f0fdf4] to-[#ecfdf5]"
+  >
+    <!-- Header minimalista -->
+    <header class="p-6">
+      <div class="max-w-6xl mx-auto">
+        <h1 class="text-2xl font-bold text-[#3a5a40]">Planificador de Dieta</h1>
+      </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <!-- Sección de beneficios -->
+        <div class="space-y-8">
+          <div class="space-y-4">
+            <h2
+              class="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight"
+            >
+              Tu Camino Hacia el
+              <span class="text-[#3a5a40]">Bienestar</span>
+            </h2>
+            <p class="text-xl text-gray-600 leading-relaxed">
+              Planifica tu alimentación de forma personalizada y alcanza tus
+              objetivos de salud con nuestro sistema inteligente.
+            </p>
+          </div>
+
+          <!-- Características principales -->
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div class="flex items-start space-x-3">
+              <div
+                class="flex-shrink-0 w-8 h-8 bg-[#3a5a40] rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900">
+                  Planificación Personalizada
+                </h3>
+                <p class="text-sm text-gray-600">
+                  Menús adaptados a tus necesidades y objetivos específicos
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-3">
+              <div
+                class="flex-shrink-0 w-8 h-8 bg-[#3a5a40] rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900">Cálculo Inteligente</h3>
+                <p class="text-sm text-gray-600">
+                  Calorías y macronutrientes calculados automáticamente
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-3">
+              <div
+                class="flex-shrink-0 w-8 h-8 bg-[#3a5a40] rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900">Seguimiento Fácil</h3>
+                <p class="text-sm text-gray-600">
+                  Monitorea tu progreso y ajusta sobre la marcha
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-3">
+              <div
+                class="flex-shrink-0 w-8 h-8 bg-[#3a5a40] rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900">Recetas Saludables</h3>
+                <p class="text-sm text-gray-600">
+                  Biblioteca de recetas nutritivas y deliciosas
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonios rápidos -->
+          <div
+            class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200"
+          >
+            <div class="flex items-center space-x-4">
+              <div class="flex -space-x-2">
+                <div
+                  class="w-10 h-10 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                >
+                  M
+                </div>
+                <div
+                  class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                >
+                  A
+                </div>
+                <div
+                  class="w-10 h-10 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                >
+                  L
+                </div>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-900">
+                  +1000 usuarios activos
+                </p>
+                <p class="text-xs text-gray-600">
+                  Mejorando su alimentación cada día
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario de registro/login -->
+        <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+          <AuthForm client:load />
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 text-gray-500 text-sm">
+      <p>&copy; 2024 Planificador de Dieta. Diseñado para tu bienestar.</p>
+    </footer>
+  </div>
+</Layout>
