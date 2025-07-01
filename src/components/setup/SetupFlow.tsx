@@ -46,17 +46,35 @@ export default function SetupFlow() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<SetupData>(defaultData);
   const [loading, setLoading] = useState(false);
+  const [userCheckLoading, setUserCheckLoading] = useState(true);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
 
-  // Redireccionar si no hay usuario
+  // Escuchar cambios del usuario para manejar timing correctamente
   useEffect(() => {
-    if (!user) {
-      window.location.href = "/welcome";
+    // Si ya terminamos la verificación inicial, no hacer nada más
+    if (!userCheckLoading) {
+      return;
     }
-  }, [user]);
+
+    // Si ya hay usuario, podemos continuar
+    if (user && user.id) {
+      setUserCheckLoading(false);
+      return;
+    }
+
+    // Si no hay usuario después de un tiempo razonable, redirigir
+    const timeoutId = setTimeout(() => {
+      if (!user || !user.id) {
+        window.location.href = "/welcome";
+      }
+    }, 3000); // 3 segundos de gracia
+
+    // Limpiar timeout si el componente se desmonta
+    return () => clearTimeout(timeoutId);
+  }, [user, userCheckLoading]); // Ejecutar cuando cambie el usuario
 
   const updateFormData = (field: keyof SetupData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -155,6 +173,23 @@ export default function SetupFlow() {
   };
 
   const progressPercentage = (currentStep / 3) * 100;
+
+  // Mostrar loading mientras se verifica el usuario
+  if (userCheckLoading) {
+    return (
+      <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div class="flex flex-col items-center space-y-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3a5a40]"></div>
+            <h2 class="text-xl font-semibold text-gray-900">
+              Verificando sesión...
+            </h2>
+            <p class="text-gray-600">Un momento por favor</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div class="max-w-2xl mx-auto">

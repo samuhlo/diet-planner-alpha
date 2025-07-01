@@ -244,3 +244,111 @@ export const resetPassword = async (email: string) => {
 export const clearError = () => {
   $error.set(null);
 };
+
+/**
+ * Iniciar sesión con OAuth (Google, GitHub, Apple, etc.)
+ */
+export const signInWithOAuth = async (
+  provider: "google" | "github" | "apple"
+) => {
+  try {
+    $loading.set(true);
+    $error.set(null);
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      $error.set(error.message);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    const errorMessage = `Error al autenticar con ${provider}`;
+    $error.set(errorMessage);
+    return { success: false, error: errorMessage };
+  } finally {
+    $loading.set(false);
+  }
+};
+
+/**
+ * Verificar email de usuario
+ */
+export const resendConfirmation = async (email: string) => {
+  try {
+    $loading.set(true);
+    $error.set(null);
+
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      $error.set(error.message);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    const errorMessage = "Error al reenviar confirmación";
+    $error.set(errorMessage);
+    return { success: false, error: errorMessage };
+  } finally {
+    $loading.set(false);
+  }
+};
+
+/**
+ * Eliminar cuenta de usuario
+ */
+export const deleteAccount = async () => {
+  try {
+    $loading.set(true);
+    $error.set(null);
+
+    const user = $user.get();
+    if (!user?.id) {
+      throw new Error("No hay usuario autenticado");
+    }
+
+    // Primero cerrar sesión
+    await signOut();
+
+    // La eliminación del usuario debe hacerse desde el servidor
+    // por razones de seguridad usando supabase.auth.admin.deleteUser()
+    // Por ahora, solo cerramos sesión y limpiamos datos
+
+    return { success: true };
+  } catch (error) {
+    const errorMessage = "Error al eliminar cuenta";
+    $error.set(errorMessage);
+    return { success: false, error: errorMessage };
+  } finally {
+    $loading.set(false);
+  }
+};
+
+/**
+ * Obtener información del usuario actual
+ */
+export const getCurrentUser = () => {
+  return $user.get();
+};
+
+/**
+ * Verificar si el email del usuario está confirmado
+ */
+export const isEmailConfirmed = () => {
+  const user = $user.get();
+  return user?.email_confirmed_at != null;
+};

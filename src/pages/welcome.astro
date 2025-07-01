@@ -1,11 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import AuthForm from "../components/auth/AuthForm.tsx";
-import AuthRedirect from "../components/common/AuthRedirect.tsx";
 ---
 
 <Layout title="Bienvenido - Planificador de Dieta">
-  <AuthRedirect client:load />
   <div
     class="min-h-screen bg-gradient-to-br from-[#f8fffe] via-[#f0fdf4] to-[#ecfdf5]"
   >
@@ -175,9 +173,12 @@ import AuthRedirect from "../components/common/AuthRedirect.tsx";
           </div>
         </div>
 
-        <!-- Formulario de registro/login -->
+        <!-- Formulario de registro/login o mensaje de continuación -->
         <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-          <AuthForm client:load />
+          <!-- Contenido dinámico que cambia según el estado del usuario -->
+          <div id="auth-content">
+            <AuthForm client:load />
+          </div>
         </div>
       </div>
     </main>
@@ -187,4 +188,148 @@ import AuthRedirect from "../components/common/AuthRedirect.tsx";
       <p>&copy; 2024 Planificador de Dieta. Diseñado para tu bienestar.</p>
     </footer>
   </div>
+
+  <script>
+    import { supabase } from "../lib/supabase";
+    import { getUserProfile } from "../services/databaseService";
+
+    // Variable para trackear si estamos en la página welcome
+    let isOnWelcomePage = true;
+    let authStateListener: any = null;
+
+    // Verificar si el usuario ya está autenticado y redirigir automáticamente
+    async function checkAuthenticatedUser() {
+      try {
+        // Solo ejecutar si estamos en la página welcome
+        if (!isOnWelcomePage) {
+          return;
+        }
+
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error("Error verificando sesión:", error);
+          return;
+        }
+
+        if (session?.user) {
+          const authContent = document.getElementById("auth-content");
+          if (!authContent) return;
+
+          // Verificar si tiene perfil completo
+          try {
+            const profile = await getUserProfile(session.user.id);
+
+            const isProfileComplete = !!(
+              profile &&
+              profile.weight &&
+              profile.height &&
+              profile.age &&
+              profile.gender &&
+              profile.steps !== null
+            );
+
+            // Redirección automática basada en el estado del perfil
+            if (isProfileComplete) {
+              // Perfil completo → Mostrar mensaje y redirigir automáticamente a la app
+              authContent.innerHTML = `
+                <div class="text-center space-y-6">
+                  <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3a5a40] mx-auto"></div>
+                  <div class="space-y-2">
+                    <h3 class="text-2xl font-bold text-gray-900">¡Bienvenido de vuelta!</h3>
+                    <p class="text-gray-600">Redirigiendo a tu planificador...</p>
+                  </div>
+                </div>
+              `;
+
+              // Redirección automática después de mostrar el mensaje
+              setTimeout(() => {
+                window.location.href = "/";
+              }, 1500);
+            } else {
+              // Perfil incompleto → Mostrar mensaje y redirigir automáticamente a setup
+              authContent.innerHTML = `
+                <div class="text-center space-y-6">
+                  <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3a5a40] mx-auto"></div>
+                  <div class="space-y-2">
+                    <h3 class="text-2xl font-bold text-gray-900">Configurando tu perfil</h3>
+                    <p class="text-gray-600">Te llevamos a la configuración inicial...</p>
+                  </div>
+                </div>
+              `;
+
+              // Redirección automática después de mostrar el mensaje
+              setTimeout(() => {
+                window.location.href = "/setup";
+              }, 1500);
+            }
+          } catch (profileError) {
+            console.error("Error verificando perfil:", profileError);
+            // En caso de error, asumir que necesita configuración y redirigir automáticamente
+            authContent.innerHTML = `
+              <div class="text-center space-y-6">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3a5a40] mx-auto"></div>
+                <div class="space-y-2">
+                  <h3 class="text-2xl font-bold text-gray-900">Iniciando configuración</h3>
+                  <p class="text-gray-600">Preparando tu experiencia personalizada...</p>
+                </div>
+              </div>
+            `;
+
+            // Redirección automática al setup en caso de error
+            setTimeout(() => {
+              window.location.href = "/setup";
+            }, 1500);
+          }
+        }
+      } catch (error) {
+        console.error("Error en checkAuthenticatedUser:", error);
+      }
+    }
+
+    // Verificar cuando se carga la página
+    document.addEventListener("DOMContentLoaded", () => {
+      isOnWelcomePage = true;
+      // Delay para asegurar que Supabase esté listo
+      setTimeout(checkAuthenticatedUser, 200);
+    });
+
+    // Escuchar cambios de autenticación solo para esta página
+    authStateListener = supabase.auth.onAuthStateChange((event, session) => {
+      // Solo procesar si estamos en la página welcome
+      if (!isOnWelcomePage) {
+        return;
+      }
+
+      if (event === "SIGNED_IN" && session?.user) {
+        // Delay para asegurar que los datos se han sincronizado
+        setTimeout(checkAuthenticatedUser, 500);
+      }
+    });
+
+    // Limpiar cuando el usuario navega a otra página
+    window.addEventListener("beforeunload", () => {
+      isOnWelcomePage = false;
+
+      if (authStateListener) {
+        authStateListener.data?.subscription?.unsubscribe?.();
+        authStateListener = null;
+      }
+    });
+
+    // También detectar cuando se hace navegación SPA (si aplica)
+    window.addEventListener("popstate", () => {
+      if (!window.location.pathname.includes("/welcome")) {
+        isOnWelcomePage = false;
+
+        if (authStateListener) {
+          authStateListener.data?.subscription?.unsubscribe?.();
+          authStateListener = null;
+        }
+      }
+    });
+  </script>
 </Layout>

@@ -1,174 +1,221 @@
 import { useState } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
-import { signUp, $loading, $error, clearError } from "../../stores/authStore";
+import {
+  signUp,
+  signInWithOAuth,
+  $loading,
+  $error,
+  clearError,
+} from "../../stores/authStore";
 
-export default function SignUpForm() {
+interface SignUpFormProps {
+  onSwitchToLogin: () => void;
+}
+
+export default function SignUpForm({ onSwitchToLogin }: SignUpFormProps) {
+  const loading = useStore($loading);
+  const error = useStore($error);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [localError, setLocalError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  const loading = useStore($loading);
-  const authError = useStore($error);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
 
-    // Limpiar errores previos
-    clearError();
-    setLocalError(null);
-    setSuccess(false);
-
-    // Validaciones básicas
     if (!email || !password || !confirmPassword) {
-      setLocalError("Por favor, completa todos los campos");
-      return;
-    }
-
-    if (!email.includes("@")) {
-      setLocalError("Por favor, ingresa un email válido");
-      return;
-    }
-
-    if (password.length < 6) {
-      setLocalError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
 
     if (password !== confirmPassword) {
-      setLocalError("Las contraseñas no coinciden");
+      // Este error se maneja en la validación visual
       return;
     }
 
-    try {
-      const result = await signUp(email, password);
+    clearError();
+    setSuccessMessage(null);
 
-      if (result.success) {
-        setSuccess(true);
-        // Limpiar formulario
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
-      }
-    } catch (error) {
-      console.error("Error en registro:", error);
+    const result = await signUp(email, password);
+
+    if (result.success) {
+      setSuccessMessage(
+        "¡Registro exitoso! Revisa tu email para confirmar tu cuenta."
+      );
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
     }
   };
 
-  const error = localError || authError;
+  const handleOAuthSignIn = async (provider: "google" | "github" | "apple") => {
+    clearError();
+    const result = await signInWithOAuth(provider);
 
-  if (success) {
-    return (
-      <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-        <div class="text-center">
-          <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            <h3 class="font-bold">¡Registro exitoso!</h3>
-            <p class="text-sm">
-              Hemos enviado un email de verificación a tu correo. Por favor,
-              revisa tu bandeja de entrada y haz clic en el enlace para activar
-              tu cuenta.
-            </p>
-          </div>
-          <a
-            href="/login"
-            class="inline-block bg-[#3a5a40] text-white py-2 px-4 rounded-md hover:bg-[#2d4530] transition-colors"
-          >
-            Ir a Iniciar Sesión
-          </a>
-        </div>
-      </div>
-    );
-  }
+    if (result.success) {
+      console.log(`Registro con ${provider} iniciado`);
+      // El usuario será redirigido automáticamente
+    }
+  };
+
+  const getProviderIcon = (provider: string) => {
+    switch (provider) {
+      case "google":
+        return "🔍";
+      case "github":
+        return "⚡";
+      case "apple":
+        return "🍎";
+      default:
+        return "";
+    }
+  };
+
+  const getProviderName = (provider: string) => {
+    switch (provider) {
+      case "google":
+        return "Google";
+      case "github":
+        return "GitHub";
+      case "apple":
+        return "Apple";
+      default:
+        return provider;
+    }
+  };
+
+  const isPasswordValid = password.length >= 6;
+  const doPasswordsMatch = password === confirmPassword;
 
   return (
-    <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-2xl font-bold text-center text-[#3a5a40] mb-6">
-        Crear Cuenta
-      </h2>
+    <div className="w-full max-w-md mx-auto">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          Crear Cuenta
+        </h2>
 
-      {error && (
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} class="space-y-4">
-        <div>
-          <label
-            htmlFor="email"
-            class="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-            placeholder="tu@email.com"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3a5a40] focus:border-transparent"
-            disabled={loading}
-            required
-          />
+        {/* OAuth Buttons */}
+        <div className="space-y-3 mb-6">
+          {(["google", "github", "apple"] as const).map((provider) => (
+            <button
+              key={provider}
+              onClick={() => handleOAuthSignIn(provider)}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="text-lg">{getProviderIcon(provider)}</span>
+              Continuar con {getProviderName(provider)}
+            </button>
+          ))}
         </div>
 
-        <div>
-          <label
-            htmlFor="password"
-            class="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Contraseña
-          </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-            placeholder="Mínimo 6 caracteres"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3a5a40] focus:border-transparent"
-            disabled={loading}
-            required
-          />
+        {/* Divider */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">
+              O regístrate con email
+            </span>
+          </div>
         </div>
 
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            class="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Confirmar Contraseña
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            value={confirmPassword}
-            onInput={(e) =>
-              setConfirmPassword((e.target as HTMLInputElement).value)
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) =>
+                setPassword((e.target as HTMLInputElement).value)
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+              disabled={loading}
+            />
+            {password && !isPasswordValid && (
+              <p className="text-red-600 text-xs mt-1">
+                La contraseña debe tener al menos 6 caracteres
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirmar Contraseña
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) =>
+                setConfirmPassword((e.target as HTMLInputElement).value)
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+              disabled={loading}
+            />
+            {confirmPassword && !doPasswordsMatch && (
+              <p className="text-red-600 text-xs mt-1">
+                Las contraseñas no coinciden
+              </p>
+            )}
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md text-sm">
+              {successMessage}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={
+              loading ||
+              !email ||
+              !password ||
+              !confirmPassword ||
+              !isPasswordValid ||
+              !doPasswordsMatch
             }
-            placeholder="Repite tu contraseña"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3a5a40] focus:border-transparent"
-            disabled={loading}
-            required
-          />
-        </div>
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Creando cuenta..." : "Crear Cuenta"}
+          </button>
 
-        <button
-          type="submit"
-          disabled={loading}
-          class="w-full bg-[#3a5a40] text-white py-2 px-4 rounded-md hover:bg-[#2d4530] focus:outline-none focus:ring-2 focus:ring-[#3a5a40] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? "Creando cuenta..." : "Crear Cuenta"}
-        </button>
-      </form>
-
-      <div class="mt-6 text-center">
-        <p class="text-sm text-gray-600">
-          ¿Ya tienes cuenta?{" "}
-          <a href="/login" class="text-[#3a5a40] hover:underline font-medium">
-            Inicia sesión aquí
-          </a>
-        </p>
+          <div className="text-center">
+            <span className="text-sm text-gray-600">¿Ya tienes cuenta? </span>
+            <button
+              type="button"
+              onClick={onSwitchToLogin}
+              className="text-blue-600 hover:underline text-sm"
+            >
+              Inicia sesión aquí
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
