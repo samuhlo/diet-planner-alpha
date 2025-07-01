@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import AppModal from "../components/modals/AppModal.tsx";
+import AuthProvider from "../components/auth/AuthProvider.tsx";
 
 // --- Code Fence (Aquí va el código JavaScript/TypeScript que se ejecuta en el servidor) ---
 // Definimos las "props" que este componente puede recibir.
@@ -35,18 +36,20 @@ const { title } = Astro.props;
     </style>
   </head>
   <body class="antialiased">
-    <div class="container mx-auto px-4 py-8 max-w-screen-xl">
-      <!-- El <slot /> es un marcador de posición.
-             Aquí es donde Astro insertará el contenido de la página que use este Layout. -->
-      <slot />
+    <AuthProvider client:load>
+      <div class="container mx-auto px-4 py-8 max-w-screen-xl">
+        <!-- El <slot /> es un marcador de posición.
+               Aquí es donde Astro insertará el contenido de la página que use este Layout. -->
+        <slot />
 
-      <footer class="text-center mt-12 text-stone-500">
-        <p>
-          Aplicación creada para facilitar tu viaje hacia un estilo de vida más
-          saludable.
-        </p>
-      </footer>
-    </div>
+        <footer class="text-center mt-12 text-stone-500">
+          <p>
+            Aplicación creada para facilitar tu viaje hacia un estilo de vida
+            más saludable.
+          </p>
+        </footer>
+      </div>
+    </AuthProvider>
     <AppModal client:load />
   </body>
 </html>

@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SignUpForm from "../components/auth/SignUpForm.tsx";
+---
+
+<Layout title="Crear Cuenta - Planificador de Dieta">
+  <div class="min-h-screen flex items-center justify-center py-12">
+    <div class="w-full">
+      <SignUpForm client:load />
+    </div>
+  </div>
+</Layout>
