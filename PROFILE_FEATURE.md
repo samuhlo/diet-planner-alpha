@@ -160,7 +160,6 @@ src/types/
 - weight: NUMERIC
 - height: NUMERIC
 - age: INTEGER
-- activity_level: TEXT
 - gender: TEXT
 ```
 

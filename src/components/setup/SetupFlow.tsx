@@ -3,7 +3,7 @@ import { useStore } from "@nanostores/preact";
 import { $user } from "../../stores/authStore";
 import {
   getUserProfile,
-  updateUserProfile,
+  createOrUpdateUserProfile,
   createUserGoal,
 } from "../../services/databaseService";
 import type { UserProfileUpdate } from "../../types/database";
@@ -131,6 +131,7 @@ export default function SetupFlow() {
 
       // Preparar datos de perfil
       const profileData: UserProfileUpdate = {
+        email: user.email,
         weight: parseFloat(formData.weight),
         height: parseFloat(formData.height),
         age: parseInt(formData.age),
@@ -141,7 +142,7 @@ export default function SetupFlow() {
       };
 
       // Actualizar perfil
-      await updateUserProfile(user.id, profileData);
+      await createOrUpdateUserProfile(user.id, profileData);
 
       // Crear objetivo si no es mantener peso o si tiene datos específicos
       if (formData.goalType !== "maintain" || formData.targetWeight) {

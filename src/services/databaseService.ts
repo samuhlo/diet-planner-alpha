@@ -20,7 +20,7 @@ export const getUserProfile = async (
     .from("user_profiles")
     .select("*")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("Error al obtener perfil:", error);
@@ -64,6 +64,40 @@ export const updateUserProfile = async (
   }
 
   return data;
+};
+
+export const createOrUpdateUserProfile = async (
+  userId: string,
+  profileData: Omit<UserProfileUpdate, "id">
+): Promise<UserProfile | null> => {
+  // Primero intentar actualizar
+  const { data: updateData, error: updateError } = await supabase
+    .from("user_profiles")
+    .update(profileData)
+    .eq("id", userId)
+    .select()
+    .maybeSingle();
+
+  if (updateData) {
+    return updateData;
+  }
+
+  // Si no existe, crear nuevo perfil
+  const { data: insertData, error: insertError } = await supabase
+    .from("user_profiles")
+    .insert({
+      id: userId,
+      ...profileData,
+    })
+    .select()
+    .single();
+
+  if (insertError) {
+    console.error("Error al crear/actualizar perfil:", insertError);
+    return null;
+  }
+
+  return insertData;
 };
 
 // ============ OBJETIVOS DE USUARIO ============

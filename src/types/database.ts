@@ -8,13 +8,6 @@ export interface UserProfile {
   weight: number | null;
   height: number | null;
   age: number | null;
-  activity_level:
-    | "sedentary"
-    | "light"
-    | "moderate"
-    | "active"
-    | "very_active"
-    | null;
   gender: "male" | "female" | "other" | null;
   steps: number | null;
   does_strength_training: boolean | null;
@@ -54,12 +47,6 @@ export interface UserProfileInsert {
   weight?: number;
   height?: number;
   age?: number;
-  activity_level?:
-    | "sedentary"
-    | "light"
-    | "moderate"
-    | "active"
-    | "very_active";
   gender?: "male" | "female" | "other";
   steps?: number;
   does_strength_training?: boolean;
@@ -90,12 +77,6 @@ export interface UserProfileUpdate {
   weight?: number;
   height?: number;
   age?: number;
-  activity_level?:
-    | "sedentary"
-    | "light"
-    | "moderate"
-    | "active"
-    | "very_active";
   gender?: "male" | "female" | "other";
   steps?: number;
   does_strength_training?: boolean;

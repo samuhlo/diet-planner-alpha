@@ -47,6 +47,19 @@ export const initAuth = async () => {
     $loading.set(true);
     $error.set(null);
 
+    // Verificar si hay una cuenta eliminada marcada para evitar bucles
+    if (
+      typeof window !== "undefined" &&
+      sessionStorage.getItem("accountDeleted")
+    ) {
+      console.log("🗑️ Cuenta eliminada detectada en initAuth, evitando bucle");
+      sessionStorage.removeItem("accountDeleted");
+      clearLocalStorage();
+      $user.set(null);
+      $session.set(null);
+      return;
+    }
+
     // Obtener sesión actual
     const {
       data: { session },
@@ -58,6 +71,9 @@ export const initAuth = async () => {
       $error.set(error.message);
       clearLocalStorage(); // Limpiar si hay error
     } else {
+      // Permitir que cuentas OAuth se reutilicen incluso si tienen email "deleted_"
+      // La verificación real se hace a nivel de perfil en userProfileStore
+
       $session.set(session);
       $user.set(session?.user ?? null);
 
@@ -77,6 +93,10 @@ export const initAuth = async () => {
     // Listener para cambios de autenticación
     supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
+
+      // Permitir que OAuth complete el proceso incluso con email "deleted_"
+      // La detección de cuentas eliminadas se maneja a nivel de perfil
+
       $session.set(session);
       $user.set(session?.user ?? null);
 
@@ -147,6 +167,8 @@ export const signIn = async (email: string, password: string) => {
       return { success: false, error: error.message };
     }
 
+    // Permitir login incluso con email "deleted_" para permitir reutilización de cuentas
+
     // Sincronizar datos después del login exitoso
     if (data.user?.email) {
       try {
@@ -178,12 +200,40 @@ export const signOut = async () => {
     $loading.set(true);
     $error.set(null);
 
-    const { error } = await supabase.auth.signOut();
+    const user = $user.get();
+
+    // Detectar si es usuario de GitHub OAuth
+    const isGitHubUser =
+      user &&
+      (user.app_metadata?.provider === "github" ||
+        user.user_metadata?.iss?.includes("github") ||
+        user.email?.includes("github"));
+
+    // Cerrar sesión con scope global si es GitHub
+    const { error } = isGitHubUser
+      ? await supabase.auth.signOut({ scope: "global" as const })
+      : await supabase.auth.signOut();
 
     if (error) {
       $error.set(error.message);
       console.error("Error en Supabase signOut:", error);
       return { success: false, error: error.message };
+    }
+
+    // Para GitHub, limpiar almacenamiento adicional
+    if (isGitHubUser) {
+      // Limpiar localStorage relacionado con OAuth
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (
+          key &&
+          (key.includes("github") ||
+            key.includes("oauth") ||
+            key.includes("supabase"))
+        ) {
+          localStorage.removeItem(key);
+        }
+      }
     }
 
     // Limpiar localStorage al cerrar sesión (inmediatamente, no esperar listener)
@@ -321,16 +371,76 @@ export const deleteAccount = async () => {
       throw new Error("No hay usuario autenticado");
     }
 
-    // Primero cerrar sesión
-    await signOut();
+    // Llamar a la función RPC para eliminar la cuenta
+    const { data, error } = await supabase.rpc("delete_user_account");
 
-    // La eliminación del usuario debe hacerse desde el servidor
-    // por razones de seguridad usando supabase.auth.admin.deleteUser()
-    // Por ahora, solo cerramos sesión y limpiamos datos
+    if (error) {
+      console.error("Error RPC al eliminar cuenta:", error);
+      throw new Error(error.message || "Error al eliminar cuenta");
+    }
 
+    // Verificar respuesta de la función
+    if (data && !data.success) {
+      console.error("Error en función delete_user_account:", data.error);
+      throw new Error(data.error || "Error al eliminar cuenta");
+    }
+
+    // Si llegamos aquí, la cuenta fue eliminada exitosamente
+    // Detectar si es usuario de GitHub OAuth para cierre completo
+    const isGitHubUser =
+      user.app_metadata?.provider === "github" ||
+      user.user_metadata?.iss?.includes("github") ||
+      user.email?.includes("github");
+
+    // Cerrar sesión de Supabase explícitamente con scope global si es GitHub
+    const { error: signOutError } = isGitHubUser
+      ? await supabase.auth.signOut({ scope: "global" as const })
+      : await supabase.auth.signOut();
+    if (signOutError) {
+      console.warn("Error al cerrar sesión después de eliminar:", signOutError);
+    }
+
+    // Para GitHub, también limpiar cookies y redirigir para forzar logout completo
+    if (isGitHubUser) {
+      // Limpiar todas las cookies relacionadas con GitHub
+      document.cookie.split(";").forEach((c) => {
+        const eqPos = c.indexOf("=");
+        const name = eqPos > -1 ? c.substr(0, eqPos).trim() : c.trim();
+        if (
+          name.includes("github") ||
+          name.includes("oauth") ||
+          name.includes("auth")
+        ) {
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.github.com`;
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+        }
+      });
+
+      // También limpiar localStorage relacionado con OAuth
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (
+          key &&
+          (key.includes("github") ||
+            key.includes("oauth") ||
+            key.includes("supabase"))
+        ) {
+          localStorage.removeItem(key);
+        }
+      }
+    }
+
+    // Limpiar datos locales
+    clearLocalStorage();
+    $user.set(null);
+    $session.set(null);
+
+    console.log("✅ Cuenta eliminada exitosamente");
     return { success: true };
   } catch (error) {
-    const errorMessage = "Error al eliminar cuenta";
+    console.error("Error al eliminar cuenta:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Error al eliminar cuenta";
     $error.set(errorMessage);
     return { success: false, error: errorMessage };
   } finally {

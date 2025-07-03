@@ -23,13 +23,19 @@ export const clearUserStores = () => {
  */
 export const loadUserDataFromSupabase = async (userId: string) => {
   try {
-    console.log("🔄 Cargando datos del usuario desde Supabase...");
-
     const completeData = await getCompleteUserData(userId);
 
     if (!completeData) {
       console.warn("No se encontraron datos del usuario en Supabase");
       return false;
+    }
+
+    // Si no hay perfil, es normal para cuentas nuevas o OAuth reutilizada
+    if (!completeData.profile) {
+      console.log(
+        "ℹ️ Usuario sin perfil - puede ser cuenta nueva o OAuth reutilizada"
+      );
+      return false; // Retornar false para indicar que no se cargaron datos, pero no es error
     }
 
     // 1. Cargar datos del perfil si existen

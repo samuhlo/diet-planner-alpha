@@ -59,7 +59,6 @@ const convertUserDataToProfile = (
     weight: userData.weight || undefined,
     height: userData.height || undefined,
     age: userData.age || undefined,
-    activity_level: undefined, // No disponible en datos locales actuales
     gender: (userData.gender as any) || undefined,
   };
 };
