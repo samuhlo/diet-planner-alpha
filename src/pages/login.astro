@@ -1,14 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import LoginForm from "../components/auth/LoginForm.tsx";
+import AuthForm from "../components/auth/AuthForm.tsx";
 import AuthRedirect from "../components/common/AuthRedirect.tsx";
 ---
 
 <Layout title="Iniciar Sesión - Planificador de Dieta">
   <AuthRedirect client:load />
-  <div class="min-h-screen flex items-center justify-center py-12">
-    <div class="w-full">
-      <LoginForm client:load />
-    </div>
-  </div>
+  <AuthForm client:load />
 </Layout>

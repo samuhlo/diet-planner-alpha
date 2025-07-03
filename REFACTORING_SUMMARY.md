@@ -1,6 +1,60 @@
-# Resumen de Refactorización - Estructura de Datos
+# Resumen de Refactorizaciones del Proyecto
 
-## 🎯 Objetivo
+## 🎯 Objetivos
+
+1. **Estructura de Datos**: Separar datos de funciones de utilidad
+2. **Sistema de Autenticación**: Eliminar duplicación y unificar componentes
+3. **Mantenibilidad**: Mejorar la escalabilidad del proyecto
+
+---
+
+## 🔐 LIMPIEZA DEL SISTEMA DE AUTENTICACIÓN (Diciembre 2024)
+
+### Problemas Solucionados:
+
+- ❌ **Duplicación masiva**: `LoginForm.tsx` y `SignUpForm.tsx` compartían ~80% del código
+- ❌ **Arquitectura inconsistente**: Múltiples enfoques para manejar autenticación
+- ❌ **Funcionalidad redundante**: Toggle interno + páginas separadas
+- ❌ **Mantenimiento complejo**: Cambios requerían editar múltiples archivos
+
+### Solución Implementada:
+
+#### 1. **Componente Base `OAuthButtons.tsx`**
+
+- ✅ Centraliza todos los providers OAuth (Google, GitHub)
+- ✅ Iconos y estilos unificados
+- ✅ Reutilizable entre login/signup
+- ✅ Texto adaptativo según el modo
+
+#### 2. **`AuthForm.tsx` Unificado**
+
+- ✅ Login + Signup + Reset password en un componente
+- ✅ Navegación fluida entre modos
+- ✅ Validaciones en tiempo real
+- ✅ Manejo completo de errores/éxito
+
+#### 3. **Páginas Simplificadas**
+
+- ✅ URLs `/login` y `/signup` mantienen compatibilidad
+- ✅ Uso del `AuthForm` unificado con `initialMode`
+
+### Archivos Eliminados:
+
+- ❌ `LoginForm.tsx` (332 líneas)
+- ❌ `SignUpForm.tsx` (265 líneas)
+
+### Beneficios:
+
+- 📉 **-597 líneas** de código duplicado eliminadas
+- 🔧 **Un solo lugar** para cambios OAuth
+- 🎯 **Experiencia unificada** en toda la app
+- ⚡ **Carga más rápida** (menos JS bundle)
+
+---
+
+## 📊 REFACTORIZACIÓN DE ESTRUCTURA DE DATOS (Anterior)
+
+### Objetivo Original:
 
 Reorganizar la estructura de datos para separar datos de funciones de utilidad, mejorar la mantenibilidad y escalabilidad del proyecto.
 

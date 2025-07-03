@@ -9,11 +9,13 @@ Una aplicación web moderna para planificar y gestionar tu alimentación diaria,
 
 ## 🚀 Características Principales
 
+- 🔐 **Sistema de autenticación unificado** con OAuth (Google, GitHub) y email/contraseña
 - 📅 Planificación semanal de comidas interactiva
 - 📊 Seguimiento de macronutrientes y calorías
 - 📈 Gráficos de progreso de peso y objetivos
 - 🎯 Gestión de objetivos de peso personalizados
-- 🔄 Sincronización automática con localStorage
+- 🗑️ **Eliminación completa de cuenta** con reutilización OAuth
+- 🔄 Sincronización automática con Supabase
 - 📱 Diseño responsive para todos los dispositivos
 - ⚡ Rendimiento optimizado con Astro
 - 🛠️ Panel de administración de comidas y suplementos
@@ -31,6 +33,8 @@ Una aplicación web moderna para planificar y gestionar tu alimentación diaria,
 - **Framework**: Astro 5.9
 - **UI**: Tailwind CSS 3.4
 - **Componentes**: Preact 10.26
+- **Base de Datos**: Supabase (PostgreSQL)
+- **Autenticación**: Supabase Auth (OAuth + Email/Password)
 - **Gestión de Estado**: NanoStores
 - **Gráficos**: Chart.js 4.4
 - **Tipado**: TypeScript
@@ -42,12 +46,15 @@ Una aplicación web moderna para planificar y gestionar tu alimentación diaria,
 ```
 /src/
 ├── components/    # Componentes de Preact y Astro reutilizables
+│   ├── auth/          # Sistema de autenticación unificado (OAuth + Email)
 │   ├── common/        # Componentes genéricos (ErrorBoundary, Selectores)
 │   ├── gallery/       # Galerías para recetas y consejos
 │   ├── modals/        # Modales de la aplicación (detalle de receta, lista de compra)
 │   ├── planner/       # Componentes principales del planificador interactivo
+│   ├── profile/       # Gestión de perfil y configuración de cuenta
 │   ├── progress/      # Componentes para seguimiento de progreso y objetivos
 │   ├── recipes/       # Componentes para visualizar y buscar recetas
+│   ├── setup/         # Flujo de configuración inicial del usuario
 │   ├── supplements/   # Componentes para visualizar y buscar suplementos
 │   ├── tips/          # Componentes para visualizar y buscar consejos
 │   └── ui/            # Componentes de UI básicos (Header, Navegación)
@@ -58,6 +65,7 @@ Una aplicación web moderna para planificar y gestionar tu alimentación diaria,
 ├── pages/         # Páginas de la aplicación (rutas)
 ├── services/      # Lógica de negocio y servicios (cálculos nutricionales)
 ├── stores/        # Stores de NanoStores para el manejo de estado global
+│   ├── authStore.ts       # Estado de autenticación y sesión
 │   ├── modalStore.ts      # Estado de los modales
 │   ├── planStore.ts       # Estado del planificador semanal
 │   └── userProfileStore.ts # Estado del perfil de usuario y objetivos
