@@ -1,0 +1,10 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AuthForm from "../components/auth/AuthForm.tsx";
+import AuthRedirect from "../components/common/AuthRedirect.tsx";
+---
+
+<Layout title="Crear Cuenta - Planificador de Dieta">
+  <AuthRedirect client:load />
+  <AuthForm initialMode="signup" client:load />
+</Layout>

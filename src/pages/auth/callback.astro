@@ -1,0 +1,81 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Procesando autenticación...">
+  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="text-center space-y-4">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"
+      >
+      </div>
+      <h2 class="text-xl font-semibold text-gray-900">
+        Procesando autenticación...
+      </h2>
+      <p class="text-gray-600">Te redirigiremos en un momento</p>
+    </div>
+  </div>
+
+  <script>
+    import { supabase } from "../../lib/supabase";
+    import { getUserProfile } from "../../services/databaseService";
+
+    async function handleAuthCallback() {
+      try {
+        // Obtener la sesión actual después del callback
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error("Error en callback OAuth:", error);
+          window.location.href = "/welcome?error=auth_error";
+          return;
+        }
+
+        if (!session?.user) {
+          console.log("No hay sesión después del callback");
+          window.location.href = "/welcome";
+          return;
+        }
+
+        // Verificar si el usuario tiene perfil completo
+        try {
+          const profile = await getUserProfile(session.user.id);
+
+          const isProfileComplete = !!(
+            profile &&
+            profile.weight &&
+            profile.height &&
+            profile.age &&
+            profile.gender &&
+            profile.steps !== null
+          );
+
+          if (isProfileComplete) {
+            // Usuario con perfil completo → app principal
+            window.location.href = "/";
+          } else {
+            // Usuario sin perfil completo → setup
+            window.location.href = "/setup";
+          }
+        } catch (profileError) {
+          console.error("Error verificando perfil:", profileError);
+          // Si hay error verificando perfil, asumir que no está completo
+          window.location.href = "/setup";
+        }
+      } catch (error) {
+        console.error("Error general en callback:", error);
+        window.location.href = "/welcome?error=callback_error";
+      }
+    }
+
+    // Ejecutar cuando se carga la página
+    document.addEventListener("DOMContentLoaded", () => {
+      // Pequeño delay para asegurar que Supabase procese el callback
+      setTimeout(handleAuthCallback, 500);
+    });
+  </script>
+</Layout>
+
