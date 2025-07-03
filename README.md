@@ -125,4 +125,4 @@ Una aplicación web moderna para planificar y gestionar tu alimentación diaria,
 
 ---
 
-Desarrollado con ❤️ por Samuhlo | [@samuhlo](https://github.com/samuhlo)
+Desarrollado con ❤️ por Samu Lo | [@samuhlo](https://github.com/samuhlo)

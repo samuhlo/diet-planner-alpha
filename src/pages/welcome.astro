@@ -5,7 +5,7 @@ import AuthForm from "../components/auth/AuthForm.tsx";
 
 <Layout title="Bienvenido - Planificador de Dieta">
   <div
-    class="min-h-screen bg-gradient-to-br from-[#f8fffe] via-[#f0fdf4] to-[#ecfdf5]"
+    class="min-h-screen rounded-xl bg-gradient-to-br from-[#f8fffe] via-[#f0fdf4] to-[#ecfdf5]"
   >
     <!-- Header minimalista -->
     <header class="p-6">
@@ -173,13 +173,8 @@ import AuthForm from "../components/auth/AuthForm.tsx";
           </div>
         </div>
 
-        <!-- Formulario de registro/login o mensaje de continuación -->
-        <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-          <!-- Contenido dinámico que cambia según el estado del usuario -->
-          <div id="auth-content">
-            <AuthForm client:load />
-          </div>
-        </div>
+        <!-- Formulario de registro/login -->
+        <AuthForm client:load />
       </div>
     </main>
 
