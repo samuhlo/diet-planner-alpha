@@ -1,39 +1,41 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import AuthForm from "../components/auth/AuthForm.tsx";
+import AuthRedirect from "../components/common/AuthRedirect.tsx";
 ---
 
 <Layout title="Bienvenido - Planificador de Dieta">
+  <AuthRedirect client:load />
   <div
-    class="min-h-screen rounded-xl bg-gradient-to-br from-[#f8fffe] via-[#f0fdf4] to-[#ecfdf5]"
+    class="min-h-fit rounded-xl bg-gradient-to-br from-[#f8fffe] via-[#f0fdf4] to-[#ecfdf5] flex flex-col"
   >
     <!-- Header minimalista -->
-    <header class="p-6">
+    <header class="p-4 flex-shrink-0">
       <div class="max-w-6xl mx-auto">
         <h1 class="text-2xl font-bold text-[#3a5a40]">Planificador de Dieta</h1>
       </div>
     </header>
 
     <!-- Contenido principal -->
-    <main class="max-w-6xl mx-auto px-6 py-12">
-      <div class="grid lg:grid-cols-2 gap-12 items-center">
+    <main class="flex-1 max-w-6xl mx-auto px-6 py-6 flex items-center">
+      <div class="grid lg:grid-cols-2 gap-8 items-center w-full">
         <!-- Sección de beneficios -->
-        <div class="space-y-8">
-          <div class="space-y-4">
+        <div class="space-y-6">
+          <div class="space-y-3">
             <h2
-              class="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight"
+              class="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight"
             >
               Tu Camino Hacia el
               <span class="text-[#3a5a40]">Bienestar</span>
             </h2>
-            <p class="text-xl text-gray-600 leading-relaxed">
+            <p class="text-lg text-gray-600 leading-relaxed">
               Planifica tu alimentación de forma personalizada y alcanza tus
               objetivos de salud con nuestro sistema inteligente.
             </p>
           </div>
 
           <!-- Características principales -->
-          <div class="grid sm:grid-cols-2 gap-6">
+          <div class="grid sm:grid-cols-2 gap-4">
             <div class="flex items-start space-x-3">
               <div
                 class="flex-shrink-0 w-8 h-8 bg-[#3a5a40] rounded-lg flex items-center justify-center"
@@ -141,7 +143,7 @@ import AuthForm from "../components/auth/AuthForm.tsx";
 
           <!-- Testimonios rápidos -->
           <div
-            class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200"
+            class="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200"
           >
             <div class="flex items-center space-x-4">
               <div class="flex -space-x-2">
@@ -179,7 +181,7 @@ import AuthForm from "../components/auth/AuthForm.tsx";
     </main>
 
     <!-- Footer -->
-    <footer class="text-center py-8 text-gray-500 text-sm">
+    <footer class="text-center py-4 text-gray-500 text-sm flex-shrink-0">
       <p>&copy; 2024 Planificador de Dieta. Diseñado para tu bienestar.</p>
     </footer>
   </div>

@@ -65,6 +65,39 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
       const result = await signIn(email, password);
       if (result.success) {
         console.log("Login exitoso");
+        // Redirigir según el estado del perfil del usuario
+        try {
+          // Pequeña pausa para asegurar que los datos se carguen
+          setTimeout(async () => {
+            const { getUserProfile } = await import(
+              "../../services/databaseService"
+            );
+            const profile = await getUserProfile(result.user!.id);
+
+            const isProfileComplete = !!(
+              profile &&
+              profile.weight &&
+              profile.height &&
+              profile.age &&
+              profile.gender &&
+              profile.steps !== null
+            );
+
+            if (isProfileComplete) {
+              // Perfil completo → ir a la app principal
+              window.location.href = "/";
+            } else {
+              // Perfil incompleto → ir a setup
+              window.location.href = "/setup";
+            }
+          }, 1000);
+        } catch (error) {
+          console.error("Error verificando perfil:", error);
+          // En caso de error, asumir que necesita configuración
+          setTimeout(() => {
+            window.location.href = "/setup";
+          }, 1000);
+        }
       }
     } else if (mode === "signup") {
       const result = await signUp(email, password);
