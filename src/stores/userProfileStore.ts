@@ -3,6 +3,11 @@ import { map, computed } from "nanostores";
 import type { UserData, UserGoal, WeightEntry } from "../types";
 import { NutritionService } from "../services/nutritionService";
 import { getCompleteUserData } from "../services/databaseService";
+import { clearIngredientsCache } from "../services/dataAdapter";
+
+// Flag para evitar cargas duplicadas
+let isLoadingUserData = false;
+let lastLoadedUserId: string | null = null;
 
 /**
  * Limpiar todos los stores al cerrar sesión
@@ -16,13 +21,27 @@ export const clearUserStores = () => {
     goalType: "maintain",
   });
   $weightLog.set({});
+  // Resetear flags de carga
+  isLoadingUserData = false;
+  lastLoadedUserId = null;
+  // Limpiar cache de ingredientes
+  clearIngredientsCache();
 };
 
 /**
  * Cargar datos del usuario desde Supabase y sincronizar con stores locales
  */
 export const loadUserDataFromSupabase = async (userId: string) => {
+  // Evitar cargas duplicadas
+  if (isLoadingUserData || lastLoadedUserId === userId) {
+    if (import.meta.env.DEV) {
+      console.log("⏭️ Carga de datos omitida - ya está cargando o cargado");
+    }
+    return true;
+  }
+
   try {
+    isLoadingUserData = true;
     const completeData = await getCompleteUserData(userId);
 
     if (!completeData) {
@@ -32,9 +51,11 @@ export const loadUserDataFromSupabase = async (userId: string) => {
 
     // Si no hay perfil, es normal para cuentas nuevas o OAuth reutilizada
     if (!completeData.profile) {
-      console.log(
-        "ℹ️ Usuario sin perfil - puede ser cuenta nueva o OAuth reutilizada"
-      );
+      if (import.meta.env.DEV) {
+        console.log(
+          "ℹ️ Usuario sin perfil - puede ser cuenta nueva o OAuth reutilizada"
+        );
+      }
       return false; // Retornar false para indicar que no se cargaron datos, pero no es error
     }
 
@@ -57,7 +78,9 @@ export const loadUserDataFromSupabase = async (userId: string) => {
       // Solo cargar si hay datos significativos
       if (userData.weight && userData.height && userData.age) {
         setUserData(userData);
-        console.log("✅ Datos del perfil cargados en store local");
+        if (import.meta.env.DEV) {
+          console.log("✅ Datos del perfil cargados en store local");
+        }
       }
     }
 
@@ -77,7 +100,9 @@ export const loadUserDataFromSupabase = async (userId: string) => {
       // Solo cargar si hay datos del objetivo
       if (userGoal.startDate || userGoal.targetWeight) {
         $userGoal.set(userGoal);
-        console.log("✅ Objetivo activo cargado en store local");
+        if (import.meta.env.DEV) {
+          console.log("✅ Objetivo activo cargado en store local");
+        }
       }
     }
 
@@ -94,16 +119,24 @@ export const loadUserDataFromSupabase = async (userId: string) => {
       });
 
       $weightLog.set(weightLog);
-      console.log(
-        `✅ ${completeData.weightEntries.length} registros de peso cargados`
-      );
+      if (import.meta.env.DEV) {
+        console.log(
+          `✅ ${completeData.weightEntries.length} registros de peso cargados`
+        );
+      }
     }
 
-    console.log("🎉 Datos cargados exitosamente desde Supabase");
+    // Marcar como completado
+    lastLoadedUserId = userId;
+    if (import.meta.env.DEV) {
+      console.log("🎉 Datos cargados exitosamente desde Supabase");
+    }
     return true;
   } catch (error) {
     console.error("Error cargando datos desde Supabase:", error);
     return false;
+  } finally {
+    isLoadingUserData = false;
   }
 };
 

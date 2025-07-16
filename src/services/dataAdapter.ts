@@ -31,11 +31,13 @@ async function checkSupabaseAvailability(): Promise<boolean> {
 
   try {
     supabaseAvailable = await testSupabaseConnection();
-    console.log(
-      `🔗 Supabase ${
-        supabaseAvailable ? "disponible" : "no disponible"
-      } - usando datos ${supabaseAvailable ? "remotos" : "locales"}`
-    );
+    if (import.meta.env.DEV) {
+      console.log(
+        `🔗 Supabase ${
+          supabaseAvailable ? "disponible" : "no disponible"
+        } - usando datos ${supabaseAvailable ? "remotos" : "locales"}`
+      );
+    }
     return supabaseAvailable;
   } catch (error) {
     console.warn("Error verificando conexión a Supabase:", error);
@@ -52,6 +54,17 @@ export function forceLocalData(force = true): void {
   console.log(
     `🔧 Modo de datos cambiado a: ${useSupabase ? "Supabase" : "Local"}`
   );
+}
+
+/**
+ * Limpiar cache de ingredientes (útil al cerrar sesión)
+ */
+export function clearIngredientsCache(): void {
+  ingredientsCache = null;
+  isCacheLoading = false;
+  if (import.meta.env.DEV) {
+    console.log("🧹 Cache de ingredientes limpiado");
+  }
 }
 
 /**
@@ -173,6 +186,7 @@ function normalizarNombre(nombre: string): string {
 
 // Cache de ingredientes para acceso síncrono
 let ingredientsCache: ExtractedIngredient[] | null = null;
+let isCacheLoading = false;
 
 /**
  * Obtiene un ingrediente por nombre - misma interfaz que getExtractedIngredientByName
@@ -213,12 +227,25 @@ export function getExtractedIngredientByNameSync(
  * Precargar ingredientes en cache para acceso síncrono
  */
 export async function preloadIngredientsCache(): Promise<void> {
+  // Evitar múltiples cargas del cache
+  if (isCacheLoading || ingredientsCache) {
+    if (import.meta.env.DEV && !ingredientsCache) {
+      console.log("⏭️ Cache de ingredientes ya se está cargando...");
+    }
+    return;
+  }
+
   try {
+    isCacheLoading = true;
     ingredientsCache = await getExtractedIngredients();
-    console.log("✅ Cache de ingredientes precargado");
+    if (import.meta.env.DEV) {
+      console.log("✅ Cache de ingredientes precargado");
+    }
   } catch (error) {
     console.error("Error precargando cache de ingredientes:", error);
     ingredientsCache = localIngredients;
+  } finally {
+    isCacheLoading = false;
   }
 }
 
