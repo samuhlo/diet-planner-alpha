@@ -37,7 +37,9 @@ export default function UserMenu() {
     setShowUserMenu(false); // Cerrar el menú
 
     try {
-      console.log("🔄 [USER_MENU] Iniciando proceso de cerrar sesión...");
+      if (import.meta.env.DEV) {
+        console.log("🔄 [USER_MENU] Iniciando proceso de cerrar sesión...");
+      }
 
       // Ejecutar diagnósticos antes del logout si estamos en producción
       if (import.meta.env.PROD) {
@@ -49,12 +51,18 @@ export default function UserMenu() {
         typeof window !== "undefined" ? window.location.origin : "";
       const welcomeUrl = `${baseUrl}/welcome`;
 
-      console.log("🔄 [USER_MENU] URL de redirección:", welcomeUrl);
+      if (import.meta.env.DEV) {
+        console.log("🔄 [USER_MENU] URL de redirección:", welcomeUrl);
+      }
 
       const result = await signOut();
 
       if (result.success) {
-        console.log("✅ [USER_MENU] Sesión cerrada, redirigiendo a welcome...");
+        if (import.meta.env.DEV) {
+          console.log(
+            "✅ [USER_MENU] Sesión cerrada, redirigiendo a welcome..."
+          );
+        }
 
         // Usar replace en lugar de href para evitar problemas de navegación
         if (typeof window !== "undefined") {
@@ -68,7 +76,9 @@ export default function UserMenu() {
 
         // Ejecutar diagnósticos adicionales en caso de error
         if (import.meta.env.PROD) {
-          console.log("🔍 [USER_MENU] Ejecutando diagnósticos post-error...");
+          if (import.meta.env.DEV) {
+            console.log("🔍 [USER_MENU] Ejecutando diagnósticos post-error...");
+          }
           await runAuthDiagnostics();
         }
 
@@ -84,7 +94,11 @@ export default function UserMenu() {
 
       // Ejecutar diagnósticos en caso de excepción
       if (import.meta.env.PROD) {
-        console.log("🔍 [USER_MENU] Ejecutando diagnósticos post-excepción...");
+        if (import.meta.env.DEV) {
+          console.log(
+            "🔍 [USER_MENU] Ejecutando diagnósticos post-excepción..."
+          );
+        }
         try {
           await runAuthDiagnostics();
         } catch (diagError) {

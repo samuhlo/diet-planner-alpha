@@ -5,18 +5,20 @@ const verifySupabaseConfig = () => {
   const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
-  console.log("🔧 [SUPABASE_CONFIG] Verificando configuración...");
-  console.log("🔧 [SUPABASE_CONFIG] Environment:", {
-    mode: import.meta.env.MODE,
-    dev: import.meta.env.DEV,
-    prod: import.meta.env.PROD,
-  });
+  if (import.meta.env.DEV) {
+    console.log("🔧 [SUPABASE_CONFIG] Verificando configuración...");
+    console.log("🔧 [SUPABASE_CONFIG] Environment:", {
+      mode: import.meta.env.MODE,
+      dev: import.meta.env.DEV,
+      prod: import.meta.env.PROD,
+    });
+  }
 
   // Verificar URL
   if (!supabaseUrl) {
     console.error("❌ [SUPABASE_CONFIG] PUBLIC_SUPABASE_URL no está definida");
     throw new Error("PUBLIC_SUPABASE_URL no está definida");
-  } else {
+  } else if (import.meta.env.DEV) {
     console.log(
       "✅ [SUPABASE_CONFIG] URL:",
       supabaseUrl.substring(0, 30) + "..."
@@ -29,7 +31,7 @@ const verifySupabaseConfig = () => {
       "❌ [SUPABASE_CONFIG] PUBLIC_SUPABASE_ANON_KEY no está definida"
     );
     throw new Error("PUBLIC_SUPABASE_ANON_KEY no está definida");
-  } else {
+  } else if (import.meta.env.DEV) {
     console.log(
       "✅ [SUPABASE_CONFIG] Anon Key:",
       supabaseAnonKey.substring(0, 20) + "..."
@@ -39,7 +41,9 @@ const verifySupabaseConfig = () => {
   // Verificar formato de URL
   try {
     new URL(supabaseUrl);
-    console.log("✅ [SUPABASE_CONFIG] URL tiene formato válido");
+    if (import.meta.env.DEV) {
+      console.log("✅ [SUPABASE_CONFIG] URL tiene formato válido");
+    }
   } catch {
     console.error(
       "❌ [SUPABASE_CONFIG] URL tiene formato inválido:",
@@ -67,7 +71,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Log de inicialización exitosa
-console.log("✅ [SUPABASE_CONFIG] Cliente inicializado correctamente");
+if (import.meta.env.DEV) {
+  console.log("✅ [SUPABASE_CONFIG] Cliente inicializado correctamente");
+}
 
 // Tipos para TypeScript
 export type { User, Session, AuthError } from "@supabase/supabase-js";

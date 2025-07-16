@@ -141,7 +141,9 @@ export const migrateLocalDataToSupabase = async (
         }
 
         migratedData.profile = true;
-        console.log("✅ Perfil de usuario migrado");
+        if (import.meta.env.DEV) {
+          console.log("✅ Perfil de usuario migrado");
+        }
       } catch (error) {
         const errorMsg = `Error al migrar perfil: ${error}`;
         errors.push(errorMsg);
@@ -155,7 +157,9 @@ export const migrateLocalDataToSupabase = async (
         const goalData = convertLocalGoalToSupabase(localData.userGoal, userId);
         await createUserGoal(goalData);
         migratedData.goal = true;
-        console.log("✅ Objetivo migrado");
+        if (import.meta.env.DEV) {
+          console.log("✅ Objetivo migrado");
+        }
       } catch (error) {
         const errorMsg = `Error al migrar objetivo: ${error}`;
         errors.push(errorMsg);
@@ -183,9 +187,11 @@ export const migrateLocalDataToSupabase = async (
           }
         }
 
-        console.log(
-          `✅ ${migratedData.weightEntries} registros de peso migrados`
-        );
+        if (import.meta.env.DEV) {
+          console.log(
+            `✅ ${migratedData.weightEntries} registros de peso migrados`
+          );
+        }
       } catch (error) {
         const errorMsg = `Error al migrar registros de peso: ${error}`;
         errors.push(errorMsg);
@@ -203,7 +209,9 @@ export const migrateLocalDataToSupabase = async (
       clearLocalStorageData();
     }
 
-    console.log("🎉 Migración completada:", migratedData);
+    if (import.meta.env.DEV) {
+      console.log("🎉 Migración completada:", migratedData);
+    }
     return { success: errors.length === 0, migratedData, errors };
   } catch (error) {
     const errorMsg = `Error general en migración: ${error}`;
@@ -244,7 +252,9 @@ export const syncUserDataAfterLogin = async (
       );
 
       if (migrationResult.success) {
-        console.log("✅ Datos migrados exitosamente");
+        if (import.meta.env.DEV) {
+          console.log("✅ Datos migrados exitosamente");
+        }
       } else {
         console.warn(
           "⚠️ Algunos datos no pudieron migrarse:",

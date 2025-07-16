@@ -92,7 +92,9 @@ export const initAuth = async () => {
 
     // Listener para cambios de autenticación
     supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session);
+      if (import.meta.env.DEV) {
+        console.log("Auth state changed:", event, session);
+      }
 
       // Permitir que OAuth complete el proceso incluso con email "deleted_"
       // La detección de cuentas eliminadas se maneja a nivel de perfil
@@ -202,13 +204,15 @@ export const signOut = async () => {
 
     const user = $user.get();
 
-    console.log("🔄 [LOGOUT] Iniciando proceso de cierre de sesión...");
-    console.log("🔄 [LOGOUT] Usuario actual:", user?.email || "Sin email");
-    console.log("🔄 [LOGOUT] Environment:", {
-      isDev: import.meta.env.DEV,
-      mode: import.meta.env.MODE,
-      origin: typeof window !== "undefined" ? window.location.origin : "N/A",
-    });
+    if (import.meta.env.DEV) {
+      console.log("🔄 [LOGOUT] Iniciando proceso de cierre de sesión...");
+      console.log("🔄 [LOGOUT] Usuario actual:", user?.email || "Sin email");
+      console.log("🔄 [LOGOUT] Environment:", {
+        isDev: import.meta.env.DEV,
+        mode: import.meta.env.MODE,
+        origin: typeof window !== "undefined" ? window.location.origin : "N/A",
+      });
+    }
 
     // Detectar si es usuario de GitHub OAuth
     const isGitHubUser =
@@ -217,10 +221,14 @@ export const signOut = async () => {
         user.user_metadata?.iss?.includes("github") ||
         user.email?.includes("github"));
 
-    console.log("🔄 [LOGOUT] Es usuario de GitHub:", isGitHubUser);
+    if (import.meta.env.DEV) {
+      console.log("🔄 [LOGOUT] Es usuario de GitHub:", isGitHubUser);
+    }
 
     // Cerrar sesión con scope global si es GitHub
-    console.log("🔄 [LOGOUT] Llamando a supabase.auth.signOut()...");
+    if (import.meta.env.DEV) {
+      console.log("🔄 [LOGOUT] Llamando a supabase.auth.signOut()...");
+    }
     const { error } = isGitHubUser
       ? await supabase.auth.signOut({ scope: "global" as const })
       : await supabase.auth.signOut();
@@ -231,11 +239,15 @@ export const signOut = async () => {
       return { success: false, error: error.message };
     }
 
-    console.log("✅ [LOGOUT] Supabase signOut exitoso");
+    if (import.meta.env.DEV) {
+      console.log("✅ [LOGOUT] Supabase signOut exitoso");
+    }
 
     // Para GitHub, limpiar almacenamiento adicional
     if (isGitHubUser) {
-      console.log("🔄 [LOGOUT] Limpiando datos relacionados con GitHub...");
+      if (import.meta.env.DEV) {
+        console.log("🔄 [LOGOUT] Limpiando datos relacionados con GitHub...");
+      }
       // Limpiar localStorage relacionado con OAuth
       for (let i = localStorage.length - 1; i >= 0; i--) {
         const key = localStorage.key(i);
@@ -245,13 +257,17 @@ export const signOut = async () => {
             key.includes("oauth") ||
             key.includes("supabase"))
         ) {
-          console.log("🔄 [LOGOUT] Removiendo key:", key);
+          if (import.meta.env.DEV) {
+            console.log("🔄 [LOGOUT] Removiendo key:", key);
+          }
           localStorage.removeItem(key);
         }
       }
     }
 
-    console.log("🔄 [LOGOUT] Limpiando localStorage y stores...");
+    if (import.meta.env.DEV) {
+      console.log("🔄 [LOGOUT] Limpiando localStorage y stores...");
+    }
     // Limpiar localStorage al cerrar sesión (inmediatamente, no esperar listener)
     clearLocalStorage();
 
@@ -259,7 +275,9 @@ export const signOut = async () => {
     $user.set(null);
     $session.set(null);
 
-    console.log("✅ [LOGOUT] Sesión cerrada exitosamente");
+    if (import.meta.env.DEV) {
+      console.log("✅ [LOGOUT] Sesión cerrada exitosamente");
+    }
     return { success: true };
   } catch (error) {
     console.error("❌ [LOGOUT] Error al cerrar sesión:", error);
