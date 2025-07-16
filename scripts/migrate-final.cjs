@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-import { createClient } from "@supabase/supabase-js";
-import { allMeals } from "../src/data/recipes.js";
-import { allSupplements } from "../src/data/supplements.js";
-import { allTips } from "../src/data/tips.js";
+const { createClient } = require("@supabase/supabase-js");
+const fs = require("fs");
+const path = require("path");
 
 // Configuración de Supabase
 const supabaseUrl =
@@ -14,31 +13,65 @@ if (!supabaseServiceKey) {
   console.error(
     "❌ Error: Configura SUPABASE_SERVICE_ROLE_KEY en las variables de entorno"
   );
-  console.log("💡 Tip: export SUPABASE_SERVICE_ROLE_KEY='tu-service-role-key'");
+  console.log("💡 Obtén tu Service Role Key desde:");
+  console.log("   1. Ve a https://app.supabase.com");
+  console.log("   2. Selecciona tu proyecto 'diet-planner-alpha'");
+  console.log("   3. Settings → API → Service Role Key");
+  console.log("   4. export SUPABASE_SERVICE_ROLE_KEY='tu-key'");
   process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// ID del usuario autor (cámbialo por el tuyo)
+// ID del usuario autor
 const AUTHOR_USER_ID =
   process.env.AUTHOR_USER_ID || "36c99997-9503-442e-ba81-e9e7ad9be777";
 
 console.log("🚀 Iniciando migración de datos locales a Supabase...");
 console.log(`👤 Usuario autor: ${AUTHOR_USER_ID}`);
 
+// Función para cargar datos desde JSON
+function loadData() {
+  const dataPath = path.join(__dirname, "compiled-data.json");
+
+  if (!fs.existsSync(dataPath)) {
+    console.error("❌ Error: No se encontró compiled-data.json");
+    console.log("💡 Ejecuta primero: node scripts/compile-data.cjs");
+    process.exit(1);
+  }
+
+  try {
+    const rawData = fs.readFileSync(dataPath, "utf8");
+    const data = JSON.parse(rawData);
+
+    console.log("✅ Datos cargados exitosamente");
+    console.log(`📊 Estadísticas de datos:`);
+    console.log(`   🍽️  Recetas: ${data.allMeals.length}`);
+    console.log(`   💊 Suplementos: ${data.allSupplements.length}`);
+    console.log(`   💡 Tips: ${data.allTips.length}`);
+
+    return data;
+  } catch (error) {
+    console.error("❌ Error leyendo datos compilados:", error.message);
+    process.exit(1);
+  }
+}
+
 // ========================================
 // MIGRACIÓN DE RECETAS
 // ========================================
 
-async function migrateRecipes() {
+async function migrateRecipes(allMeals) {
   console.log("\n🍽️  === MIGRANDO RECETAS ===");
-  console.log(`📦 Preparando ${allMeals.length} recetas...`);
+  console.log(`📦 Procesando ${allMeals.length} recetas...`);
 
   let insertedRecipes = 0;
   let skippedRecipes = 0;
+  let createdIngredients = 0;
 
-  for (const recipe of allMeals) {
+  for (let i = 0; i < allMeals.length; i++) {
+    const recipe = allMeals[i];
+
     try {
       // Determinar dificultad basada en tags
       let difficulty = null;
@@ -62,7 +95,7 @@ async function migrateRecipes() {
         source_url: recipe.source?.url || null,
         servings: 1,
         difficulty: difficulty,
-        is_public: false, // Cambiar a true si quieres que sean públicas
+        is_public: true, // Hacer públicas para testing
       };
 
       // Insertar receta
@@ -86,13 +119,12 @@ async function migrateRecipes() {
       if (recipe.ingredientes && recipe.ingredientes.length > 0) {
         for (const ingrediente of recipe.ingredientes) {
           try {
-            // Buscar o crear ingrediente
-            let { data: existingIngredient, error: searchError } =
-              await supabase
-                .from("ingredients")
-                .select("id")
-                .eq("name", ingrediente.n)
-                .single();
+            // Buscar ingrediente existente
+            let { data: existingIngredient } = await supabase
+              .from("ingredients")
+              .select("id")
+              .eq("name", ingrediente.n)
+              .maybeSingle();
 
             let ingredientId = existingIngredient?.id;
 
@@ -111,6 +143,7 @@ async function migrateRecipes() {
                 continue;
               }
               ingredientId = newIngredient.id;
+              createdIngredients++;
             }
 
             // Insertar relación receta-ingrediente
@@ -137,10 +170,12 @@ async function migrateRecipes() {
         }
       }
 
-      // Log cada 50 recetas para seguimiento
-      if (insertedRecipes % 50 === 0) {
+      // Log progreso cada 100 recetas
+      if (insertedRecipes % 100 === 0) {
         console.log(
-          `📈 Progreso: ${insertedRecipes}/${allMeals.length} recetas procesadas...`
+          `📈 Progreso: ${insertedRecipes}/${
+            allMeals.length
+          } recetas (${Math.round(((i + 1) / allMeals.length) * 100)}%)`
         );
       }
     } catch (error) {
@@ -155,6 +190,7 @@ async function migrateRecipes() {
   console.log(
     `✅ Recetas completadas: ${insertedRecipes} insertadas, ${skippedRecipes} omitidas`
   );
+  console.log(`🥕 Ingredientes nuevos creados: ${createdIngredients}`);
   return insertedRecipes;
 }
 
@@ -162,16 +198,16 @@ async function migrateRecipes() {
 // MIGRACIÓN DE SUPLEMENTOS
 // ========================================
 
-async function migrateSupplements() {
+async function migrateSupplements(allSupplements) {
   console.log("\n💊 === MIGRANDO SUPLEMENTOS ===");
-  console.log(`📦 Preparando ${allSupplements.length} suplementos...`);
+  console.log(`📦 Procesando ${allSupplements.length} suplementos...`);
 
   const supplementsToInsert = allSupplements.map((supplement) => ({
     id: supplement.id,
     name: supplement.name,
     description: supplement.description || null,
     type: supplement.type || null,
-    category: supplement.categoria || supplement.category || null,
+    category: supplement.categoria || null,
     tags: supplement.tags || [],
     calories: supplement.calories || supplement.calorias || null,
     protein: supplement.protein || supplement.proteinas || null,
@@ -211,14 +247,14 @@ async function migrateSupplements() {
 // MIGRACIÓN DE CONSEJOS/TIPS
 // ========================================
 
-async function migrateTips() {
+async function migrateTips(allTips) {
   console.log("\n💡 === MIGRANDO CONSEJOS Y TIPS ===");
-  console.log(`📦 Preparando ${allTips.length} tips...`);
+  console.log(`📦 Procesando ${allTips.length} tips...`);
 
   const tipsToInsert = allTips.map((tip) => {
     // Estimar tiempo de lectura basado en el contenido
     const wordCount = tip.content.replace(/<[^>]*>/g, "").split(" ").length;
-    const estimatedReadTime = Math.max(1, Math.ceil(wordCount / 200)); // 200 palabras por minuto
+    const estimatedReadTime = Math.max(1, Math.ceil(wordCount / 200));
 
     // Determinar categoría basada en tags
     let category = "General";
@@ -235,7 +271,7 @@ async function migrateTips() {
       content: tip.content,
       tags: tip.tags || [],
       category: category,
-      difficulty_level: "Principiante", // La mayoría de tips son para principiantes
+      difficulty_level: "Principiante",
       time_to_read: estimatedReadTime,
       author_id: AUTHOR_USER_ID,
       is_featured: false,
@@ -272,12 +308,32 @@ async function runMigration() {
   try {
     console.log("🎯 Iniciando migración completa...\n");
 
+    // Cargar datos compilados
+    const { allMeals, allSupplements, allTips } = loadData();
+
+    // Verificar conexión a Supabase
+    console.log("🔐 Verificando conexión a Supabase...");
+    const { data: testData, error: testError } = await supabase
+      .from("user_profiles")
+      .select("count")
+      .limit(1);
+
+    if (testError) {
+      console.error("❌ Error de conexión a Supabase:", testError.message);
+      console.log("💡 Verifica tu SUPABASE_SERVICE_ROLE_KEY");
+      process.exit(1);
+    }
+
+    console.log("✅ Conexión a Supabase exitosa");
+
     // Migrar datos
+    const startTime = Date.now();
     const results = {
-      recipes: await migrateRecipes(),
-      supplements: await migrateSupplements(),
-      tips: await migrateTips(),
+      recipes: await migrateRecipes(allMeals),
+      supplements: await migrateSupplements(allSupplements),
+      tips: await migrateTips(allTips),
     };
+    const endTime = Date.now();
 
     // Resumen final
     console.log("\n🎉 === MIGRACIÓN COMPLETADA ===");
@@ -288,6 +344,9 @@ async function runMigration() {
 
     const total = results.recipes + results.supplements + results.tips;
     console.log(`   🔢 Total de registros: ${total}`);
+    console.log(
+      `   ⏱️  Tiempo total: ${Math.round((endTime - startTime) / 1000)}s`
+    );
 
     console.log("\n✅ ¡Migración completada exitosamente!");
     console.log(
@@ -295,11 +354,15 @@ async function runMigration() {
     );
 
     // Mostrar consultas útiles
-    console.log("\n🔍 Consultas útiles para verificar:");
+    console.log("\n🔍 Consultas útiles para verificar en Supabase SQL Editor:");
     console.log("SELECT COUNT(*) FROM recipes;");
     console.log("SELECT COUNT(*) FROM supplements;");
     console.log("SELECT COUNT(*) FROM tips;");
-    console.log("SELECT meal_type, COUNT(*) FROM recipes GROUP BY meal_type;");
+    console.log(
+      "SELECT meal_type, COUNT(*) FROM recipes GROUP BY meal_type ORDER BY COUNT(*) DESC;"
+    );
+    console.log("SELECT COUNT(*) FROM ingredients;");
+    console.log("SELECT COUNT(*) FROM recipe_ingredients;");
   } catch (error) {
     console.error("\n❌ Error en la migración:", error);
     process.exit(1);

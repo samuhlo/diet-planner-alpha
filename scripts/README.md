@@ -2,7 +2,7 @@
 
 ## 🎯 Qué hace este script
 
-El script `migrate-local-data.js` migra todos tus datos locales (recetas, suplementos y tips) a las tablas de Supabase que acabamos de crear.
+El script `migrate-local-data.ts` migra todos tus datos locales (recetas, suplementos y tips) a las tablas de Supabase que acabamos de crear.
 
 ## ⚙️ Configuración
 
@@ -30,14 +30,51 @@ export AUTHOR_USER_ID="tu-user-uuid"
 SELECT id FROM auth.users WHERE email = 'tu-email@ejemplo.com';
 ```
 
-## 🚀 Ejecutar la migración
+## 🚀 Ejecutar la migración (NUEVO MÉTODO SIMPLIFICADO)
+
+### Paso 1: Compilar datos TypeScript
 
 ```bash
-# Dar permisos de ejecución
-chmod +x scripts/migrate-local-data.js
+# Compilar tus datos TypeScript a JSON
+node scripts/compile-data.cjs
+```
 
-# Ejecutar migración
-node scripts/migrate-local-data.js
+### Paso 2: Configurar Service Role Key
+
+```bash
+# Obtén tu Service Role Key desde Supabase Dashboard
+export SUPABASE_SERVICE_ROLE_KEY="tu-service-role-key-aqui"
+
+# Opcional: Tu user ID (si no, usa el predeterminado)
+export AUTHOR_USER_ID="tu-user-uuid"
+```
+
+### Paso 3: Ejecutar migración
+
+```bash
+# Ejecutar migración final
+node scripts/migrate-final.cjs
+```
+
+---
+
+## 📚 Métodos alternativos (si el principal no funciona)
+
+### Método TypeScript (requiere ts-node)
+
+```bash
+# Instalar ts-node
+npm install -g ts-node
+
+# Ejecutar
+npx ts-node scripts/migrate-local-data.ts
+```
+
+### Método CommonJS básico
+
+```bash
+# Ejecutar versión básica
+node scripts/migrate-data-alternative.cjs
 ```
 
 ## 📊 Resultado esperado
