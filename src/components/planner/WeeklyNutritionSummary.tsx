@@ -1,4 +1,4 @@
-import { useMemo, useState } from "preact/hooks";
+import { useMemo, useState, useEffect } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $plan } from "../../stores/planStore";
 import {
@@ -6,11 +6,10 @@ import {
   $userGoal,
   $nutritionalGoals,
 } from "../../stores/userProfileStore";
-import { allMeals } from "../../data/recipes";
-import { allSupplements } from "../../data/supplements";
+import { getAllMeals, getAllSupplements } from "../../services/dataAdapter";
 import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
-import type { DailyPlan, Snack, Recipe } from "../../types";
+import type { DailyPlan, Snack, Recipe, Supplement } from "../../types";
 import { DAYS_OF_WEEK, MAIN_MEAL_TYPES } from "../../config/appConstants";
 import {
   calculateRecipePrice,
@@ -29,6 +28,36 @@ export default function WeeklyNutritionSummary({
   const userGoal = useStore($userGoal);
   const nutritionalGoals = useStore($nutritionalGoals);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Estados de datos
+  const [allMeals, setAllMeals] = useState<Recipe[]>([]);
+  const [allSupplements, setAllSupplements] = useState<Supplement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Estado para el precio semanal
+  const [weeklyPrice, setWeeklyPrice] = useState(0);
+  const [priceLoading, setPriceLoading] = useState(false);
+
+  // Cargar datos de forma asíncrona
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [meals, supplements] = await Promise.all([
+          getAllMeals(),
+          getAllSupplements(),
+        ]);
+        setAllMeals(meals);
+        setAllSupplements(supplements);
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Usar los objetivos nutricionales calculados por la store
   const { calorieGoal, proteinGoal, carbGoal, fatGoal } = nutritionalGoals;
@@ -189,63 +218,81 @@ export default function WeeklyNutritionSummary({
     };
   }, [plan, allSnacks]);
 
-  // Calcular precio total semanal
-  const weeklyPrice = useMemo(() => {
-    let total = 0;
-    const allDesserts = allMeals.filter((m) => m.tipo === "Postre");
+  // Calcular precio total semanal de forma asíncrona
+  useEffect(() => {
+    if (loading || !allMeals.length) return;
 
-    DAYS_OF_WEEK.forEach((day) => {
-      const dayId = day.toLowerCase();
-      const dailyPlan: DailyPlan = plan[dayId] || {};
+    const calculateWeeklyPriceAsync = async () => {
+      setPriceLoading(true);
+      let total = 0;
 
-      // Comidas principales
-      MAIN_MEAL_TYPES.forEach((mealType) => {
-        const mealInfo = dailyPlan[mealType];
-        if (mealInfo?.recipeName) {
-          const mealData = allMeals.find(
-            (m) => m.nombre === mealInfo.recipeName
-          );
-          if (mealData) {
-            total +=
-              calculateRecipePrice(mealData).total * (mealInfo.diners || 1);
+      try {
+        const allDesserts = allMeals.filter((m) => m.tipo === "Postre");
+
+        for (const day of DAYS_OF_WEEK) {
+          const dayId = day.toLowerCase();
+          const dailyPlan: DailyPlan = plan[dayId] || {};
+
+          // Comidas principales
+          for (const mealType of MAIN_MEAL_TYPES) {
+            const mealInfo = dailyPlan[mealType];
+            if (mealInfo?.recipeName) {
+              const mealData = allMeals.find(
+                (m) => m.nombre === mealInfo.recipeName
+              );
+              if (mealData) {
+                const priceData = await calculateRecipePrice(mealData);
+                total += priceData.total * (mealInfo.diners || 1);
+              }
+            }
+          }
+
+          // Snacks
+          const snackInfo = dailyPlan.snacks;
+          if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
+            for (const s of snackInfo.snacks) {
+              if (s.snackId) {
+                const snackData = allSnacks.find((sn) => sn.id === s.snackId);
+                if (snackData?.ingredientes) {
+                  const priceData = await calculateRecipePrice(
+                    snackData as unknown as Recipe
+                  );
+                  total += priceData.total * s.quantity;
+                }
+              }
+            }
+          }
+
+          // Postres
+          const dessertInfo = dailyPlan.desserts;
+          if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
+            for (const d of dessertInfo.desserts) {
+              if (d.dessertId) {
+                const dessertData = allDesserts.find(
+                  (dess) =>
+                    dess.nombre.toLowerCase().replace(/\s+/g, "-") ===
+                    d.dessertId
+                );
+                if (dessertData) {
+                  const priceData = await calculateRecipePrice(dessertData);
+                  total += priceData.total * d.quantity;
+                }
+              }
+            }
           }
         }
-      });
 
-      // Snacks
-      const snackInfo = dailyPlan.snacks;
-      if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
-        snackInfo.snacks.forEach((s) => {
-          if (s.snackId) {
-            const snackData = allSnacks.find((sn) => sn.id === s.snackId);
-            if (snackData?.ingredientes) {
-              total +=
-                calculateRecipePrice(snackData as unknown as Recipe).total *
-                s.quantity;
-            }
-          }
-        });
+        setWeeklyPrice(total);
+      } catch (error) {
+        console.error("Error calculando precio semanal:", error);
+        setWeeklyPrice(0);
+      } finally {
+        setPriceLoading(false);
       }
+    };
 
-      // Postres
-      const dessertInfo = dailyPlan.desserts;
-      if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
-        dessertInfo.desserts.forEach((d) => {
-          if (d.dessertId) {
-            const dessertData = allDesserts.find(
-              (dess) =>
-                dess.nombre.toLowerCase().replace(/\s+/g, "-") === d.dessertId
-            );
-            if (dessertData) {
-              total += calculateRecipePrice(dessertData).total * d.quantity;
-            }
-          }
-        });
-      }
-    });
-
-    return total;
-  }, [plan, allMeals, allSnacks]);
+    calculateWeeklyPriceAsync();
+  }, [plan, allMeals, allSnacks, loading]);
 
   // Calcular porcentajes y estados
   const caloriePercentage =
@@ -291,6 +338,20 @@ export default function WeeklyNutritionSummary({
   const proteinStatus = getProteinStatus();
   const carbStatus = getCarbStatus();
   const fatStatus = getFatStatus();
+
+  // Mostrar loader mientras se cargan los datos
+  if (loading) {
+    return (
+      <div class="bg-white p-6 rounded-lg shadow-md border">
+        <div class="flex items-center justify-center h-32">
+          <div class="text-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6B8A7A] mx-auto mb-2"></div>
+            <p class="text-gray-600 text-sm">Cargando resumen semanal...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div class="bg-white p-6 rounded-lg shadow-md border">
@@ -635,7 +696,11 @@ export default function WeeklyNutritionSummary({
       )}
       {/* Precio semanal */}
       <div class="text-right text-green-800 font-bold text-lg mb-2 mt-3">
-        Precio total del plan semanal: {formatEuro(weeklyPrice)}
+        {priceLoading ? (
+          <>Precio total del plan semanal: Calculando...</>
+        ) : (
+          <>Precio total del plan semanal: {formatEuro(weeklyPrice)}</>
+        )}
       </div>
     </div>
   );

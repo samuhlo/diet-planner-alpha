@@ -1,11 +1,13 @@
 ---
 // src/components/gallery/UnifiedGallery.astro
-import { allMeals } from "../../data/recipes.ts";
-import { allSupplements } from "../../data/supplements.ts";
+import { getAllMeals, getAllSupplements } from "../../services/dataAdapter.ts";
 import { getSnacksFromRecipes } from "../../utils/recipeUtils.ts";
 
 import SupplementBrowser from "../supplements/SupplementBrowser.tsx";
 
+// Obtener datos desde Supabase o local como fallback
+const allMeals = await getAllMeals();
+const allSupplements = await getAllSupplements();
 const allSnacks = getSnacksFromRecipes(allMeals);
 ---
 

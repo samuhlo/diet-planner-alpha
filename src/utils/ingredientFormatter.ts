@@ -1,5 +1,5 @@
 import type { Ingredient } from "../types";
-import { getExtractedIngredientByName } from "../data/ingredients";
+import { getExtractedIngredientByName } from "../services/dataAdapter";
 import type { Recipe } from "../types";
 
 export interface FormattedIngredient {
@@ -66,10 +66,10 @@ export function isOptionalIngredient(ingrediente: Ingredient): boolean {
  * Calcula el precio aproximado de un ingrediente según la cantidad y unidad.
  * Devuelve null si no se puede calcular.
  */
-export function calculateIngredientPrice(
+export async function calculateIngredientPrice(
   ingrediente: Ingredient
-): number | null {
-  const extracted = getExtractedIngredientByName(ingrediente.n);
+): Promise<number | null> {
+  const extracted = await getExtractedIngredientByName(ingrediente.n);
   if (
     !extracted ||
     !extracted.infoCompra ||
@@ -94,16 +94,18 @@ export function calculateIngredientPrice(
  * Calcula el precio total de una receta y el desglose por ingrediente.
  * Devuelve { total, breakdown } donde breakdown es un array de precios por ingrediente (null si no se puede calcular).
  */
-export function calculateRecipePrice(recipe: Recipe): {
+export async function calculateRecipePrice(recipe: Recipe): Promise<{
   total: number;
   breakdown: (number | null)[];
-} {
+}> {
   let total = 0;
-  const breakdown = recipe.ingredientes.map((ing) => {
-    const price = calculateIngredientPrice(ing);
-    if (price != null) total += price;
-    return price;
-  });
+  const breakdown = await Promise.all(
+    recipe.ingredientes.map(async (ing) => {
+      const price = await calculateIngredientPrice(ing);
+      if (price != null) total += price;
+      return price;
+    })
+  );
   return { total, breakdown };
 }
 

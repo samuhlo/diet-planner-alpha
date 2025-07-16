@@ -1,6 +1,9 @@
 ---
 import PlannerManager from "./PlannerManager.tsx";
-import { allMeals } from "../../data/recipes";
+import { getAllMeals } from "../../services/dataAdapter.ts";
+
+// Obtener datos desde Supabase o local como fallback
+const allMeals = await getAllMeals();
 ---
 
 <div class="text-center mb-8 max-w-3xl mx-auto">

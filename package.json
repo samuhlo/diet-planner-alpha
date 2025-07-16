@@ -13,14 +13,16 @@
     "@nanostores/preact": "^1.0.0",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
-    "@supabase/supabase-js": "^2.50.2",
+    "@supabase/supabase-js": "^2.51.0",
     "astro": "^5.9.1",
     "chart.js": "^4.4.9",
     "preact": "^10.26.8"
   },
   "devDependencies": {
     "@astrojs/tailwind": "^6.0.0",
+    "@types/node": "^24.0.14",
     "tailwindcss": "^3.4.1",
-    "tsx": "^4.20.3"
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
   }
 }
