@@ -1,0 +1,24 @@
+# Cloudflare Pages redirects
+# Docs: https://developers.cloudflare.com/pages/platform/redirects/
+
+# Handle SPA routing - redirect all non-file requests to index.html
+/*    /index.html   200
+
+# OAuth callback handling
+/auth/callback    /auth/callback    200
+
+# API routes - ensure they work properly
+/api/*    /api/*    200
+
+# Handle logout redirects properly
+/logout   /welcome  302
+
+# Handle auth routes
+/login    /login    200
+/signup   /signup   200
+/welcome  /welcome  200
+/setup    /setup    200
+/profile  /profile  200
+
+# Handle reset password
+/reset-password   /reset-password   200 

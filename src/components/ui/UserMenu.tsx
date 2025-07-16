@@ -6,6 +6,7 @@ import {
   $loading,
   signOut,
 } from "../../stores/authStore";
+import { runAuthDiagnostics } from "../../utils/authDiagnostics";
 
 export default function UserMenu() {
   const user = useStore($user);
@@ -36,19 +37,71 @@ export default function UserMenu() {
     setShowUserMenu(false); // Cerrar el menú
 
     try {
-      console.log("🔄 Iniciando proceso de cerrar sesión...");
+      console.log("🔄 [USER_MENU] Iniciando proceso de cerrar sesión...");
+
+      // Ejecutar diagnósticos antes del logout si estamos en producción
+      if (import.meta.env.PROD) {
+        await runAuthDiagnostics();
+      }
+
+      // Obtener URL base para redirección
+      const baseUrl =
+        typeof window !== "undefined" ? window.location.origin : "";
+      const welcomeUrl = `${baseUrl}/welcome`;
+
+      console.log("🔄 [USER_MENU] URL de redirección:", welcomeUrl);
+
       const result = await signOut();
 
       if (result.success) {
-        console.log("✅ Sesión cerrada, redirigiendo a welcome...");
-        window.location.href = "/welcome";
+        console.log("✅ [USER_MENU] Sesión cerrada, redirigiendo a welcome...");
+
+        // Usar replace en lugar de href para evitar problemas de navegación
+        if (typeof window !== "undefined") {
+          // Delay pequeño para asegurar que Supabase termine de limpiar
+          setTimeout(() => {
+            window.location.replace(welcomeUrl);
+          }, 100);
+        }
       } else {
-        console.error("❌ Error al cerrar sesión:", result.error);
-        window.location.href = "/welcome";
+        console.error("❌ [USER_MENU] Error al cerrar sesión:", result.error);
+
+        // Ejecutar diagnósticos adicionales en caso de error
+        if (import.meta.env.PROD) {
+          console.log("🔍 [USER_MENU] Ejecutando diagnósticos post-error...");
+          await runAuthDiagnostics();
+        }
+
+        // Incluso si hay error, redirigir para limpiar estado
+        if (typeof window !== "undefined") {
+          setTimeout(() => {
+            window.location.replace(welcomeUrl);
+          }, 100);
+        }
       }
     } catch (error) {
-      console.error("❌ Error al cerrar sesión:", error);
-      window.location.href = "/welcome";
+      console.error("❌ [USER_MENU] Error al cerrar sesión:", error);
+
+      // Ejecutar diagnósticos en caso de excepción
+      if (import.meta.env.PROD) {
+        console.log("🔍 [USER_MENU] Ejecutando diagnósticos post-excepción...");
+        try {
+          await runAuthDiagnostics();
+        } catch (diagError) {
+          console.error("❌ [USER_MENU] Error en diagnósticos:", diagError);
+        }
+      }
+
+      // En caso de error, forzar redirección de todas formas
+      const baseUrl =
+        typeof window !== "undefined" ? window.location.origin : "";
+      const welcomeUrl = `${baseUrl}/welcome`;
+
+      if (typeof window !== "undefined") {
+        setTimeout(() => {
+          window.location.replace(welcomeUrl);
+        }, 100);
+      }
     } finally {
       setIsSigningOut(false);
     }
