@@ -1,5 +1,5 @@
 import { map, computed } from "nanostores";
-import { allSupplements as initialSupplements } from "../data/supplements";
+import { getAllSupplements } from "../services/dataAdapter";
 import type { Supplement } from "../types/supplements";
 
 // Definir la interfaz del estado
@@ -12,14 +12,36 @@ interface SupplementsState {
 
 // Estado inicial
 const initialState: SupplementsState = {
-  items: initialSupplements,
-  isLoading: false,
+  items: [],
+  isLoading: true,
   error: null,
   selectedCategory: null,
 };
 
 // Crear el store
 export const $supplements = map<SupplementsState>(initialState);
+
+// Función para cargar suplementos desde el adaptador
+export async function loadSupplements() {
+  $supplements.setKey("isLoading", true);
+  $supplements.setKey("error", null);
+
+  try {
+    const supplements = await getAllSupplements();
+    $supplements.setKey("items", supplements);
+    $supplements.setKey("isLoading", false);
+    console.log(`✅ ${supplements.length} suplementos cargados en store`);
+  } catch (error) {
+    $supplements.setKey("error", `Error cargando suplementos: ${error}`);
+    $supplements.setKey("isLoading", false);
+    console.error("Error cargando suplementos:", error);
+  }
+}
+
+// Inicializar automáticamente
+if (typeof window !== "undefined") {
+  loadSupplements();
+}
 
 // Acciones
 export function setSelectedCategory(category: string | null) {

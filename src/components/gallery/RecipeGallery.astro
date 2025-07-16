@@ -1,7 +1,10 @@
 ---
 // src/components/RecipeGallery.astro
-import { allMeals } from "../../data/recipes.ts";
+import { getAllMeals } from "../../services/dataAdapter.ts";
 import RecipeBrowser from "../recipes/RecipeBrowser.tsx"; // Importamos nuestro componente interactivo
+
+// Obtener datos desde Supabase o local como fallback
+const allMeals = await getAllMeals();
 ---
 
 <section id="recetario" class="content-section hidden">

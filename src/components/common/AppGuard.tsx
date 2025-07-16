@@ -3,6 +3,7 @@ import { useStore } from "@nanostores/preact";
 import { $user, $loading } from "../../stores/authStore";
 import { getUserProfile } from "../../services/databaseService";
 import { loadUserDataFromSupabase } from "../../stores/userProfileStore";
+import { preloadIngredientsCache } from "../../services/dataAdapter";
 
 export default function AppGuard() {
   const user = useStore($user);
@@ -12,6 +13,9 @@ export default function AppGuard() {
   useEffect(() => {
     async function checkUserStatus() {
       try {
+        // Precargar cache de ingredientes para componentes síncronos
+        preloadIngredientsCache();
+
         // Esperar a que termine la carga de autenticación
         if (isLoading) {
           return;

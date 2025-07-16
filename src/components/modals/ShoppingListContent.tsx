@@ -1,6 +1,9 @@
 import { useState, useEffect } from "preact/hooks";
 import { formatIngredient, formatEuro } from "../../utils/ingredientFormatter";
-import { getExtractedIngredientByName } from "../../data/ingredients";
+import {
+  getExtractedIngredientByNameSync,
+  preloadIngredientsCache,
+} from "../../services/dataAdapter";
 import type { Ingredient } from "../../types";
 
 interface ShoppingListPersisted {
@@ -47,6 +50,11 @@ export default function ShoppingListContent({
     }
   }, []);
 
+  // Precargar cache de ingredientes
+  useEffect(() => {
+    preloadIngredientsCache();
+  }, []);
+
   // Guardar lista personalizada y versión original en localStorage cuando cambie
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -90,7 +98,7 @@ export default function ShoppingListContent({
   };
 
   const totalPrice = list.reduce((acc, ing) => {
-    const extracted = getExtractedIngredientByName(ing.n);
+    const extracted = getExtractedIngredientByNameSync(ing.n);
     const packPrice = extracted?.infoCompra?.precioTotal;
     return acc + (packPrice || 0);
   }, 0);
@@ -116,7 +124,7 @@ export default function ShoppingListContent({
       <ul class="list-disc list-inside space-y-2">
         {list.map((ing, index) => {
           const formatted = formatIngredient(ing);
-          const extracted = getExtractedIngredientByName(ing.n);
+          const extracted = getExtractedIngredientByNameSync(ing.n);
           const packPrice = extracted?.infoCompra?.precioTotal;
           const packFormat = extracted?.infoCompra?.formato;
           // Ocultar ingredientes sin precio o con precio 0

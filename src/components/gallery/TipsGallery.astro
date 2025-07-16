@@ -1,7 +1,10 @@
 ---
 // src/components/Tips.astro
-import { allTips } from "../../data/tips.ts";
+import { getAllTips } from "../../services/dataAdapter.ts";
 import TipsBrowser from "../tips/TipsBrowser.jsx";
+
+// Obtener datos desde Supabase o local como fallback
+const allTips = await getAllTips();
 ---
 
 <section id="consejos" class="content-section hidden">

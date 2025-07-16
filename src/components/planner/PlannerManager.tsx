@@ -9,7 +9,7 @@ import {
   findDessertById,
 } from "../../stores/recipesStore";
 import { $userData, $userGoal } from "../../stores/userProfileStore";
-import { allSupplements } from "../../data/supplements";
+import { getAllSupplements } from "../../services/dataAdapter";
 import InteractivePlanner from "./InteractivePlanner";
 import {
   openShoppingListModal,
@@ -17,7 +17,12 @@ import {
 } from "../../stores/modalStore";
 import NutritionalSummary from "../common/NutritionalSummary";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
-import type { Recipe, Ingredient, WeeklySummaryData } from "../../types";
+import type {
+  Recipe,
+  Ingredient,
+  WeeklySummaryData,
+  Supplement,
+} from "../../types";
 import { DAYS_OF_WEEK, MAIN_MEAL_TYPES } from "../../config/appConstants";
 import ErrorBoundary from "../common/ErrorBoundary";
 
@@ -31,11 +36,30 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [allSupplements, setAllSupplements] = useState<Supplement[]>([]);
+  const [supplementsLoaded, setSupplementsLoaded] = useState(false);
 
   const { calorieGoal, proteinGoal } = useNutritionalCalculations(
     userData,
     userGoal
   );
+
+  // Cargar suplementos desde el adaptador
+  useEffect(() => {
+    const loadSupplements = async () => {
+      try {
+        const supplements = await getAllSupplements();
+        setAllSupplements(supplements);
+        setSupplementsLoaded(true);
+      } catch (error) {
+        console.error("Error cargando suplementos:", error);
+        setAllSupplements([]);
+        setSupplementsLoaded(true);
+      }
+    };
+
+    loadSupplements();
+  }, []);
 
   // Inicializar el store de recetas
   useEffect(() => {
@@ -50,7 +74,10 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
   }, []);
 
   // Memoizar los suplementos para evitar recálculos innecesarios
-  const memoizedAllSupplements = useMemo(() => allSupplements, []);
+  const memoizedAllSupplements = useMemo(
+    () => allSupplements,
+    [allSupplements]
+  );
 
   // Limpiar memoria cuando el componente se desmonte
   useEffect(() => {
@@ -60,8 +87,8 @@ export default function PlannerManager({ allMeals }: PlannerManagerProps) {
     };
   }, []);
 
-  // Mostrar loader mientras se hidrata o se inicializan las recetas
-  if (!isHydrated || !recipesState.isInitialized) {
+  // Mostrar loader mientras se hidrata, se inicializan las recetas o se cargan los suplementos
+  if (!isHydrated || !recipesState.isInitialized || !supplementsLoaded) {
     return (
       <ErrorBoundary>
         <div class="bg-white p-6 rounded-lg shadow-md mb-8">

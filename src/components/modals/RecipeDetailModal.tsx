@@ -1,4 +1,5 @@
 import { useStore } from "@nanostores/preact";
+import { useState, useEffect } from "preact/hooks";
 import { $modal, getModalData, closeModal } from "../../stores/modalStore";
 import type { Recipe } from "../../types";
 import {
@@ -22,6 +23,29 @@ export default function RecipeDetailModal() {
   // Usar el store modal en lugar de props
   const modalState = useStore($modal);
   const recipe = getModalData() as Recipe;
+
+  // Estado para precios
+  const [priceData, setPriceData] = useState<{
+    total: number;
+    breakdown: (number | null)[];
+  } | null>(null);
+  const [loadingPrice, setLoadingPrice] = useState(false);
+
+  // Calcular precios de forma asíncrona
+  useEffect(() => {
+    if (!recipe) return;
+
+    setLoadingPrice(true);
+    calculateRecipePrice(recipe)
+      .then((result) => {
+        setPriceData(result);
+        setLoadingPrice(false);
+      })
+      .catch((error) => {
+        console.error("Error calculando precio:", error);
+        setLoadingPrice(false);
+      });
+  }, [recipe]);
 
   // Si el modal no es del tipo correcto o no hay receta, no renderizar nada
   if (modalState.type !== "recipeDetail" || !recipe) {
@@ -55,8 +79,10 @@ export default function RecipeDetailModal() {
   };
 
   // Calcular precios
-  const { total: totalPrice, breakdown: priceBreakdown } =
-    calculateRecipePrice(recipe);
+  const { total: totalPrice, breakdown: priceBreakdown } = priceData || {
+    total: 0,
+    breakdown: [],
+  };
 
   return (
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -172,7 +198,7 @@ export default function RecipeDetailModal() {
                   <ul class="space-y-2">
                     {recipe.ingredientes.map((ingrediente, index) => {
                       const formatted = formatIngredient(ingrediente);
-                      const price = priceBreakdown[index];
+                      const price = priceData?.breakdown[index];
                       return (
                         <li
                           key={index}
@@ -185,18 +211,29 @@ export default function RecipeDetailModal() {
                           <span class="font-medium text-gray-900">
                             {formatted.quantity} {formatted.unit}
                           </span>
-                          {price != null && (
+                          {loadingPrice ? (
+                            <span class="ml-auto text-gray-500 text-sm">
+                              Calculando...
+                            </span>
+                          ) : price != null ? (
                             <span class="ml-auto text-green-700 font-semibold text-sm">
                               {formatEuro(price)}
                             </span>
-                          )}
+                          ) : null}
                         </li>
                       );
                     })}
                   </ul>
                   {/* Total de la receta */}
                   <div class="mt-4 text-right text-base font-bold text-green-800">
-                    Total receta aprox. → {formatEuro(totalPrice)}
+                    {loadingPrice ? (
+                      <>Total receta aprox. → Calculando...</>
+                    ) : (
+                      <>
+                        Total receta aprox. →{" "}
+                        {formatEuro(priceData?.total || 0)}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { useMemo } from "preact/hooks";
+import { useMemo, useState, useEffect } from "preact/hooks";
 import { useStore } from "@nanostores/preact";
 import { $plan } from "../../stores/planStore";
 import {
@@ -6,8 +6,7 @@ import {
   $userGoal,
   $nutritionalGoals,
 } from "../../stores/userProfileStore";
-import { allMeals } from "../../data/recipes";
-import { allSupplements } from "../../data/supplements";
+import { getAllMeals, getAllSupplements } from "../../services/dataAdapter";
 import { getSnacksFromRecipes } from "../../utils/recipeUtils";
 import { NutritionService } from "../../services/nutritionService";
 import { useNutritionalCalculations } from "../../hooks/useNutritionalCalculations";
@@ -16,7 +15,7 @@ import {
   calculateRecipePrice,
   formatEuro,
 } from "../../utils/ingredientFormatter";
-import type { Recipe } from "../../types";
+import type { Recipe, Supplement } from "../../types";
 
 interface DailyNutritionSummaryProps {
   dayId: string;
@@ -31,6 +30,36 @@ export default function DailyNutritionSummary({
   const userData = useStore($userData);
   const userGoal = useStore($userGoal);
   const nutritionalGoals = useStore($nutritionalGoals);
+
+  // Estados de datos
+  const [allMeals, setAllMeals] = useState<Recipe[]>([]);
+  const [allSupplements, setAllSupplements] = useState<Supplement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Estado para el precio del día
+  const [dailyPrice, setDailyPrice] = useState(0);
+  const [priceLoading, setPriceLoading] = useState(false);
+
+  // Cargar datos de forma asíncrona
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [meals, supplements] = await Promise.all([
+          getAllMeals(),
+          getAllSupplements(),
+        ]);
+        setAllMeals(meals);
+        setAllSupplements(supplements);
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Usar los objetivos nutricionales calculados por la store
   const { calorieGoal, proteinGoal, carbGoal, fatGoal } = nutritionalGoals;
@@ -149,58 +178,76 @@ export default function DailyNutritionSummary({
     };
   }, [dailyPlan, allMeals]);
 
-  // Calcular precio total de las recetas del día
-  const dailyPrice = useMemo(() => {
-    let total = 0;
+  // Calcular precio total de las recetas del día de forma asíncrona
+  useEffect(() => {
+    if (loading || !allMeals.length) return;
 
-    // Comidas principales
-    MAIN_MEAL_TYPES.forEach((mealType) => {
-      const mealInfo = dailyPlan[mealType];
-      if (mealInfo?.recipeName) {
-        const mealData = allMeals.find((m) => m.nombre === mealInfo.recipeName);
-        if (mealData) {
-          total +=
-            calculateRecipePrice(mealData).total * (mealInfo.diners || 1);
+    const calculateDailyPrice = async () => {
+      setPriceLoading(true);
+      let total = 0;
+
+      try {
+        // Comidas principales
+        for (const mealType of MAIN_MEAL_TYPES) {
+          const mealInfo = dailyPlan[mealType];
+          if (mealInfo?.recipeName) {
+            const mealData = allMeals.find(
+              (m) => m.nombre === mealInfo.recipeName
+            );
+            if (mealData) {
+              const priceData = await calculateRecipePrice(mealData);
+              total += priceData.total * (mealInfo.diners || 1);
+            }
+          }
         }
+
+        const allSnacks = getSnacksFromRecipes(allMeals);
+        const allDesserts = allMeals.filter((m) => m.tipo === "Postre");
+
+        // Snacks
+        const snackInfo = dailyPlan.snacks;
+        if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
+          for (const s of snackInfo.snacks) {
+            if (s.snackId) {
+              const snackData = allSnacks.find((sn) => sn.id === s.snackId);
+              if (snackData?.ingredientes) {
+                const priceData = await calculateRecipePrice(
+                  snackData as unknown as Recipe
+                );
+                total += priceData.total * s.quantity;
+              }
+            }
+          }
+        }
+
+        // Postres
+        const dessertInfo = dailyPlan.desserts;
+        if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
+          for (const d of dessertInfo.desserts) {
+            if (d.dessertId) {
+              const dessertData = allDesserts.find(
+                (dess) =>
+                  dess.nombre.toLowerCase().replace(/\s+/g, "-") === d.dessertId
+              );
+              if (dessertData) {
+                const priceData = await calculateRecipePrice(dessertData);
+                total += priceData.total * d.quantity;
+              }
+            }
+          }
+        }
+
+        setDailyPrice(total);
+      } catch (error) {
+        console.error("Error calculando precio del día:", error);
+        setDailyPrice(0);
+      } finally {
+        setPriceLoading(false);
       }
-    });
+    };
 
-    const allSnacks = getSnacksFromRecipes(allMeals);
-    const allDesserts = allMeals.filter((m) => m.tipo === "Postre");
-
-    // Snacks
-    const snackInfo = dailyPlan.snacks;
-    if (snackInfo?.enabled && snackInfo.snacks.length > 0) {
-      snackInfo.snacks.forEach((s) => {
-        if (s.snackId) {
-          const snackData = allSnacks.find((sn) => sn.id === s.snackId);
-          if (snackData?.ingredientes) {
-            total +=
-              calculateRecipePrice(snackData as unknown as Recipe).total *
-              s.quantity;
-          }
-        }
-      });
-    }
-
-    // Postres
-    const dessertInfo = dailyPlan.desserts;
-    if (dessertInfo?.enabled && dessertInfo.desserts.length > 0) {
-      dessertInfo.desserts.forEach((d) => {
-        if (d.dessertId) {
-          const dessertData = allDesserts.find(
-            (dess) =>
-              dess.nombre.toLowerCase().replace(/\s+/g, "-") === d.dessertId
-          );
-          if (dessertData) {
-            total += calculateRecipePrice(dessertData).total * d.quantity;
-          }
-        }
-      });
-    }
-
-    return total;
-  }, [dailyPlan, allMeals]);
+    calculateDailyPrice();
+  }, [dailyPlan, allMeals, loading]);
 
   // Calcular porcentajes y estados
   const caloriePercentage = (dailyNutrition.calories / calorieGoal) * 100;
@@ -244,6 +291,20 @@ export default function DailyNutritionSummary({
   const proteinStatus = getProteinStatus();
   const carbStatus = getCarbStatus();
   const fatStatus = getFatStatus();
+
+  // Mostrar loader mientras se cargan los datos
+  if (loading) {
+    return (
+      <div class="bg-stone-50 p-4 rounded-lg">
+        <div class="flex items-center justify-center h-16">
+          <div class="text-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6B8A7A] mx-auto mb-2"></div>
+            <p class="text-gray-600 text-sm">Cargando datos nutricionales...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div class="p-2">
@@ -399,7 +460,11 @@ export default function DailyNutritionSummary({
       )}
       {/* Precio del día */}
       <div class="text-right text-green-700 font-semibold text-lg mb-2 mt-2">
-        Precio total del día: {formatEuro(dailyPrice)}
+        {priceLoading ? (
+          <>Precio total del día: Calculando...</>
+        ) : (
+          <>Precio total del día: {formatEuro(dailyPrice)}</>
+        )}
       </div>
     </div>
   );
