@@ -1,34 +1,56 @@
 # 🍏 Planificador de Dieta ALPHA
 
-Una aplicación web moderna para planificar y gestionar tu alimentación diaria, diseñada con Astro, Preact y NanoStores para un rendimiento óptimo y gestión de estado eficiente.
+![Captura de pantalla](vistaprevia.webp)
+Version de prueba
+https://diet-planner-alpha.pages.dev/welcome/
+
+<br/>
+<br/>
 
 [![Astro](https://img.shields.io/badge/Astro-5.9-FF5D01?logo=astro&logoColor=white)](https://astro.build/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![Preact](https://img.shields.io/badge/Preact-10.26-673AB8?logo=preact)](https://preactjs.com/)
-[![NanoStores](https://img.shields.io/badge/NanoStores-1.0-4F46E5)](https://github.com/nanostores/nanostores)
+[![Supabase](https://img.shields.io/badge/Supabase-GREEN?logo=supabase)](https://supabase.io/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 
-## 🚀 Características Principales
+**Planificador de dietas Alpha** es un prototipo funcional y una prueba de concepto para una aplicación web de planificación de dietas. Este proyecto sirvió como un campo de aprendizaje intensivo en la construcción de una aplicación full-stack moderna, integrando tecnologías como Astro, Preact, NanoStores y Supabase.
 
-- 🔐 **Sistema de autenticación unificado** con OAuth (Google, GitHub) y email/contraseña
-- 📅 Planificación semanal de comidas interactiva
-- 📊 Seguimiento de macronutrientes y calorías
-- 📈 Gráficos de progreso de peso y objetivos
-- 🎯 Gestión de objetivos de peso personalizados
-- 🗑️ **Eliminación completa de cuenta** con reutilización OAuth
-- 🔄 Sincronización automática con Supabase
-- 📱 Diseño responsive para todos los dispositivos
-- ⚡ Rendimiento optimizado con Astro
-- 🛠️ Panel de administración de comidas y suplementos
-- **Soporte Offline** - Accede a tus planes sin conexión
+La versión actual está **archivada y completa en su fase alfa**. Ha cumplido su misión de validar las funcionalidades principales y proporcionar una base de conocimiento sólida para su futura reconstrucción profesional.
 
-## 🆕 Novedades
+## 🚀 Características Implementadas (v0.1)
 
-- **Sistema de Gestión de Estado** con NanoStores para una experiencia de usuario fluida
-- **Persistencia de Datos** - Tus planes y configuraciones se guardan automáticamente
-- **Modo Edición** - Edita tus objetivos y preferencias fácilmente
-- **Análisis Nutricional** - Visualiza tu ingesta calórica y de macronutrientes
+#### Gestión de Usuario y Datos
 
-## 🛠️ Tecnologías Utilizadas
+- 🔐 **Autenticación Completa:** Sistema unificado con OAuth (Google, GitHub) y email/contraseña a través de Supabase Auth.
+- 🗄️ **Base de Datos en la Nube:** Gestión de datos centralizada en Supabase (PostgreSQL).
+- 🔄 **Adaptador Híbrido de Datos:** Sincronización con Supabase y fallback inteligente a datos locales para funcionamiento offline.
+- 🗑️ **Eliminación Segura de Cuenta:** Gestión completa del ciclo de vida del usuario.
+
+#### Planificación y Análisis
+
+- 📅 **Planificador Semanal Interactivo:** Interfaz para organizar comidas diarias.
+- 📊 **Seguimiento de Macronutrientes:** Cálculo y visualización de la ingesta de calorías, proteínas, grasas y carbohidratos.
+- 📈 **Gráficos de Progreso:** Visualización del histórico de peso contra objetivos con Chart.js.
+- 🎯 **Gestión de Objetivos:** Creación y edición de metas de peso personalizadas.
+- 🛠️ **Panel de Administración:** Interfaz para gestionar la base de datos de comidas y suplementos.
+
+## ✈️ El Viaje del Proyecto y Estado Actual
+
+Este proyecto nació como un prototipo de desarrollo rápido para explorar una idea. Durante este proceso, se implementó una cantidad significativa de funcionalidades complejas, incluyendo la autenticación completa y una migración a una arquitectura de base de datos en la nube.
+
+Esta fase inicial ha sido un **éxito rotundo en términos de aprendizaje**, revelando la importancia de una arquitectura de software planificada y un diseño previo para la escalabilidad a largo plazo.
+
+Por ello, con los objetivos de aprendizaje cumplidos, **esta versión alfa (v0.1) se considera finalizada y archivada**. El código permanece como testimonio del prototipo funcional.
+
+## 💡 Próximos Pasos: El Renacimiento con Vue.js
+
+El conocimiento adquirido en esta alfa es la base para la siguiente fase: una **reconstrucción completa del proyecto desde cero**. La nueva versión se desarrollará siguiendo las mejores prácticas de la industria:
+
+1.  **Diseño UX/UI Previo en Figma:** Creación de un diseño visual y de experiencia de usuario sólido, con un pequeño branding.
+2.  **Arquitectura Planificada:** Diseño de una arquitectura de front-end y back-end robusta y escalable.
+3.  **Nuevo Stack Tecnológico:** Reconstrucción con **Vue.js** para aprovechar su ecosistema y reactividad, que me ayude a aprender un nuevo lenguaje.
+4.  **Desarrollo Orientado a Componentes y Tests.**
+
+## 🛠️ Stack Tecnológico (v0.1)
 
 - **Framework**: Astro 5.9
 - **UI**: Tailwind CSS 3.4
@@ -41,88 +63,6 @@ Una aplicación web moderna para planificar y gestionar tu alimentación diaria,
 - **Ejecución de Scripts**: tsx
 - **Formateo de Código**: Prettier + ESLint
 
-## 📦 Estructura del Proyecto
-
-```
-/src/
-├── components/    # Componentes de Preact y Astro reutilizables
-│   ├── auth/          # Sistema de autenticación unificado (OAuth + Email)
-│   ├── common/        # Componentes genéricos (ErrorBoundary, Selectores)
-│   ├── gallery/       # Galerías para recetas y consejos
-│   ├── modals/        # Modales de la aplicación (detalle de receta, lista de compra)
-│   ├── planner/       # Componentes principales del planificador interactivo
-│   ├── profile/       # Gestión de perfil y configuración de cuenta
-│   ├── progress/      # Componentes para seguimiento de progreso y objetivos
-│   ├── recipes/       # Componentes para visualizar y buscar recetas
-│   ├── setup/         # Flujo de configuración inicial del usuario
-│   ├── supplements/   # Componentes para visualizar y buscar suplementos
-│   ├── tips/          # Componentes para visualizar y buscar consejos
-│   └── ui/            # Componentes de UI básicos (Header, Navegación)
-├── config/        # Constantes de configuración (nutricionales, de la app)
-├── data/          # Datos estáticos (ingredientes, recetas, suplementos, consejos)
-├── hooks/         # Custom Hooks de Preact (useBrowser, useNutritionalCalculations)
-├── layouts/       # Plantillas de página de Astro
-├── pages/         # Páginas de la aplicación (rutas)
-├── services/      # Lógica de negocio y servicios (cálculos nutricionales)
-├── stores/        # Stores de NanoStores para el manejo de estado global
-│   ├── authStore.ts       # Estado de autenticación y sesión
-│   ├── modalStore.ts      # Estado de los modales
-│   ├── planStore.ts       # Estado del planificador semanal
-│   └── userProfileStore.ts # Estado del perfil de usuario y objetivos
-├── styles/        # Estilos globales (CSS)
-├── types/         # Definiciones de tipos de TypeScript
-└── utils/         # Funciones de utilidad (formateadores, utilidades de recetas)
-```
-
-## 🚀 Cómo Empezar
-
-### Prerrequisitos
-
-- Node.js 18+
-- npm 9+
-
-### Instalación
-
-1. Clona el repositorio:
-
-   ```bash
-   git clone https://github.com/tu-usuario/planificador-dieta.git
-   cd planificador-dieta
-   ```
-
-2. Instala las dependencias:
-
-   ```bash
-   npm install
-   ```
-
-3. Inicia el servidor de desarrollo:
-
-   ```bash
-   npm run dev
-   ```
-
-4. Abre tu navegador en [http://localhost:4321](http://localhost:4321)
-
-## 🛠 Comandos Disponibles
-
-| Comando           | Descripción                              |
-| ----------------- | ---------------------------------------- |
-| `npm run dev`     | Inicia el servidor de desarrollo         |
-| `npm run build`   | Genera la versión de producción estática |
-| `npm run preview` | Previsualiza la versión de producción    |
-| `npm run astro`   | Ejecuta comandos de la CLI de Astro      |
-
-## 📝 Uso
-
-1. **Configura tu perfil** - Ingresa tus datos personales y objetivos
-2. **Planifica tus comidas** - Arrastra y suelta comidas en el planificado
-3. **Ajusta tus objetivos** - Modifica tus objetivos de peso y nutrición
-
-## 📬 Contacto
-
-¿Preguntas o sugerencias? ¡No dudes en abrir un issue o contactarme directamente!
-
 ---
 
-Desarrollado con ❤️ por Samu Lo | [@samuhlo](https://github.com/samuhlo)
+Desarrollado con ❤️ e por Samu Lo | [@samuhlo](https://github.com/samuhlo)
