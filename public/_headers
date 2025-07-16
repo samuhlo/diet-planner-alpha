@@ -1,0 +1,29 @@
+# Cloudflare Pages headers
+# Docs: https://developers.cloudflare.com/pages/platform/headers/
+
+/*
+  # Security headers
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  
+  # Allow necessary permissions for auth
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Auth-related pages need special handling
+/auth/*
+  # Allow cookies and credentials for OAuth
+  Access-Control-Allow-Credentials: true
+  
+/login
+  # Ensure cookies work properly
+  Cache-Control: no-cache, no-store, must-revalidate
+  
+/logout
+  # Clear caches on logout
+  Cache-Control: no-cache, no-store, must-revalidate
+  Clear-Site-Data: "cache", "cookies", "storage"
+  
+/welcome
+  # Clear any auth-related caches
+  Cache-Control: no-cache, no-store, must-revalidate 

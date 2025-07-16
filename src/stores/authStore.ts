@@ -202,6 +202,14 @@ export const signOut = async () => {
 
     const user = $user.get();
 
+    console.log("🔄 [LOGOUT] Iniciando proceso de cierre de sesión...");
+    console.log("🔄 [LOGOUT] Usuario actual:", user?.email || "Sin email");
+    console.log("🔄 [LOGOUT] Environment:", {
+      isDev: import.meta.env.DEV,
+      mode: import.meta.env.MODE,
+      origin: typeof window !== "undefined" ? window.location.origin : "N/A",
+    });
+
     // Detectar si es usuario de GitHub OAuth
     const isGitHubUser =
       user &&
@@ -209,19 +217,25 @@ export const signOut = async () => {
         user.user_metadata?.iss?.includes("github") ||
         user.email?.includes("github"));
 
+    console.log("🔄 [LOGOUT] Es usuario de GitHub:", isGitHubUser);
+
     // Cerrar sesión con scope global si es GitHub
+    console.log("🔄 [LOGOUT] Llamando a supabase.auth.signOut()...");
     const { error } = isGitHubUser
       ? await supabase.auth.signOut({ scope: "global" as const })
       : await supabase.auth.signOut();
 
     if (error) {
+      console.error("❌ [LOGOUT] Error en Supabase signOut:", error);
       $error.set(error.message);
-      console.error("Error en Supabase signOut:", error);
       return { success: false, error: error.message };
     }
 
+    console.log("✅ [LOGOUT] Supabase signOut exitoso");
+
     // Para GitHub, limpiar almacenamiento adicional
     if (isGitHubUser) {
+      console.log("🔄 [LOGOUT] Limpiando datos relacionados con GitHub...");
       // Limpiar localStorage relacionado con OAuth
       for (let i = localStorage.length - 1; i >= 0; i--) {
         const key = localStorage.key(i);
@@ -231,11 +245,13 @@ export const signOut = async () => {
             key.includes("oauth") ||
             key.includes("supabase"))
         ) {
+          console.log("🔄 [LOGOUT] Removiendo key:", key);
           localStorage.removeItem(key);
         }
       }
     }
 
+    console.log("🔄 [LOGOUT] Limpiando localStorage y stores...");
     // Limpiar localStorage al cerrar sesión (inmediatamente, no esperar listener)
     clearLocalStorage();
 
@@ -243,10 +259,10 @@ export const signOut = async () => {
     $user.set(null);
     $session.set(null);
 
-    console.log("✅ Sesión cerrada exitosamente");
+    console.log("✅ [LOGOUT] Sesión cerrada exitosamente");
     return { success: true };
   } catch (error) {
-    console.error("Error al cerrar sesión:", error);
+    console.error("❌ [LOGOUT] Error al cerrar sesión:", error);
 
     // En caso de error, limpiar de todas formas para evitar estados inconsistentes
     clearLocalStorage();
