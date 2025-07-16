@@ -5,9 +5,11 @@ import { supabase } from "../lib/supabase";
  * Útil para debugging en producción
  */
 export const runAuthDiagnostics = async () => {
-  console.log(
-    "🔍 [AUTH_DIAGNOSTICS] Iniciando diagnóstico de autenticación..."
-  );
+  if (import.meta.env.DEV) {
+    console.log(
+      "🔍 [AUTH_DIAGNOSTICS] Iniciando diagnóstico de autenticación..."
+    );
+  }
 
   const diagnostics = {
     timestamp: new Date().toISOString(),
@@ -102,7 +104,9 @@ export const runAuthDiagnostics = async () => {
     };
   }
 
-  console.log("🔍 [AUTH_DIAGNOSTICS] Resultados:", diagnostics);
+  if (import.meta.env.DEV) {
+    console.log("🔍 [AUTH_DIAGNOSTICS] Resultados:", diagnostics);
+  }
 
   return diagnostics;
 };
@@ -111,7 +115,9 @@ export const runAuthDiagnostics = async () => {
  * Función específica para diagnosticar problemas de logout
  */
 export const runLogoutDiagnostics = async () => {
-  console.log("🔍 [LOGOUT_DIAGNOSTICS] Iniciando diagnóstico de logout...");
+  if (import.meta.env.DEV) {
+    console.log("🔍 [LOGOUT_DIAGNOSTICS] Iniciando diagnóstico de logout...");
+  }
 
   const before = await runAuthDiagnostics();
 
@@ -127,11 +133,13 @@ export const runLogoutDiagnostics = async () => {
     // Verificar estado después del logout
     setTimeout(async () => {
       const after = await runAuthDiagnostics();
-      console.log("🔍 [LOGOUT_DIAGNOSTICS] Estado después del logout:", {
-        before,
-        after,
-        success: true,
-      });
+      if (import.meta.env.DEV) {
+        console.log("🔍 [LOGOUT_DIAGNOSTICS] Estado después del logout:", {
+          before,
+          after,
+          success: true,
+        });
+      }
     }, 1000);
 
     return { success: true, before };
