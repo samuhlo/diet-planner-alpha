@@ -79,7 +79,30 @@ export const initAuth = async () => {
 
       // Si no hay usuario autenticado, limpiar localStorage
       if (!session?.user) {
-        clearLocalStorage();
+        // Verificar si hay una sesión de invitado activa
+        const isGuestMode = localStorage.getItem("guestMode") === "true";
+        
+        if (isGuestMode) {
+          if (import.meta.env.DEV) {
+            console.log("👤 Restaurando sesión de invitado...");
+          }
+          
+          // Restaurar sesión de invitado
+          const guestSession: Session = {
+            access_token: "guest-token",
+            refresh_token: "guest-refresh-token",
+            expires_in: 3600,
+            token_type: "bearer",
+            user: GUEST_USER,
+          };
+
+          $session.set(guestSession);
+          $user.set(GUEST_USER);
+          
+          // No limpiamos localStorage porque son los datos del invitado
+        } else {
+          clearLocalStorage();
+        }
       } else {
         // Si hay usuario autenticado, cargar sus datos
         try {
@@ -94,6 +117,22 @@ export const initAuth = async () => {
     supabase.auth.onAuthStateChange(async (event, session) => {
       if (import.meta.env.DEV) {
         console.log("Auth state changed:", event, session);
+      }
+
+      // Si estamos en modo invitado, ignorar eventos de sesión nula/signout
+      // para evitar que se borre el estado local del invitado
+      const isGuestMode = localStorage.getItem("guestMode") === "true";
+      const currentUser = $user.get();
+      
+      if ((isGuestMode || currentUser?.id === "guest-user-id") && !session) {
+        if (import.meta.env.DEV) {
+          console.log("👤 Manteniendo sesión de invitado a pesar de evento de auth:", event);
+        }
+        // Asegurarnos que el usuario sigue seteado en el store si se perdió
+        if (!$user.get()) {
+           $user.set(GUEST_USER);
+        }
+        return;
       }
 
       // Permitir que OAuth complete el proceso incluso con email "deleted_"
@@ -194,6 +233,57 @@ export const signIn = async (email: string, password: string) => {
   }
 };
 
+// --- GUEST MODE ---
+export const GUEST_USER: User = {
+  id: "guest-user-id",
+  app_metadata: { provider: "email" },
+  user_metadata: {},
+  aud: "authenticated",
+  created_at: new Date().toISOString(),
+  email: "invitado@demo.local",
+  phone: "",
+  role: "authenticated",
+  updated_at: new Date().toISOString(),
+};
+
+/**
+ * Iniciar sesión como invitado (sin backend)
+ */
+export const loginAsGuest = async () => {
+  try {
+    $loading.set(true);
+    $error.set(null);
+
+    // Simular un pequeño delay para que se sienta natural
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Establecer usuario invitado
+    const guestSession: Session = {
+      access_token: "guest-token",
+      refresh_token: "guest-refresh-token",
+      expires_in: 3600,
+      token_type: "bearer",
+      user: GUEST_USER,
+    };
+
+    $session.set(guestSession);
+    $user.set(GUEST_USER);
+
+    // Limpiar datos previos para asegurar un estado limpio
+    clearLocalStorage();
+    
+    // Marcar modo invitado para persistencia
+    localStorage.setItem("guestMode", "true");
+    
+    return { success: true, user: GUEST_USER };
+  } catch (error) {
+    console.error("Error en login de invitado:", error);
+    return { success: false, error: "Error al iniciar como invitado" };
+  } finally {
+    $loading.set(false);
+  }
+};
+
 /**
  * Cerrar sesión
  */
@@ -270,6 +360,7 @@ export const signOut = async () => {
     }
     // Limpiar localStorage al cerrar sesión (inmediatamente, no esperar listener)
     clearLocalStorage();
+    localStorage.removeItem("guestMode");
 
     // Limpiar stores inmediatamente también
     $user.set(null);

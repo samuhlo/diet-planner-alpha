@@ -134,6 +134,23 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
     }
   };
 
+  const handleTestLogin = async (e: Event) => {
+    e.preventDefault();
+    clearError();
+    setSuccessMessage(null);
+    setConfirmationMessage(null);
+
+    // Login como invitado
+    const { loginAsGuest } = await import("../../stores/authStore");
+    const result = await loginAsGuest();
+    
+    if (result.success) {
+      console.log("Login de invitado exitoso");
+      // Redirigir a la app principal
+      window.location.href = "/";
+    }
+  };
+
   const resetForm = () => {
     setEmail("");
     setPassword("");
@@ -306,6 +323,23 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
                 >
                   Reenviar email de confirmación
                 </button>
+              </div>
+              
+              <div className="pt-4 border-t border-gray-100 mt-4">
+                <button
+                  type="button"
+                  onClick={handleTestLogin}
+                  disabled={loading}
+                  className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                  Entrar como invitado
+                </button>
+                <p className="text-xs text-gray-500 mt-2">
+                  Accede inmediatamente sin necesidad de registro
+                </p>
               </div>
             </>
           )}

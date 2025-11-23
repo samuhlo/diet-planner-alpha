@@ -65,4 +65,4 @@ El conocimiento adquirido en esta alfa es la base para la siguiente fase: una **
 
 ---
 
-Desarrollado con ❤️ e por Samu Lo | [@samuhlo](https://github.com/samuhlo)
+Desarrollado con ❤️ e por Samuh Lo | [@samuhlo](https://github.com/samuhlo)

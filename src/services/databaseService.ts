@@ -11,11 +11,43 @@ import type {
   WeightEntryUpdate,
 } from "../types/database";
 
+// ============ GUEST MODE HELPER ============
+const isGuest = (userId: string) => userId === "guest-user-id";
+
+const getGuestProfile = (): UserProfile => {
+  // Intentar obtener datos del store local si es posible, o devolver defaults
+  let localData: any = {};
+  try {
+    const stored = localStorage.getItem("userData");
+    if (stored) localData = JSON.parse(stored);
+  } catch (e) {}
+
+  return {
+    id: "guest-user-id",
+    full_name: "Invitado",
+    avatar_url: "",
+    email: "invitado@demo.local",
+    weight: localData.weight || 70,
+    height: localData.height || 170,
+    age: localData.age || 30,
+    gender: localData.gender || "male",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    steps: localData.steps || 10000,
+    does_strength_training: localData.doesStrengthTraining || false,
+    strength_training_days: localData.strengthTrainingDays || 0,
+  } as UserProfile;
+};
+
 // ============ PERFILES DE USUARIO ============
 
 export const getUserProfile = async (
   userId: string
 ): Promise<UserProfile | null> => {
+  if (isGuest(userId)) {
+    return getGuestProfile();
+  }
+
   const { data, error } = await supabase
     .from("user_profiles")
     .select("*")
@@ -51,6 +83,13 @@ export const updateUserProfile = async (
   userId: string,
   updates: UserProfileUpdate
 ): Promise<UserProfile | null> => {
+  if (isGuest(userId)) {
+    // En modo invitado, simulamos que se guardó
+    // Nota: Los stores de nanostores (userProfileStore) ya actualizan localStorage
+    // así que aquí solo devolvemos el objeto combinado para que la UI se actualice
+    return { ...getGuestProfile(), ...updates } as UserProfile;
+  }
+
   const { data, error } = await supabase
     .from("user_profiles")
     .update(updates)
@@ -70,6 +109,10 @@ export const createOrUpdateUserProfile = async (
   userId: string,
   profileData: Omit<UserProfileUpdate, "id">
 ): Promise<UserProfile | null> => {
+  if (isGuest(userId)) {
+    return { ...getGuestProfile(), ...profileData } as UserProfile;
+  }
+
   // Primero intentar actualizar
   const { data: updateData, error: updateError } = await supabase
     .from("user_profiles")
@@ -103,6 +146,10 @@ export const createOrUpdateUserProfile = async (
 // ============ OBJETIVOS DE USUARIO ============
 
 export const getUserGoals = async (userId: string): Promise<UserGoal[]> => {
+  if (isGuest(userId)) {
+    return []; // TODO: Podríamos leer de localStorage "userGoal" si fuera necesario
+  }
+
   const { data, error } = await supabase
     .from("user_goals")
     .select("*")
@@ -144,6 +191,16 @@ export const getActiveUserGoal = async (
 export const createUserGoal = async (
   goal: UserGoalInsert
 ): Promise<UserGoal | null> => {
+  if (isGuest(goal.user_id)) {
+    return {
+      id: "guest-goal-id-" + Date.now(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      ...goal,
+      is_active: goal.is_active ?? true
+    } as UserGoal;
+  }
+
   // Desactivar objetivos anteriores si este es activo
   if (goal.is_active !== false) {
     await supabase
@@ -190,6 +247,8 @@ export const setActiveGoal = async (
   userId: string,
   goalId: string
 ): Promise<boolean> => {
+  if (isGuest(userId)) return true;
+
   // Primero desactivar todos los objetivos del usuario
   const { error: deactivateError } = await supabase
     .from("user_goals")
@@ -222,6 +281,26 @@ export const setActiveGoal = async (
 export const getWeightEntries = async (
   userId: string
 ): Promise<WeightEntry[]> => {
+  if (isGuest(userId)) {
+    // Intentar leer de localStorage
+    try {
+      const stored = localStorage.getItem("weightLog");
+      if (stored) {
+        const log = JSON.parse(stored);
+        return Object.values(log).map((entry: any, index) => ({
+          id: `guest-weight-${index}`,
+          user_id: userId,
+          weight: entry.weight,
+          date: entry.date,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          notes: null
+        }));
+      }
+    } catch (e) {}
+    return [];
+  }
+
   const { data, error } = await supabase
     .from("weight_entries")
     .select("*")
@@ -239,6 +318,30 @@ export const getWeightEntries = async (
 export const getLatestWeight = async (
   userId: string
 ): Promise<WeightEntry | null> => {
+  if (isGuest(userId)) {
+    // Intentar leer de localStorage
+    try {
+      const stored = localStorage.getItem("weightLog");
+      if (stored) {
+        const log = JSON.parse(stored);
+        const entries = Object.values(log).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        if (entries.length > 0) {
+          const entry: any = entries[0];
+          return {
+            id: "guest-weight-latest",
+            user_id: userId,
+            weight: entry.weight,
+            date: entry.date,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            notes: null
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
   const { data, error } = await supabase
     .from("weight_entries")
     .select("*")
@@ -263,6 +366,16 @@ export const getLatestWeight = async (
 export const createWeightEntry = async (
   entry: WeightEntryInsert
 ): Promise<WeightEntry | null> => {
+  if (isGuest(entry.user_id)) {
+    return {
+      id: "guest-weight-" + Date.now(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      notes: null,
+      ...entry
+    } as WeightEntry;
+  }
+
   const { data, error } = await supabase
     .from("weight_entries")
     .upsert(entry, {
@@ -284,6 +397,19 @@ export const updateWeightEntry = async (
   entryId: string,
   updates: WeightEntryUpdate
 ): Promise<WeightEntry | null> => {
+  if (entryId.startsWith("guest-weight")) {
+    return {
+      id: entryId,
+      user_id: "guest-user-id",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      weight: 0,
+      date: new Date().toISOString(),
+      notes: null,
+      ...updates
+    } as WeightEntry;
+  }
+
   const { data, error } = await supabase
     .from("weight_entries")
     .update(updates)
@@ -300,6 +426,8 @@ export const updateWeightEntry = async (
 };
 
 export const deleteWeightEntry = async (entryId: string): Promise<boolean> => {
+  if (entryId.startsWith("guest-weight")) return true;
+
   const { error } = await supabase
     .from("weight_entries")
     .delete()

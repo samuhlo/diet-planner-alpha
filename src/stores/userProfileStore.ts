@@ -40,6 +40,15 @@ export const loadUserDataFromSupabase = async (userId: string) => {
     return true;
   }
 
+  // Si es usuario invitado, no cargar de Supabase
+  if (userId === "guest-user-id") {
+    if (import.meta.env.DEV) {
+      console.log("👤 Usuario invitado detectado - usando almacenamiento local solamente");
+    }
+    lastLoadedUserId = userId;
+    return true;
+  }
+
   try {
     isLoadingUserData = true;
     const completeData = await getCompleteUserData(userId);
