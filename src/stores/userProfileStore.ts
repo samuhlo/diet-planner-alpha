@@ -157,6 +157,13 @@ export const refreshUserData = async (userId: string) => {
 };
 
 // --- FUNCIÓN AUXILIAR ---
+/**
+ * Helper genérico para leer de localStorage con manejo de errores
+ * @template T Tipo de dato esperado
+ * @param {string} key - Clave de localStorage
+ * @param {T} defaultValue - Valor por defecto si no existe o hay error
+ * @returns {T} El valor almacenado o el valor por defecto
+ */
 const getFromStorage = <T>(key: string, defaultValue: T): T => {
   if (typeof window !== "undefined") {
     const item = localStorage.getItem(key);
@@ -170,6 +177,10 @@ const getFromStorage = <T>(key: string, defaultValue: T): T => {
 };
 
 // --- STORE DE DATOS PERSONALES ---
+/**
+ * Store que contiene los datos básicos del perfil del usuario (peso, altura, edad, etc.)
+ * Se sincroniza automáticamente con localStorage
+ */
 export const $userData = map<UserData | any>(getFromStorage("userData", null));
 
 $userData.subscribe((value) => {
@@ -182,10 +193,19 @@ $userData.subscribe((value) => {
   }
 });
 
+/**
+ * Actualiza los datos del usuario en el store
+ * @param {UserData | null} newUserData - Nuevos datos del usuario
+ */
 export const setUserData = (newUserData: UserData | null) => {
   $userData.set(newUserData);
 };
 
+/**
+ * Actualiza solo el peso del usuario en el perfil
+ * Si no existe perfil, crea uno básico con el peso
+ * @param {number} weight - Nuevo peso en kg
+ */
 export const updateUserWeight = (weight: number) => {
   const currentUserData = $userData.get();
   if (currentUserData) {
@@ -204,6 +224,10 @@ const defaultGoal: UserGoal = {
   goalType: "maintain", // Por defecto mantener peso
 };
 
+/**
+ * Store que gestiona el objetivo actual del usuario
+ * Incluye fechas, peso objetivo y tipo de objetivo
+ */
 export const $userGoal = map<UserGoal>(getFromStorage("userGoal", defaultGoal));
 
 $userGoal.subscribe((value) => {
@@ -216,6 +240,12 @@ $userGoal.subscribe((value) => {
   }
 });
 
+/**
+ * Actualiza una propiedad específica del objetivo del usuario
+ * @template K Clave del tipo UserGoal
+ * @param {K} key - Propiedad a actualizar
+ * @param {UserGoal[K]} value - Nuevo valor
+ */
 export const updateUserGoal = <K extends keyof UserGoal>(
   key: K,
   value: UserGoal[K]
@@ -225,6 +255,10 @@ export const updateUserGoal = <K extends keyof UserGoal>(
 };
 
 // --- STORE COMPUTADA PARA VERIFICACIÓN ---
+/**
+ * Store computada que indica si el perfil y objetivo están completos
+ * @returns {boolean} True si todos los campos requeridos están presentes
+ */
 export const $isProfileComplete = computed(
   [$userData, $userGoal],
   (userData, userGoal) => {
@@ -242,6 +276,10 @@ export const $isProfileComplete = computed(
 
 // --- STORE DEL REGISTRO DE PESO ---
 const defaultWeightLog: Record<string, WeightEntry> = {};
+/**
+ * Store que mantiene el historial de registros de peso
+ * Mapeado por ID de registro para fácil acceso y actualización
+ */
 export const $weightLog = map<Record<string, WeightEntry>>(
   getFromStorage("weightLog", defaultWeightLog)
 );
@@ -256,6 +294,12 @@ $weightLog.subscribe((value) => {
   }
 });
 
+/**
+ * Añade un nuevo registro de peso al historial
+ * También actualiza el peso actual en el perfil del usuario
+ * @param {WeightEntry} entry - Nuevo registro de peso
+ * @returns {string} ID del nuevo registro
+ */
 export const addWeightEntry = (entry: WeightEntry) => {
   const id = `entry-${Date.now()}`;
   $weightLog.setKey(id, entry);

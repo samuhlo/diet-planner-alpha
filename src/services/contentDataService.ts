@@ -23,6 +23,8 @@ const CACHE_DURATION = 5 * 60 * 1000;
 
 /**
  * Obtiene todas las recetas desde Supabase
+ * Implementa cache en memoria para optimizar lecturas
+ * @returns {Promise<Recipe[]>} Lista de recetas
  */
 export const getRecipesFromSupabase = async (): Promise<Recipe[]> => {
   const now = Date.now();
@@ -87,6 +89,8 @@ export const getRecipesFromSupabase = async (): Promise<Recipe[]> => {
 
 /**
  * Obtiene recetas filtradas por tipo
+ * @param {Recipe["tipo"]} tipo - Tipo de receta (Desayuno, Almuerzo, etc.)
+ * @returns {Promise<Recipe[]>} Lista de recetas filtradas
  */
 export const getRecipesByType = async (
   tipo: Recipe["tipo"]
@@ -99,6 +103,8 @@ export const getRecipesByType = async (
 
 /**
  * Obtiene todos los suplementos desde Supabase
+ * Implementa cache en memoria
+ * @returns {Promise<Supplement[]>} Lista de suplementos
  */
 export const getSupplementsFromSupabase = async (): Promise<Supplement[]> => {
   const now = Date.now();
@@ -156,6 +162,8 @@ export const getSupplementsFromSupabase = async (): Promise<Supplement[]> => {
 
 /**
  * Obtiene suplementos filtrados por tipo
+ * @param {string} type - Tipo de suplemento
+ * @returns {Promise<Supplement[]>} Lista de suplementos filtrados
  */
 export const getSupplementsByType = async (
   type: string
@@ -168,6 +176,8 @@ export const getSupplementsByType = async (
 
 /**
  * Obtiene todos los tips desde Supabase
+ * Implementa cache en memoria
+ * @returns {Promise<Tip[]>} Lista de consejos
  */
 export const getTipsFromSupabase = async (): Promise<Tip[]> => {
   const now = Date.now();
@@ -209,6 +219,8 @@ export const getTipsFromSupabase = async (): Promise<Tip[]> => {
 
 /**
  * Obtiene tips filtrados por tag
+ * @param {string} tag - Etiqueta para filtrar
+ * @returns {Promise<Tip[]>} Lista de consejos filtrados
  */
 export const getTipsByTag = async (tag: string): Promise<Tip[]> => {
   const allTips = await getTipsFromSupabase();
@@ -219,6 +231,8 @@ export const getTipsByTag = async (tag: string): Promise<Tip[]> => {
 
 /**
  * Obtiene todos los ingredientes desde Supabase
+ * Implementa cache en memoria
+ * @returns {Promise<ExtractedIngredient[]>} Lista de ingredientes
  */
 export const getIngredientsFromSupabase = async (): Promise<
   ExtractedIngredient[]
@@ -267,6 +281,8 @@ export const getIngredientsFromSupabase = async (): Promise<
 
 /**
  * Obtiene ingredientes filtrados por categoría
+ * @param {string} categoria - Categoría del ingrediente
+ * @returns {Promise<ExtractedIngredient[]>} Lista de ingredientes filtrados
  */
 export const getIngredientsByCategory = async (
   categoria: string
@@ -280,7 +296,8 @@ export const getIngredientsByCategory = async (
 // ============ FUNCIONES DE UTILIDAD ============
 
 /**
- * Limpia todo el cache
+ * Limpia todo el cache en memoria
+ * Fuerza que las siguientes peticiones vayan a Supabase
  */
 export const clearContentCache = (): void => {
   cache.recipes = null;
@@ -296,7 +313,8 @@ export const clearContentCache = (): void => {
 };
 
 /**
- * Obtiene estadísticas del cache
+ * Obtiene estadísticas del estado actual del cache
+ * @returns {Object} Estado del cache por tipo de contenido
  */
 export const getCacheStats = () => {
   const now = Date.now();
@@ -330,6 +348,8 @@ export const getCacheStats = () => {
 
 /**
  * Verifica si Supabase está disponible y funcionando
+ * Realiza una consulta mínima para comprobar conectividad
+ * @returns {Promise<boolean>} True si hay conexión
  */
 export const testSupabaseConnection = async (): Promise<boolean> => {
   try {

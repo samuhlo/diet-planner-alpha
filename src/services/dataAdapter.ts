@@ -22,7 +22,9 @@ let useSupabase = true;
 let supabaseAvailable: boolean | null = null;
 
 /**
- * Verifica si Supabase está disponible
+ * Verifica si Supabase está disponible y accesible
+ * Cachea el resultado para evitar múltiples verificaciones
+ * @returns {Promise<boolean>} True si Supabase está disponible
  */
 async function checkSupabaseAvailability(): Promise<boolean> {
   if (supabaseAvailable !== null) {
@@ -48,6 +50,7 @@ async function checkSupabaseAvailability(): Promise<boolean> {
 
 /**
  * Fuerza el uso de datos locales (útil para desarrollo/testing)
+ * @param {boolean} [force=true] - Si es true, fuerza el uso de datos locales
  */
 export function forceLocalData(force = true): void {
   useSupabase = !force;
@@ -58,6 +61,7 @@ export function forceLocalData(force = true): void {
 
 /**
  * Limpiar cache de ingredientes (útil al cerrar sesión)
+ * Resetea el estado de carga y el cache en memoria
  */
 export function clearIngredientsCache(): void {
   ingredientsCache = null;
@@ -68,7 +72,9 @@ export function clearIngredientsCache(): void {
 }
 
 /**
- * Obtiene las recetas - misma interfaz que allMeals
+ * Obtiene todas las recetas disponibles
+ * Intenta obtener de Supabase, con fallback a datos locales
+ * @returns {Promise<Recipe[]>} Lista de recetas
  */
 export async function getAllMeals(): Promise<Recipe[]> {
   if (!useSupabase) {
@@ -94,7 +100,9 @@ export async function getAllMeals(): Promise<Recipe[]> {
 }
 
 /**
- * Obtiene los suplementos - misma interfaz que allSupplements
+ * Obtiene todos los suplementos disponibles
+ * Intenta obtener de Supabase, con fallback a datos locales
+ * @returns {Promise<Supplement[]>} Lista de suplementos
  */
 export async function getAllSupplements(): Promise<Supplement[]> {
   if (!useSupabase) {
@@ -120,7 +128,9 @@ export async function getAllSupplements(): Promise<Supplement[]> {
 }
 
 /**
- * Obtiene los tips - misma interfaz que allTips
+ * Obtiene todos los consejos (tips) disponibles
+ * Intenta obtener de Supabase, con fallback a datos locales
+ * @returns {Promise<Tip[]>} Lista de consejos
  */
 export async function getAllTips(): Promise<Tip[]> {
   if (!useSupabase) {
@@ -143,7 +153,9 @@ export async function getAllTips(): Promise<Tip[]> {
 }
 
 /**
- * Obtiene los ingredientes - misma interfaz que extractedIngredients
+ * Obtiene la base de datos de ingredientes extraídos
+ * Intenta obtener de Supabase, con fallback a datos locales
+ * @returns {Promise<ExtractedIngredient[]>} Lista de ingredientes
  */
 export async function getExtractedIngredients(): Promise<
   ExtractedIngredient[]
@@ -172,6 +184,9 @@ export async function getExtractedIngredients(): Promise<
 
 /**
  * Función auxiliar para normalizar nombres de ingredientes
+ * Elimina acentos, caracteres especiales y espacios extra
+ * @param {string} nombre - Nombre a normalizar
+ * @returns {string} Nombre normalizado
  */
 function normalizarNombre(nombre: string): string {
   return nombre
@@ -189,7 +204,9 @@ let ingredientsCache: ExtractedIngredient[] | null = null;
 let isCacheLoading = false;
 
 /**
- * Obtiene un ingrediente por nombre - misma interfaz que getExtractedIngredientByName
+ * Obtiene un ingrediente por nombre de forma asíncrona
+ * @param {string} nombre - Nombre del ingrediente a buscar
+ * @returns {Promise<ExtractedIngredient | undefined>} El ingrediente encontrado o undefined
  */
 export async function getExtractedIngredientByName(
   nombre: string
@@ -204,6 +221,8 @@ export async function getExtractedIngredientByName(
 /**
  * Versión síncrona para componentes que necesitan acceso inmediato
  * Usa cache local o datos locales como fallback
+ * @param {string} nombre - Nombre del ingrediente a buscar
+ * @returns {ExtractedIngredient | undefined} El ingrediente encontrado o undefined
  */
 export function getExtractedIngredientByNameSync(
   nombre: string
@@ -225,6 +244,8 @@ export function getExtractedIngredientByNameSync(
 
 /**
  * Precargar ingredientes en cache para acceso síncrono
+ * Se debe llamar al inicio de la aplicación
+ * @returns {Promise<void>}
  */
 export async function preloadIngredientsCache(): Promise<void> {
   // Evitar múltiples cargas del cache
@@ -250,15 +271,18 @@ export async function preloadIngredientsCache(): Promise<void> {
 }
 
 /**
- * Obtiene las fuentes de recetas - por ahora mantiene datos locales
- * TODO: Migrar cuando sea necesario
+ * Obtiene las fuentes de recetas
+ * Por ahora mantiene datos locales
+ * @returns {any} Fuentes de recetas
  */
 export function getRecipeSources() {
   return localRecipeSources;
 }
 
 /**
- * Función de conveniencia para obtener todos los datos
+ * Función de conveniencia para obtener todos los datos del sistema
+ * Realiza cargas en paralelo para optimizar rendimiento
+ * @returns {Promise<Object>} Objeto con todos los datos y estadísticas
  */
 export async function getAllContentData() {
   const [meals, supplements, tips, ingredients] = await Promise.all([
@@ -287,6 +311,8 @@ export async function getAllContentData() {
 
 /**
  * Refresca todos los datos (útil después de actualizaciones)
+ * Limpia caches y fuerza una nueva carga desde el origen
+ * @returns {Promise<void>}
  */
 export async function refreshAllData(): Promise<void> {
   console.log("🔄 Refrescando datos...");
@@ -304,7 +330,8 @@ export async function refreshAllData(): Promise<void> {
 }
 
 /**
- * Obtiene estadísticas del sistema de datos
+ * Obtiene estadísticas del sistema de datos y estado de conexión
+ * @returns {Promise<Object>} Estado de la conexión y origen de datos
  */
 export async function getDataStats() {
   const isAvailable = await checkSupabaseAvailability();

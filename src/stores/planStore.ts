@@ -10,6 +10,10 @@ import type {
 } from "../types";
 
 // Función para cargar el plan desde localStorage
+/**
+ * Carga el plan semanal desde localStorage
+ * @returns {WeeklyPlan} El plan almacenado o un objeto vacío
+ */
 const loadPlanFromStorage = (): WeeklyPlan => {
   if (typeof window === "undefined") return {};
 
@@ -23,6 +27,10 @@ const loadPlanFromStorage = (): WeeklyPlan => {
 };
 
 // Función para guardar el plan en localStorage
+/**
+ * Guarda el plan semanal en localStorage
+ * @param {WeeklyPlan} plan - El plan a guardar
+ */
 const savePlanToStorage = (plan: WeeklyPlan) => {
   if (typeof window === "undefined") return;
 
@@ -33,8 +41,10 @@ const savePlanToStorage = (plan: WeeklyPlan) => {
   }
 };
 
-// Definimos la estructura de nuestro estado usando tipos específicos
-// Inicializamos con datos desde localStorage
+/**
+ * Store principal que contiene el plan semanal
+ * Se inicializa con datos de localStorage y se sincroniza automáticamente
+ */
 export const $plan = map<WeeklyPlan>(loadPlanFromStorage());
 
 // Suscribirse a cambios en el store para guardar automáticamente
@@ -106,6 +116,8 @@ export function updateMealPlan(
 
 /**
  * Actualiza el plan de snacks completo para un día
+ * @param {string} dayId - ID del día
+ * @param {SnackPlan} snackPlan - Nuevo plan de snacks
  */
 export function updateSnackPlan(dayId: string, snackPlan: SnackPlan) {
   const currentDayPlan = $plan.get()[dayId] || {};
@@ -120,6 +132,8 @@ export function updateSnackPlan(dayId: string, snackPlan: SnackPlan) {
 
 /**
  * Actualiza el plan de suplementos completo para un día
+ * @param {string} dayId - ID del día
+ * @param {SupplementPlan} supplementPlan - Nuevo plan de suplementos
  */
 export function updateSupplementPlan(
   dayId: string,
@@ -137,6 +151,8 @@ export function updateSupplementPlan(
 
 /**
  * Actualiza el plan de postres completo para un día
+ * @param {string} dayId - ID del día
+ * @param {DessertPlan} dessertPlan - Nuevo plan de postres
  */
 export function updateDessertPlan(dayId: string, dessertPlan: DessertPlan) {
   const currentDayPlan = $plan.get()[dayId] || {};
@@ -151,6 +167,7 @@ export function updateDessertPlan(dayId: string, dessertPlan: DessertPlan) {
 
 /**
  * Limpia todo el plan semanal (útil para resetear)
+ * Elimina todos los datos del store y localStorage
  */
 export function clearWeeklyPlan() {
   $plan.set({});
@@ -158,6 +175,7 @@ export function clearWeeklyPlan() {
 
 /**
  * Carga un plan específico (útil para importar planes)
+ * @param {WeeklyPlan} plan - Plan completo a cargar
  */
 export function loadWeeklyPlan(plan: WeeklyPlan) {
   $plan.set(plan);
@@ -206,7 +224,8 @@ export function clearDayPlan(dayId: string) {
 
 /**
  * Obtiene el plan para un día específico
- * @param dayId - El ID del día
+ * @param {string} dayId - El ID del día
+ * @returns {DailyPlan} Plan del día o objeto vacío
  */
 export function getDayPlan(dayId: string) {
   return $plan.get()[dayId] || {};
@@ -214,6 +233,7 @@ export function getDayPlan(dayId: string) {
 
 /**
  * Comprueba si hay algún contenido en el plan semanal
+ * @returns {boolean} True si hay al menos un día con datos
  */
 export function hasPlanContent(): boolean {
   const currentPlan = $plan.get();

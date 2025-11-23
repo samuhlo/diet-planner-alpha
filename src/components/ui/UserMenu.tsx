@@ -8,6 +8,12 @@ import {
 } from "../../stores/authStore";
 import { runAuthDiagnostics } from "../../utils/authDiagnostics";
 
+/**
+ * Componente de menú de usuario
+ * Muestra el avatar del usuario, información básica y opciones de sesión
+ * Maneja el estado de autenticación y el cierre de sesión
+ * @returns {JSX.Element} Elemento del menú de usuario
+ */
 export default function UserMenu() {
   const user = useStore($user);
   const isAuthenticated = useStore($isAuthenticated);

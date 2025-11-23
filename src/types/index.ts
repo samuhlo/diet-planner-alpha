@@ -9,25 +9,47 @@ export interface BaseItem {
 export type { Supplement } from "./supplements";
 
 // Tipos de usuario
+/**
+ * Datos físicos y de actividad del usuario
+ */
 export interface UserData {
+  /** Peso actual en kg */
   weight: number;
+  /** Altura en cm */
   height: number;
+  /** Edad en años */
   age: number;
+  /** Género biológico */
   gender: "male" | "female";
+  /** Pasos diarios promedio */
   steps: number;
+  /** Si realiza entrenamiento de fuerza */
   doesStrengthTraining: boolean;
+  /** Días de entrenamiento de fuerza por semana */
   strengthTrainingDays: number;
 }
 
+/**
+ * Objetivo del usuario para el plan
+ */
 export interface UserGoal {
+  /** Fecha de inicio del plan (ISO string) */
   startDate: string;
+  /** Fecha de fin del plan (ISO string) */
   endDate: string;
+  /** Peso objetivo en kg */
   targetWeight: number;
+  /** Tipo de objetivo: mantener o perder peso */
   goalType: "maintain" | "lose";
 }
 
+/**
+ * Registro de peso en el historial
+ */
 export interface WeightEntry {
+  /** Peso registrado en kg */
   weight: number;
+  /** Fecha del registro (ISO string) */
   date: string;
 }
 
@@ -38,8 +60,13 @@ export interface SelectedItem {
 }
 
 // Tipos de planificación
+/**
+ * Planificación de una comida específica
+ */
 export interface MealPlan {
+  /** Nombre de la receta seleccionada */
   recipeName?: string;
+  /** Número de comensales */
   diners?: number;
 }
 
@@ -67,6 +94,9 @@ export interface DessertPlan {
   }>;
 }
 
+/**
+ * Planificación diaria completa
+ */
 export interface DailyPlan {
   Desayuno?: MealPlan;
   Almuerzo?: MealPlan;
@@ -104,16 +134,23 @@ export interface NutritionalInfo {
   fat: number;
 }
 
+/**
+ * Definición completa de una receta
+ */
 export interface Recipe {
   id: string;
   name: string;
   nombre: string;
   tipo: "Desayuno" | "Almuerzo" | "Cena" | "Snack" | "Postre";
   tags: string[];
+  /** Calorías por porción */
   calorias: number;
-  p: number; // Proteínas
-  c: number; // Carbohidratos
-  f: number; // Grasas
+  /** Proteínas en gramos */
+  p: number;
+  /** Carbohidratos en gramos */
+  c: number;
+  /** Grasas en gramos */
+  f: number;
   ingredientes: Ingredient[];
   preparacion?: string;
   source?: RecipeSource;
@@ -122,18 +159,25 @@ export interface Recipe {
 }
 
 // Tipos de snacks
+/**
+ * Definición de un snack
+ */
 export interface Snack {
   id: string;
   nombre: string;
   tipo: "simple" | "elaborado";
   calorias: number;
-  p: number; // Proteínas
-  c: number; // Carbohidratos
-  f: number; // Grasas
+  /** Proteínas en gramos */
+  p: number;
+  /** Carbohidratos en gramos */
+  c: number;
+  /** Grasas en gramos */
+  f: number;
   ingredientes?: Ingredient[]; // Solo para snacks elaborados
   preparacion?: string; // Solo para snacks elaborados
   tags: string[];
-  porcion: string; // Ej: "1 unidad", "30g", "1 puñado"
+  /** Tamaño de la porción (ej: "1 unidad", "30g") */
+  porcion: string;
 }
 
 // Tipos de modales

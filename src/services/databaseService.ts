@@ -12,8 +12,18 @@ import type {
 } from "../types/database";
 
 // ============ GUEST MODE HELPER ============
+/**
+ * Verifica si un ID de usuario corresponde al usuario invitado
+ * @param {string} userId - ID del usuario a verificar
+ * @returns {boolean} True si es el usuario invitado
+ */
 const isGuest = (userId: string) => userId === "guest-user-id";
 
+/**
+ * Obtiene el perfil simulado del usuario invitado
+ * Intenta recuperar datos de localStorage si existen
+ * @returns {UserProfile} Perfil del usuario invitado
+ */
 const getGuestProfile = (): UserProfile => {
   // Intentar obtener datos del store local si es posible, o devolver defaults
   let localData: any = {};
@@ -41,6 +51,11 @@ const getGuestProfile = (): UserProfile => {
 
 // ============ PERFILES DE USUARIO ============
 
+/**
+ * Obtiene el perfil de un usuario por su ID
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<UserProfile | null>} El perfil del usuario o null si no existe o hay error
+ */
 export const getUserProfile = async (
   userId: string
 ): Promise<UserProfile | null> => {
@@ -62,6 +77,11 @@ export const getUserProfile = async (
   return data;
 };
 
+/**
+ * Crea un nuevo perfil de usuario
+ * @param {UserProfileInsert} profile - Datos del perfil a crear
+ * @returns {Promise<UserProfile | null>} El perfil creado o null si hay error
+ */
 export const createUserProfile = async (
   profile: UserProfileInsert
 ): Promise<UserProfile | null> => {
@@ -79,6 +99,12 @@ export const createUserProfile = async (
   return data;
 };
 
+/**
+ * Actualiza un perfil de usuario existente
+ * @param {string} userId - ID del usuario
+ * @param {UserProfileUpdate} updates - Datos a actualizar
+ * @returns {Promise<UserProfile | null>} El perfil actualizado o null si hay error
+ */
 export const updateUserProfile = async (
   userId: string,
   updates: UserProfileUpdate
@@ -105,6 +131,13 @@ export const updateUserProfile = async (
   return data;
 };
 
+/**
+ * Crea o actualiza un perfil de usuario
+ * Si el perfil ya existe, lo actualiza. Si no, lo crea.
+ * @param {string} userId - ID del usuario
+ * @param {Omit<UserProfileUpdate, "id">} profileData - Datos del perfil
+ * @returns {Promise<UserProfile | null>} El perfil creado/actualizado o null si hay error
+ */
 export const createOrUpdateUserProfile = async (
   userId: string,
   profileData: Omit<UserProfileUpdate, "id">
@@ -145,6 +178,11 @@ export const createOrUpdateUserProfile = async (
 
 // ============ OBJETIVOS DE USUARIO ============
 
+/**
+ * Obtiene todos los objetivos de un usuario
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<UserGoal[]>} Lista de objetivos del usuario
+ */
 export const getUserGoals = async (userId: string): Promise<UserGoal[]> => {
   if (isGuest(userId)) {
     return []; // TODO: Podríamos leer de localStorage "userGoal" si fuera necesario
@@ -164,6 +202,11 @@ export const getUserGoals = async (userId: string): Promise<UserGoal[]> => {
   return data || [];
 };
 
+/**
+ * Obtiene el objetivo activo de un usuario
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<UserGoal | null>} El objetivo activo o null si no hay ninguno
+ */
 export const getActiveUserGoal = async (
   userId: string
 ): Promise<UserGoal | null> => {
@@ -188,6 +231,12 @@ export const getActiveUserGoal = async (
   return data;
 };
 
+/**
+ * Crea un nuevo objetivo para el usuario
+ * Si el nuevo objetivo es activo, desactiva los anteriores
+ * @param {UserGoalInsert} goal - Datos del objetivo a crear
+ * @returns {Promise<UserGoal | null>} El objetivo creado o null si hay error
+ */
 export const createUserGoal = async (
   goal: UserGoalInsert
 ): Promise<UserGoal | null> => {
@@ -224,6 +273,12 @@ export const createUserGoal = async (
   return data;
 };
 
+/**
+ * Actualiza un objetivo existente
+ * @param {string} goalId - ID del objetivo
+ * @param {UserGoalUpdate} updates - Datos a actualizar
+ * @returns {Promise<UserGoal | null>} El objetivo actualizado o null si hay error
+ */
 export const updateUserGoal = async (
   goalId: string,
   updates: UserGoalUpdate
@@ -243,6 +298,12 @@ export const updateUserGoal = async (
   return data;
 };
 
+/**
+ * Establece un objetivo como activo y desactiva los demás
+ * @param {string} userId - ID del usuario
+ * @param {string} goalId - ID del objetivo a activar
+ * @returns {Promise<boolean>} True si la operación fue exitosa
+ */
 export const setActiveGoal = async (
   userId: string,
   goalId: string
@@ -278,6 +339,11 @@ export const setActiveGoal = async (
 
 // ============ REGISTROS DE PESO ============
 
+/**
+ * Obtiene el historial de registros de peso de un usuario
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<WeightEntry[]>} Lista de registros de peso ordenados por fecha descendente
+ */
 export const getWeightEntries = async (
   userId: string
 ): Promise<WeightEntry[]> => {
@@ -315,6 +381,11 @@ export const getWeightEntries = async (
   return data || [];
 };
 
+/**
+ * Obtiene el último registro de peso de un usuario
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<WeightEntry | null>} El último registro de peso o null si no hay registros
+ */
 export const getLatestWeight = async (
   userId: string
 ): Promise<WeightEntry | null> => {
@@ -363,6 +434,12 @@ export const getLatestWeight = async (
   return data;
 };
 
+/**
+ * Crea un nuevo registro de peso
+ * Utiliza upsert para evitar duplicados en la misma fecha
+ * @param {WeightEntryInsert} entry - Datos del registro de peso
+ * @returns {Promise<WeightEntry | null>} El registro creado o null si hay error
+ */
 export const createWeightEntry = async (
   entry: WeightEntryInsert
 ): Promise<WeightEntry | null> => {
@@ -393,6 +470,12 @@ export const createWeightEntry = async (
   return data;
 };
 
+/**
+ * Actualiza un registro de peso existente
+ * @param {string} entryId - ID del registro
+ * @param {WeightEntryUpdate} updates - Datos a actualizar
+ * @returns {Promise<WeightEntry | null>} El registro actualizado o null si hay error
+ */
 export const updateWeightEntry = async (
   entryId: string,
   updates: WeightEntryUpdate
@@ -425,6 +508,11 @@ export const updateWeightEntry = async (
   return data;
 };
 
+/**
+ * Elimina un registro de peso
+ * @param {string} entryId - ID del registro a eliminar
+ * @returns {Promise<boolean>} True si la eliminación fue exitosa
+ */
 export const deleteWeightEntry = async (entryId: string): Promise<boolean> => {
   if (entryId.startsWith("guest-weight")) return true;
 
@@ -443,6 +531,12 @@ export const deleteWeightEntry = async (entryId: string): Promise<boolean> => {
 
 // ============ FUNCIONES AUXILIARES ============
 
+/**
+ * Obtiene todos los datos completos del usuario (perfil, objetivos, pesos)
+ * Realiza múltiples consultas en paralelo para optimizar la carga
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<Object>} Objeto con todos los datos del usuario
+ */
 export const getCompleteUserData = async (userId: string) => {
   const [profile, goals, weightEntries] = await Promise.all([
     getUserProfile(userId),

@@ -6,6 +6,7 @@ import { clearUserStores, loadUserDataFromSupabase } from "./userProfileStore";
 
 /**
  * Limpiar todos los datos locales del localStorage y stores
+ * Se ejecuta al cerrar sesión o cuando hay errores críticos de autenticación
  */
 const clearLocalStorage = () => {
   const keysToRemove = [
@@ -28,19 +29,28 @@ const clearLocalStorage = () => {
 };
 
 // --- ESTADOS DEL STORE ---
+/** Átomo que contiene el usuario actual o null si no está autenticado */
 export const $user = atom<User | null>(null);
+/** Átomo que contiene la sesión actual de Supabase */
 export const $session = atom<Session | null>(null);
+/** Átomo que indica si hay una operación de autenticación en curso */
 export const $loading = atom<boolean>(true);
+/** Átomo que contiene el último error de autenticación */
 export const $error = atom<string | null>(null);
 
 // --- COMPUTED STORES ---
+/**
+ * Store computada que indica si el usuario está autenticado
+ * @returns {boolean} True si hay un usuario logueado
+ */
 export const $isAuthenticated = computed($user, (user) => !!user);
 
 // --- FUNCIONES DE AUTENTICACIÓN ---
 
 /**
  * Inicializar el store de autenticación
- * Obtiene la sesión actual y configura los listeners
+ * Obtiene la sesión actual, configura los listeners de cambios de estado
+ * y gestiona la persistencia de sesión
  */
 export const initAuth = async () => {
   try {
@@ -163,7 +173,10 @@ export const initAuth = async () => {
 };
 
 /**
- * Registrar un nuevo usuario
+ * Registrar un nuevo usuario con email y contraseña
+ * @param {string} email - Correo electrónico del usuario
+ * @param {string} password - Contraseña
+ * @returns {Promise<{success: boolean, user?: User, error?: string}>} Resultado del registro
  */
 export const signUp = async (email: string, password: string) => {
   try {
@@ -192,6 +205,9 @@ export const signUp = async (email: string, password: string) => {
 
 /**
  * Iniciar sesión con email y contraseña
+ * @param {string} email - Correo electrónico
+ * @param {string} password - Contraseña
+ * @returns {Promise<{success: boolean, user?: User, error?: string}>} Resultado del inicio de sesión
  */
 export const signIn = async (email: string, password: string) => {
   try {
@@ -248,6 +264,8 @@ export const GUEST_USER: User = {
 
 /**
  * Iniciar sesión como invitado (sin backend)
+ * Crea una sesión simulada y establece el usuario invitado
+ * @returns {Promise<{success: boolean, user?: User, error?: string}>} Resultado del login
  */
 export const loginAsGuest = async () => {
   try {
@@ -285,7 +303,9 @@ export const loginAsGuest = async () => {
 };
 
 /**
- * Cerrar sesión
+ * Cerrar sesión del usuario actual
+ * Limpia stores, localStorage y cookies (si aplica)
+ * @returns {Promise<{success: boolean, error?: string}>} Resultado del cierre de sesión
  */
 export const signOut = async () => {
   try {
@@ -388,6 +408,8 @@ export const signOut = async () => {
 
 /**
  * Enviar email de recuperación de contraseña
+ * @param {string} email - Correo electrónico del usuario
+ * @returns {Promise<{success: boolean, error?: string}>} Resultado del envío
  */
 export const resetPassword = async (email: string) => {
   try {
@@ -414,14 +436,16 @@ export const resetPassword = async (email: string) => {
 };
 
 /**
- * Limpiar errores
+ * Limpiar el estado de error actual
  */
 export const clearError = () => {
   $error.set(null);
 };
 
 /**
- * Iniciar sesión con OAuth (Google, GitHub, Apple, etc.)
+ * Iniciar sesión con proveedores OAuth (Google, GitHub, Apple, etc.)
+ * @param {"google" | "github" | "apple"} provider - Proveedor de autenticación
+ * @returns {Promise<{success: boolean, data?: any, error?: string}>} Resultado de la redirección
  */
 export const signInWithOAuth = async (
   provider: "google" | "github" | "apple"
@@ -453,7 +477,9 @@ export const signInWithOAuth = async (
 };
 
 /**
- * Verificar email de usuario
+ * Reenviar correo de confirmación de cuenta
+ * @param {string} email - Correo electrónico del usuario
+ * @returns {Promise<{success: boolean, error?: string}>} Resultado del reenvío
  */
 export const resendConfirmation = async (email: string) => {
   try {
@@ -484,7 +510,9 @@ export const resendConfirmation = async (email: string) => {
 };
 
 /**
- * Eliminar cuenta de usuario
+ * Eliminar permanentemente la cuenta del usuario actual
+ * Requiere que el usuario esté autenticado
+ * @returns {Promise<{success: boolean, error?: string}>} Resultado de la eliminación
  */
 export const deleteAccount = async () => {
   try {
@@ -574,14 +602,16 @@ export const deleteAccount = async () => {
 };
 
 /**
- * Obtener información del usuario actual
+ * Obtener el objeto de usuario actual del store
+ * @returns {User | null} Usuario actual o null
  */
 export const getCurrentUser = () => {
   return $user.get();
 };
 
 /**
- * Verificar si el email del usuario está confirmado
+ * Verificar si el email del usuario actual ha sido confirmado
+ * @returns {boolean} True si el email está confirmado
  */
 export const isEmailConfirmed = () => {
   const user = $user.get();
